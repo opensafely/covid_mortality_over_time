@@ -1,10 +1,11 @@
-# covid_mortality_over_time
+# Visualisation of COVID-19 mortality rates over time for different subgroups
 
 This is the code and configuration for covid_mortality_over_time.
 
 You can run this project via [Gitpod](https://gitpod.io) in a web browser by clicking on this badge: [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/opensafely/covid_mortality_over_time)
 
-* The paper is [here]()
+* The protocol is [here](https://docs.google.com/document/d/1OjwV1vP8pBd20FG7lWI-VHhY9arIoGUXS4STQUVGisI/edit) (restricted access only)
+* The paper is not available yet
 * Raw model outputs, including charts, crosstabs, etc, are in `released_outputs/`
 * If you are interested in how we defined our variables, take a look at the [study definition](analysis/study_definition.py); this is written in `python`, but non-programmers should be able to understand what is going on there
 * If you are interested in how we defined our code lists, look in the [codelists folder](./codelists/).
