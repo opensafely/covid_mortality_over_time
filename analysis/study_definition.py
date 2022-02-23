@@ -319,7 +319,7 @@ study = StudyDefinition(
         between = ["index_date - 1 year", "index_date"],
         find_last_match_in_period = True,
         include_date_of_match = True,
-        date_format = "YYYY-MM"
+        date_format = "YYYY-MM",
         return_expectations = {
             "float": {"distribution": "normal", "mean": 60.0, "stddev": 15},
             "incidence": 0.95,
