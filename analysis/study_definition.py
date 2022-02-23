@@ -10,6 +10,8 @@
 from cohortextractor import (
     StudyDefinition, 
     patients,
+    filter_codes_by_category,
+    combine_codelist
 )
 
 ## Import codelists from codelist.py (which pulls them from the codelist folder)
