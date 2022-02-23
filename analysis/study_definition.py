@@ -37,7 +37,7 @@ from codelists import (
     spleen_codes,
     sickle_cell_codes,
     ra_sle_psoriasis_codes,
-    aplastic_anaemia,
+    aplastic_codes,
     permanent_immune_codes,
     temp_immune_codes,
     hiv_codes,
