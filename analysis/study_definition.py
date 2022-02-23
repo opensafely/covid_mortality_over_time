@@ -31,6 +31,7 @@ from codelists import (
     other_cancer_codes,
     creatinine_codes,
     renal_replacement_codes,
+    dialysis_codes,
     chronic_liver_disease_codes,
     stroke,
     dementia,
