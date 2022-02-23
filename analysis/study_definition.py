@@ -29,7 +29,7 @@ from codelists import (
     other_cancer_codes,
     creatinine_codes,
     renal_replacement_codes,
-    chronic_liver_disease_codes
+    chronic_liver_disease_codes,
     stroke,
     dementia,
     other_neuro,
