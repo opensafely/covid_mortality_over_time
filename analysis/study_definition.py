@@ -40,7 +40,6 @@ from codelists import (
     aplastic_codes,
     permanent_immune_codes,
     temp_immune_codes,
-    hiv_codes,
     covid_codelist, # outcomes
     covidconf_codelist,
 )
