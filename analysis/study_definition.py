@@ -340,7 +340,7 @@ study = StudyDefinition(
         on_or_before = "index_date",
         find_last_match_in_period = True, 
         date_format = "YYYY-MM",
-    )
+    ),
     ### Liver disease
     chronic_liver_disease=patients.with_these_clinical_events(
         chronic_liver_disease_codes, # imported from codelists.py
