@@ -300,7 +300,7 @@ study = StudyDefinition(
             other_cancer_codes
         ),
         returning = "date",
-        on_or_before = "index_date,
+        on_or_before = "index_date",
         find_last_match_in_period = True,
         date_format = "YYYY-MM-DD",
     ),
