@@ -100,15 +100,28 @@ study = StudyDefinition(
         },
     ), 
     ### bmi
-    bmi = patients.most_recent_bmi(
-        on_or_after="index_date",
-        minimum_age_at_measurement = 16,
-        include_measurement_date = True,
-        date_format = "YYYY-DD",
-        return_expectations={
-            "date": {},
-            "float": {"distribution": "normal", "mean": 35, "stddev": 10},
-            "incidence": 0.95,
+    bmi = patients.categorised_as(
+        {
+            "Not obese": "DEFAULT",
+            "Obese I (30-34.9)": """ bmi_value >= 30 AND bmi_value < 35""",
+            "Obese II (35-39.9)": """ bmi_value >= 35 AND bmi_value < 40""",
+            "Obese III (40+)": """ bmi_value >= 40 AND bmi_value < 100""",
+        # set maximum to avoid any impossibly extreme values being classified as obese
+        },
+        bmi_value = patients.most_recent_bmi(
+        on_or_after = "index_date - 5 years",
+        minimum_age_at_measurement = 16
+        ),
+        return_expectations = {
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                "Not obese": 0.7,
+                "Obese I (30-34.9)": 0.1,
+                "Obese II (35-39.9)": 0.1,
+                "Obese III (40+)": 0.1,
+                }
+            },
         },
     ),
     ### smoking status
@@ -116,25 +129,25 @@ study = StudyDefinition(
         {
             "S": "most_recent_smoking_code = 'S'",
             "E": """
-                 most_recent_smoking_code = 'E' OR (
-                   most_recent_smoking_code = 'N' AND ever_smoked
-                 )
-            """,
+                     most_recent_smoking_code = 'E' OR (
+                       most_recent_smoking_code = 'N' AND ever_smoked
+                    )
+                """,
             "N": "most_recent_smoking_code = 'N' AND NOT ever_smoked",
             "M": "DEFAULT",
         },
-        return_expectations={
+        return_expectations = {
             "category": {"ratios": {"S": 0.6, "E": 0.1, "N": 0.2, "M": 0.1}}
         },
-        most_recent_smoking_code=patients.with_these_clinical_events(
-            clear_smoking_codes, # imported from codelists.py
-            find_last_match_in_period=True,
-            on_or_before="index_date",
+        most_recent_smoking_code = patients.with_these_clinical_events(
+            clear_smoking_codes,
+            find_last_match_in_period = True,
+            on_or_before = "covid_vax_2_date",
             returning="category",
         ),
         ever_smoked=patients.with_these_clinical_events(
             filter_codes_by_category(clear_smoking_codes, include=["S", "E"]),
-            on_or_before="index_date",
+            on_or_before = "covid_vax_2_date",
         ),
     ),
     ### imd (index of multiple deprivation) quintile
