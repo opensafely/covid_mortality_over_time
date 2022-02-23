@@ -11,7 +11,7 @@ from cohortextractor import (
     StudyDefinition, 
     patients,
     filter_codes_by_category,
-    combine_codelist,
+    combine_codelists,
 )
 
 ## Import codelists from codelist.py (which pulls them from the codelist folder)
