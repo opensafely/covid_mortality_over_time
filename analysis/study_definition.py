@@ -16,8 +16,7 @@ from cohortextractor import (
 
 ## Import codelists from codelist.py (which pulls them from the codelist folder)
 from codelists import (
-    ethnicity_codes, # demographics
-    clear_smoking_codes,
+    clear_smoking_codes, # demographics
     hypertension_codes, # comorbidities
     chronic_respiratory_disease_codes,
     asthma_codes,
@@ -47,13 +46,10 @@ from codelists import (
     covidconf_codelist,
 )
 
+## Import study time variables
+from config import start_date, end_date
+
 # DEFINE STUDY POPULATION ----
-## Define study time variables
-from datetime import datetime
-
-start_date = "2020-02-01"
-end_date = "2021-12-31"
-
 ## Define study population and variables
 study = StudyDefinition(
     # Configure the expectations framework
@@ -91,17 +87,6 @@ study = StudyDefinition(
             "category": {"ratios": {"M": 0.49, "F": 0.51}},
         }
     ),
-    ### self-reported ethnicity
-    ethnicity = patients.with_these_clinical_events(
-        ethnicity_codes, # imported from codelists.py
-        returning="category",
-        find_last_match_in_period=True,
-        include_date_of_match=True,
-        return_expectations={
-            "category": {"ratios": {"1": 0.8, "5": 0.1, "3": 0.1}},
-            "incidence": 0.75,
-        },
-    ), 
     ### bmi
     bmi = patients.categorised_as(
         {
