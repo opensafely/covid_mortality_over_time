@@ -6,13 +6,13 @@ expectations:
 actions:
 
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition
+    run: cohortextractor:latest generate_cohort --study-definition study_definition --output-dir=output/data
     outputs:
       highly_sensitive:
-        cohort: output/input.csv
+        cohort: output/data/input.csv
 
   generate_study_population_ethnicity:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_ethnicity
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_ethnicity --output-dir=output/data
     outputs:
       highly_sensitive:
-        cohort: output/input_ethnicity.csv
+        cohort: output/data/input_ethnicity.csv
