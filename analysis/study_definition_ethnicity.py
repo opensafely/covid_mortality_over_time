@@ -70,6 +70,3 @@ study = StudyDefinition(
             },
     ),
 )
-
-
-
