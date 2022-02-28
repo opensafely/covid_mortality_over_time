@@ -34,3 +34,11 @@ actions:
     outputs:
       moderately_sensitive:
         measure: output/measure_*_rate.csv
+
+# Standardise mortality rates
+  standardise_crude_rates:
+    run: r:latest analysis/standardise_crude_mortality_rates.R
+    needs: [calculate_measures]
+    outputs:
+      moderately_sensitive:
+        measure: output/rates/crude_monthly_std.csv 
