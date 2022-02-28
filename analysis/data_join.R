@@ -2,7 +2,7 @@
 
 ##  This script:
 ## - Imports the monthly cohorts extracted from the cohort extractor
-## - Imports the ethnicity data
+## - Imports the ethnicity data extracted from the cohort extractor
 ## - Joins each monthly cohort with the ethnicity data
 
 ## linda.nab@thedatalab.com - 2022024
@@ -13,6 +13,7 @@ library(here)
 library(lubridate)
 library(dplyr)
 library(purrr)
+library(readr)
 
 # Import data ---
 ## COMPOSE FILE NAMES OF THE MONTHLY COHORTS
@@ -29,18 +30,18 @@ months <- seq(start_date, by = "month", length.out = number_of_months)
 ### Add end_date to sequence:
 months_including_end_date <- c(months, end_date)
 ### Make a vector consisting of the file names of the data: 
-input_file_names <- paste0("input_", months_including_end_date, ".csv")
+input_file_names <- paste0("input_", months_including_end_date, ".csv.gz")
 ## READ FILES
 ### Read cohort data:
 data <- 
   map(.x = here("output", input_file_names), 
-      .f = read.csv)
+      .f = read_csv)
 ### Name list using the input_file_names, which will be used to save the files
 ### later on:
 names(data) <- input_file_names 
 ### Read ethnicity data:
 data_ethnicity <- 
-  read.csv(here("output", "input_ethnicity.csv"))
+  read_csv(here("output", "input_ethnicity.csv.gz"))
 
 # Work horse ---
 ## JOIN DATA
@@ -51,4 +52,4 @@ data_joined <-
 # Save output ---
 walk2(.x = data_joined,
       .y = names(data_joined), # used to save files
-      .f = ~ write.csv(.x, here("output", .y)))
+      .f = ~ write_csv(.x, here("output", .y)))
