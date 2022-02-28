@@ -12,6 +12,7 @@ from cohortextractor import (
     patients,
     filter_codes_by_category,
     combine_codelists,
+    Measure,
 )
 
 ## Import codelists from codelist.py (which pulls them from the codelist folder)
@@ -42,6 +43,8 @@ from codelists import (
     aplastic_codes,
     permanent_immune_codes,
     temp_immune_codes,
+    learning_disability_codes,
+    sev_mental_ill_codes,
     covid_codelist, # outcomes
     covidconf_codelist,
 )
@@ -141,9 +144,9 @@ study = StudyDefinition(
     ### imd (index of multiple deprivation) quintile
     imd = patients.address_as_of(
         "index_date",
-        returning="index_of_multiple_deprivation",
-        round_to_nearest=100,
-        return_expectations={
+        returning = "index_of_multiple_deprivation",
+        round_to_nearest = 100,
+        return_expectations = {
             "rate": "universal",
             "category": {"ratios": {"100": 0.1, "200": 0.2, "300": 0.7}},
         },
@@ -151,7 +154,7 @@ study = StudyDefinition(
     ### stp https://github.com/ebmdatalab/tpp-sql-notebook/issues/54
     stp = patients.registered_practice_as_of(
         "index_date",
-        returning="stp_code",
+        returning = "stp_code",
         return_expectations={
             "rate": "universal",
             "category": {
@@ -173,8 +176,8 @@ study = StudyDefinition(
     ### region (one of NHS England 9 regions)
     region = patients.registered_practice_as_of(
         "index_date",
-        returning="nuts1_region_name",
-        return_expectations={
+        returning = "nuts1_region_name",
+        return_expectations = {
             "rate": "universal",
             "category": {
                 "ratios": {
@@ -266,7 +269,7 @@ study = StudyDefinition(
     hba1c_mmol_per_mol = patients.with_these_clinical_events(
         hba1c_new_codes, # imported from codelists.py
         returning = "numeric_value",
-        on_or_before = "index_date",
+        between = ["index_date - 1 year", "index_date"],
         find_last_match_in_period = True,
         include_date_of_match = True,
         date_format = "YYYY-MM",
@@ -279,7 +282,7 @@ study = StudyDefinition(
     hba1c_percentage = patients.with_these_clinical_events(
         hba1c_old_codes, # imported from codelists.py
         returning="numeric_value",
-        on_or_before="index_date",
+        between = ["index_date - 1 year", "index_date"],
         find_last_match_in_period = True,
         include_date_of_match = True,
         date_format = "YYYY-MM",
@@ -427,36 +430,52 @@ study = StudyDefinition(
         find_last_match_in_period = True,
     ),
     ## OUTCOMES
-    ### COVID-19 Patient Notification System (CPNS), which collects info on all in-hospital covid-related deaths
-    died_date_cpns = patients.with_death_recorded_in_cpns(
-        returning = "date_of_death",
-        date_format = "YYYY-MM-DD",
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
-    ),
     ### Patients with ONS-registered death
     died_ons_covid_flag_any = patients.with_these_codes_on_death_certificate(
         covid_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
         match_only_underlying_cause = False, # boolean for indicating if filters results to only specified cause of death
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
+        return_expectations = {
+            "rate" : "exponential_increase"
+        },
     ),
     died_ons_covid_flag_underlying = patients.with_these_codes_on_death_certificate(
         covid_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
         match_only_underlying_cause = True,
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
+        return_expectations = {
+            "rate" : "exponential_increase"
+        },
+    ),
+    ### Patients with ONS-registered death **covidconf**
+    died_ons_covidconf_flag_any = patients.with_these_codes_on_death_certificate(
+        covidconf_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
+        match_only_underlying_cause = False,
+        return_expectations = {
+            "rate" : "exponential_increase"
+        },
     ),
     died_ons_covidconf_flag_underlying = patients.with_these_codes_on_death_certificate(
         covidconf_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
         match_only_underlying_cause = True,
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
-    ),
-    died_date_ons = patients.died_from_any_cause(
-        returning = "date_of_death",
-        date_format = "YYYY-MM-DD",
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
-    ),
-    died_date_1ocare=patients.with_death_recorded_in_primary_care(
-        returning = "date_of_death",
-        date_format = "YYYY-MM-DD",
-        return_expectations = {"date": {"earliest": "2020-02-02"}},
+        return_expectations = {
+            "rate" : "exponential_increase"
+        },
     ),
 )
+
+# calculate crude mortality rate
+measures = [
+    Measure(
+        id="crude_mortality_rate",
+        numerator="died_ons_covid_flag_any",
+        denominator="population",
+        group_by="population",
+    ),
+]
