@@ -437,7 +437,8 @@ study = StudyDefinition(
         between = ["index_date", "last_day_of_month(index_date)"],
         match_only_underlying_cause = False, # boolean for indicating if filters results to only specified cause of death
         return_expectations = {
-            "rate" : "exponential_increase"
+            "rate" : "exponential_increase",
+            "incidence" : 0.005,
         },
     ),
     died_ons_covid_flag_underlying = patients.with_these_codes_on_death_certificate(
