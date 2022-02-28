@@ -8,29 +8,27 @@
 ## linda.nab@thedatalab.com - 2022024
 ## ###########################################################
 
-# Load libraries ---
+# Load libraries & functions ---
 library(here)
 library(lubridate)
 library(dplyr)
 library(purrr)
 library(readr)
+### Load the function (create_seq_dates()) that returns a vector with a 
+### sequence of dates that is equal to the dates used in project.yaml to create 
+### the monthly cohorts
+source(here("analysis", "config.R"))
 
 # Import data ---
-## COMPOSE FILE NAMES OF THE MONTHLY COHORTS
-### Monthly cohorts are extracted defined in study_definition.py
+## COMPOSE FILE NAMES FOR THE MONTHLY COHORTS
+### Monthly cohorts are extracted as defined in study_definition.py
 ### Argument --index-date-range "2020-02-01 to 2021-12-01 by month"
 ### in project.yaml is used to extract 21 monthly cohorts
 ### these data extracts are saved in ./output/input_*.csv (* = month).
-start_date <- ymd("20200201")
-end_date <- ymd("20211201")
-### Calculate number of months between these two dates:
-number_of_months <- interval(start_date, end_date) %/% months(1)
-### Create a sequence of dates, starting with start_date:
-months <- seq(start_date, by = "month", length.out = number_of_months)
-### Add end_date to sequence:
-months_including_end_date <- c(months, end_date)
-### Make a vector consisting of the file names of the data: 
-input_file_names <- paste0("input_", months_including_end_date, ".csv.gz")
+### Make a vector with the sequence of starting dates of the monthly cohorts:
+seq_dates <- create_seq_dates()
+### Make a vector containing the file names of the data: 
+input_file_names <- paste0("input_", seq_dates, ".csv.gz")
 ## READ FILES
 ### Read cohort data:
 data <- 
