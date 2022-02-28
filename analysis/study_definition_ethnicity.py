@@ -22,7 +22,7 @@ from config import start_date, end_date
 ## Define study population and variables
 study = StudyDefinition(
     # Configure the expectations framework
-    default_expectations={
+    default_expectations = {
         "date": {"earliest": "1900-01-01", "latest": end_date},
         "rate": "uniform",
         "incidence": 0.5,
@@ -31,15 +31,15 @@ study = StudyDefinition(
     index_date = end_date,
     # Define the study population (= all patients in this case)
     ## IN AND EXCLUSION CRITERIA
-    population=patients.all(),
+    population = patients.all(),
 
     ## ETHNICITY IN 6 CATEGORIES
-    eth=patients.with_these_clinical_events(
+    eth = patients.with_these_clinical_events(
         ethnicity_codes,
-        returning="category",
-        find_last_match_in_period=True,
-        include_date_of_match=False,
-        return_expectations={
+        returning = "category",
+        find_last_match_in_period = True,
+        include_date_of_match = False,
+        return_expectations = {
             "category": {"ratios": {"1": 0.2, "2": 0.2, "3": 0.2, "4": 0.2, "5": 0.2}},
             "incidence": 0.75,
         },
@@ -47,14 +47,13 @@ study = StudyDefinition(
 
     # fill missing ethnicity from SUS
     ethnicity_sus = patients.with_ethnicity_from_sus(
-        returning="group_6",  
-        use_most_frequent_code=True,
-        return_expectations={
+        returning = "group_6",  
+        use_most_frequent_code = True,
+        return_expectations = {
             "category": {"ratios": {"1": 0.2, "2": 0.2, "3": 0.2, "4": 0.2, "5": 0.2}},
             "incidence": 0.4,
             },
     ),
-    
 
     ethnicity = patients.categorised_as(
             {"0": "DEFAULT",
