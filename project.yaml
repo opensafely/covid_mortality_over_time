@@ -37,7 +37,7 @@ actions:
 
 # Standardise mortality rates
   standardise_crude_rates:
-    run: r:latest analysis/standardise_crude_mortality_rates.R
+    run: r:latest analysis/crude_rates_standardise.R
     needs: [calculate_measures]
     outputs:
       moderately_sensitive:
