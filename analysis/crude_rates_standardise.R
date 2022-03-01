@@ -10,6 +10,7 @@
 # Load libraries & functions ---
 library(here)
 library(readr)
+packageVersion('readr')
 library(lubridate)
 library(dplyr)
 ### Load the function (create_seq_dates()) that returns a vector with a 
@@ -19,7 +20,7 @@ source(here("analysis", "config.R"))
 
 # Import rates ---
 crude_rates <- 
-  read_csv(here("output", "measure_crude_mortality_rate.csv"))
+  read_csv(file = here("output", "measure_crude_mortality_rate.csv"))
 
 # Standardise rates ---
 ## STANDARDISE RATES TO 30 DAYS PM AND PER 100.000 INDIVIDUALS

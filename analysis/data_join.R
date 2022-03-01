@@ -33,13 +33,13 @@ input_file_names <- paste0("input_", seq_dates, ".csv.gz")
 ### Read cohort data:
 data <- 
   map(.x = here("output", input_file_names), 
-      .f = read_csv)
+      .f = ~ read_csv(file = .x))
 ### Name list using the input_file_names, which will be used to save the files
 ### later on:
 names(data) <- input_file_names 
 ### Read ethnicity data:
 data_ethnicity <- 
-  read_csv(here("output", "input_ethnicity.csv.gz"))
+  read_csv(file = here("output", "input_ethnicity.csv.gz"))
 
 # Work horse ---
 ## JOIN DATA
@@ -50,4 +50,4 @@ data_joined <-
 # Save output ---
 walk2(.x = data_joined,
       .y = names(data_joined), # used to save files
-      .f = ~ write_csv(.x, here("output", .y)))
+      .f = ~ write_csv(.x, path = here("output", .y)))
