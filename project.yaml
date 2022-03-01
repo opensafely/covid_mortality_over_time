@@ -26,7 +26,7 @@ actions:
     needs: [generate_study_population, generate_study_population_ethnicity]
     outputs:
       highly_sensitive:
-        data: output/input*.csv.gz
+        cohort: output/input*.csv.gz
 
 # Calculate mortality rates
   calculate_measures:
@@ -34,7 +34,7 @@ actions:
     needs: [join_data]
     outputs:
       moderately_sensitive:
-        measure: output/measure_*_rate.csv
+        measure: output/measure_crude_mortality_rate.csv
 
 # Standardise mortality rates
   standardise_crude_rates:
@@ -42,4 +42,12 @@ actions:
     needs: [calculate_measures]
     outputs:
       moderately_sensitive:
-        measure: output/rates/crude_monthly_std.csv 
+        csv: output/rates/crude_monthly_std.csv 
+
+# Calculate subgroup specific rates
+  calculate_measures_subgroups:
+    run: python:latest python analysis/subgroup_rates_generate.py
+    needs: [join_data]
+    outputs:
+      moderately_sensitive:
+        csvs: output/*_mortality_rate.csv
