@@ -84,7 +84,7 @@ study = StudyDefinition(
         },
     ),
     ### age group (used for descriptives)
-    agegroup_std = patients.categorised_as(
+    agegroup = patients.categorised_as(
         {
             "18-39": "age >= 18 AND age < 40",
             "40-49": "age >= 40 AND age < 50",
@@ -546,9 +546,9 @@ study = StudyDefinition(
 # calculate crude mortality rate
 measures = [
     Measure(
-        id="crude_mortality_rate",
-        numerator="died_ons_covid_flag_any",
-        denominator="population",
-        group_by="population",
+        id = "crude_mortality_rate",
+        numerator = "died_ons_covid_flag_any",
+        denominator = "population",
+        group_by = "population",
     ),
 ]
