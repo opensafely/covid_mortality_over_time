@@ -10,7 +10,7 @@
 
 ### Config start date and end date
 create_seq_dates <- function(start_date = lubridate::ymd("20200201"), 
-                             end_date = lubridate::ymd("20211201")){
+                             end_date = lubridate::ymd("20200801")){
   ### Calculate number of months between end date and start date:
   number_of_months <- 
     lubridate::interval(start_date, end_date) %/% months(1)
