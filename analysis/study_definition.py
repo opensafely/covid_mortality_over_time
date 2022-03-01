@@ -83,6 +83,78 @@ study = StudyDefinition(
             "int": {"distribution": "population_ages"},
         },
     ),
+    ### age group (used for descriptives)
+    agegroup_std = patients.categorised_as(
+        {
+            "18-39": "age >= 18 AND age < 40",
+            "40-49": "age >= 40 AND age < 50",
+            "50-59": "age >= 50 AND age < 60",
+            "60-69": "age >= 60 AND age < 70",
+            "70-79": "age >= 70 AND age < 80",
+            "80plus": "age >= 80",
+            "missing": "DEFAULT",
+        },
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "18-39": 0.17,
+                    "40-49": 0.17,
+                    "50-59": 0.17,
+                    "60-69": 0.17,
+                    "70-79": 0.17,
+                    "80plus": 0.13,
+                    "missing": 0.02,
+                }
+            },
+        },
+    ),   
+    ### age group (used for age standardisation)
+    agegroup_std = patients.categorised_as(
+        {
+            "15-19": "age >= 15 AND age < 20",
+            "20-24": "age >= 20 AND age < 25",
+            "25-29": "age >= 25 AND age < 30",
+            "30-34": "age >= 30 AND age < 35",
+            "35-39": "age >= 35 AND age < 40",
+            "40-44": "age >= 40 AND age < 45",
+            "45-49": "age >= 45 AND age < 50",
+            "50-54": "age >= 50 AND age < 55",
+            "55-59": "age >= 55 AND age < 60",
+            "60-64": "age >= 60 AND age < 65",
+            "65-69": "age >= 65 AND age < 70",
+            "70-74": "age >= 70 AND age < 75",
+            "75-79": "age >= 75 AND age < 80",
+            "80-84": "age >= 80 AND age < 85",
+            "85-89": "age >= 85 AND age < 90",
+            "90plus": "age >= 90",
+            "missing": "DEFAULT",
+        },
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "15-19": 0.05,
+                    "20-24": 0.05,
+                    "25-29": 0.05,
+                    "30-34": 0.05,
+                    "35-39": 0.05,
+                    "40-44": 0.1,
+                    "45-49": 0.1,
+                    "50-54": 0.1,
+                    "55-59": 0.1,
+                    "60-64": 0.05,
+                    "65-69": 0.05,
+                    "70-74": 0.05,
+                    "75-79": 0.05,
+                    "80-84": 0.05,
+                    "85-89": 0.05,
+                    "90plus": 0.03,
+                    "missing": 0.02,
+                }
+            },
+        },
+    ),
     ### sex 
     sex = patients.sex(
         return_expectations={
