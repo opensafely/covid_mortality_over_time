@@ -75,8 +75,11 @@ diabetes_codes = codelist_from_csv(
 )
 
 ### Measures of hba1c 
+#### 'new' codes: hba1c in mmol/mol 
+#### (also available as codelist online: https://www.opencodelists.org/codelist/opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8/#full-list)
 hba1c_new_codes = codelist(["XaPbt", "Xaeze", "Xaezd"], system="ctv3")
-
+#### 'old' codes: hba1c in percentage, should not be used in clinical practice but alas it is sometimes
+#### best to use both 
 hba1c_old_codes = codelist(["X772q", "XaERo", "XaERp"], system="ctv3")
 
 ### Cancer diagnosis
