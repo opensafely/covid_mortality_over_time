@@ -28,26 +28,18 @@ actions:
       highly_sensitive:
         cohort: output/input*.csv.gz
 
-# Calculate mortality rates
+# Calculate mortality rates (crude + subgroup specific)
   calculate_measures:
     run: cohortextractor:latest generate_measures --study-definition study_definition
     needs: [join_data]
     outputs:
       moderately_sensitive:
-        measure: output/measure_crude_mortality_rate.csv
+        measure: output/measure_*_mortality_rate.csv
 
-# Standardise mortality rates
+# Standardise crude mortality rate
   standardise_crude_rates:
     run: r:latest analysis/crude_rates_standardise.R
     needs: [calculate_measures]
     outputs:
       moderately_sensitive:
         csv: output/rates/crude_monthly_std.csv 
-
-# Calculate subgroup specific rates
-  calculate_measures_subgroups:
-    run: python:latest python analysis/subgroup_rates_generate.py
-    needs: [join_data]
-    outputs:
-      moderately_sensitive:
-        csvs: output/*_mortality_rate.csv
