@@ -190,6 +190,20 @@ temp_immune_codes = codelist_from_csv(
     column="CTV3ID",
 )
 
+### Learning disabilities
+learning_disability_codes = codelist_from_csv(
+  "codelists/nhsd-primary-care-domain-refsets-ld_cod.csv",
+  system = "snomed",
+  column = "code",
+)
+
+### Severe mental illness
+sev_mental_ill_codes = codelist_from_csv(
+  "codelists/primis-covid19-vacc-uptake-sev_mental.csv",
+  system = "snomed",
+  column = "code",
+)
+
 ## OUTCOMES
 ### U071: COVID-19, virus identified
 ### U072: COVID-19, virus not identified

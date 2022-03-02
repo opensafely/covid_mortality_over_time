@@ -143,6 +143,18 @@
       "url": "https://codelists.opensafely.org/codelist/opensafely/temporary-immunosuppression/2020-04-24/",
       "downloaded_at": "2022-02-23 13:03:24.604808Z",
       "sha": "99f6c0787e17e16430549a4cfb5084612faba2ac"
+    },
+    "nhsd-primary-care-domain-refsets-ld_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/ld_cod/20210127",
+      "url": "https://codelists.opensafely.org/codelist/nhsd-primary-care-domain-refsets/ld_cod/20210127/",
+      "downloaded_at": "2022-02-24 16:13:02.255765Z",
+      "sha": "0c5bc3b050a55c2090e16932fd7364a0be775cb4"
+    },
+    "primis-covid19-vacc-uptake-sev_mental.csv": {
+      "id": "primis-covid19-vacc-uptake/sev_mental/v1",
+      "url": "https://codelists.opensafely.org/codelist/primis-covid19-vacc-uptake/sev_mental/v1/",
+      "downloaded_at": "2022-02-24 16:13:03.132535Z",
+      "sha": "c53c57d8149d59e2e0dac2990c96ddc1260639a5"
     }
   }
 }

@@ -12,12 +12,12 @@ from cohortextractor import (
     patients,
     filter_codes_by_category,
     combine_codelists,
+    Measure,
 )
 
 ## Import codelists from codelist.py (which pulls them from the codelist folder)
 from codelists import (
-    ethnicity_codes, # demographics
-    clear_smoking_codes,
+    clear_smoking_codes, # demographics
     hypertension_codes, # comorbidities
     chronic_respiratory_disease_codes,
     asthma_codes,
@@ -43,17 +43,16 @@ from codelists import (
     aplastic_codes,
     permanent_immune_codes,
     temp_immune_codes,
+    learning_disability_codes,
+    sev_mental_ill_codes,
     covid_codelist, # outcomes
     covidconf_codelist,
 )
 
+## Import study time variables
+from config import start_date, end_date
+
 # DEFINE STUDY POPULATION ----
-## Define study time variables
-from datetime import datetime
-
-start_date = "2020-02-01"
-end_date = "2021-12-31"
-
 ## Define study population and variables
 study = StudyDefinition(
     # Configure the expectations framework
@@ -91,17 +90,6 @@ study = StudyDefinition(
             "category": {"ratios": {"M": 0.49, "F": 0.51}},
         }
     ),
-    ### self-reported ethnicity
-    ethnicity = patients.with_these_clinical_events(
-        ethnicity_codes, # imported from codelists.py
-        returning="category",
-        find_last_match_in_period=True,
-        include_date_of_match=True,
-        return_expectations={
-            "category": {"ratios": {"1": 0.8, "5": 0.1, "3": 0.1}},
-            "incidence": 0.75,
-        },
-    ), 
     ### bmi
     bmi = patients.categorised_as(
         {
@@ -156,9 +144,9 @@ study = StudyDefinition(
     ### imd (index of multiple deprivation) quintile
     imd = patients.address_as_of(
         "index_date",
-        returning="index_of_multiple_deprivation",
-        round_to_nearest=100,
-        return_expectations={
+        returning = "index_of_multiple_deprivation",
+        round_to_nearest = 100,
+        return_expectations = {
             "rate": "universal",
             "category": {"ratios": {"100": 0.1, "200": 0.2, "300": 0.7}},
         },
@@ -166,7 +154,7 @@ study = StudyDefinition(
     ### stp https://github.com/ebmdatalab/tpp-sql-notebook/issues/54
     stp = patients.registered_practice_as_of(
         "index_date",
-        returning="stp_code",
+        returning = "stp_code",
         return_expectations={
             "rate": "universal",
             "category": {
@@ -188,8 +176,8 @@ study = StudyDefinition(
     ### region (one of NHS England 9 regions)
     region = patients.registered_practice_as_of(
         "index_date",
-        returning="nuts1_region_name",
-        return_expectations={
+        returning = "nuts1_region_name",
+        return_expectations = {
             "rate": "universal",
             "category": {
                 "ratios": {
@@ -209,18 +197,16 @@ study = StudyDefinition(
     ### Diagnosed hypertension
     hypertension = patients.with_these_clinical_events(
         hypertension_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Respiratory disease ex asthma
     chronic_respiratory_disease = patients.with_these_clinical_events(
         chronic_respiratory_disease_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
         find_last_match_in_period = True,
-        date_format = "YYYY-MM",
     ),
     ### Asthma
     asthma = patients.categorised_as(
@@ -269,24 +255,22 @@ study = StudyDefinition(
     ### Chronic heart disease
     chronic_cardiac_disease = patients.with_these_clinical_events(
         chronic_cardiac_disease_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
         find_last_match_in_period = True,
-        date_format = "YYYY-MM",
     ),
     ### Diabetes
     diabetes = patients.with_these_clinical_events(
         diabetes_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
         find_last_match_in_period = True,
-        date_format = "YYYY-MM",
     ),
     hba1c_mmol_per_mol = patients.with_these_clinical_events(
         hba1c_new_codes, # imported from codelists.py
-        on_or_before = "index_date",
-        find_last_match_in_period = True,
         returning = "numeric_value",
+        between = ["index_date - 1 year", "index_date"],
+        find_last_match_in_period = True,
         include_date_of_match = True,
         date_format = "YYYY-MM",
         return_expectations = {
@@ -297,181 +281,202 @@ study = StudyDefinition(
     ),
     hba1c_percentage = patients.with_these_clinical_events(
         hba1c_old_codes, # imported from codelists.py
-        find_last_match_in_period=True,
-        on_or_before="index_date",
         returning="numeric_value",
-        include_date_of_match=True,
-        include_month=True,
-        return_expectations={
+        between = ["index_date - 1 year", "index_date"],
+        find_last_match_in_period = True,
+        include_date_of_match = True,
+        date_format = "YYYY-MM",
+        return_expectations = {
             "date": {"latest": "index_date"},
             "float": {"distribution": "normal", "mean": 5, "stddev": 2},
             "incidence": 0.95,
         },
     ),
-    ### Lung cancer
+    ### Cancer
     cancer = patients.with_these_clinical_events(
         combine_codelists(
             lung_cancer_codes,
             other_cancer_codes
         ),
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
         find_last_match_in_period = True,
+        include_date_of_match = True,
         date_format = "YYYY-MM-DD",
     ),
     ### Haematological malignancy
     haem_cancer = patients.with_these_clinical_events(
         haem_cancer_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
         find_last_match_in_period = True,
-        date_format = "YYYY-MM",
+        include_date_of_match = True,
+        date_format = "YYYY-MM-DD",
     ),
     ## Reduced kidney function
     creatinine = patients.with_these_clinical_events(
-        creatinine_codes,
+        creatinine_codes, # imported from codelists.py
         returning = "numeric_value",
         between = ["index_date - 1 year", "index_date"],
         find_last_match_in_period = True,
         include_date_of_match = True,
         date_format = "YYYY-MM",
         return_expectations = {
+            "date": {"latest": "index_date"},
             "float": {"distribution": "normal", "mean": 60.0, "stddev": 15},
             "incidence": 0.95,
         },
     ),
     ### Renal replacement therapy
-    rrt=patients.with_these_clinical_events(
+    rrt = patients.with_these_clinical_events(
         renal_replacement_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Dialysis
-    dialysis=patients.with_these_clinical_events(
+    dialysis = patients.with_these_clinical_events(
         dialysis_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Liver disease
-    chronic_liver_disease=patients.with_these_clinical_events(
+    chronic_liver_disease = patients.with_these_clinical_events(
         chronic_liver_disease_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Stroke
-    stroke=patients.with_these_clinical_events(
+    stroke = patients.with_these_clinical_events(
         stroke, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Dementia
-    dementia=patients.with_these_clinical_events(
+    dementia = patients.with_these_clinical_events(
         dementia, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Other neurological disease
-    other_neuro=patients.with_these_clinical_events(
+    other_neuro = patients.with_these_clinical_events(
         other_neuro, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Organ transplant
-    organ_transplant=patients.with_these_clinical_events(
+    organ_transplant = patients.with_these_clinical_events(
         organ_transplant_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Asplenia (splenectomy or a spleen dysfunction, including sickle cell disease)
-    dysplenia=patients.with_these_clinical_events(
+    dysplenia = patients.with_these_clinical_events(
         spleen_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
-    sickle_cell=patients.with_these_clinical_events(
+    sickle_cell = patients.with_these_clinical_events(
         sickle_cell_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ### Rheumatoid/Lupus/Psoriasis
     ra_sle_psoriasis=patients.with_these_clinical_events(
         ra_sle_psoriasis_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
     ## Other immunosuppressive condition (permanent immunodeficiency ever diagnosed, or aplastic anaemia or temporary immunodeficiency recorded within the last year)
-    aplastic_anaemia=patients.with_these_clinical_events(
+    aplastic_anaemia = patients.with_these_clinical_events(
         aplastic_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),  
-    permanent_immunodeficiency=patients.with_these_clinical_events(
+    permanent_immunodeficiency = patients.with_these_clinical_events(
         permanent_immune_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
     ),
-    temporary_immunodeficiency=patients.with_these_clinical_events(
+    temporary_immunodeficiency = patients.with_these_clinical_events(
         temp_immune_codes, # imported from codelists.py
-        returning = "date",
+        returning = "binary_flag",
         on_or_before = "index_date",
-        find_last_match_in_period = True, 
-        date_format = "YYYY-MM",
+        find_last_match_in_period = True,
+    ),
+    ## Learning disabilities
+    learning_disability = patients.with_these_clinical_events(
+        learning_disability_codes,
+        returning = "binary_flag",
+        on_or_before = "index_date",
+        find_last_match_in_period = True,
+    ),
+    ## Severe mental illness
+    sev_mental_ill = patients.with_these_clinical_events(
+        sev_mental_ill_codes,
+        returning = "binary_flag",
+        on_or_before = "index_date",
+        find_last_match_in_period = True,
     ),
     ## OUTCOMES
-    ### COVID-19 Patient Notification System (CPNS), which collects info on all in-hospital covid-related deaths
-    died_date_cpns = patients.with_death_recorded_in_cpns(
-        returning = "date_of_death",
-        date_format = "YYYY-MM-DD",
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
-    ),
     ### Patients with ONS-registered death
     died_ons_covid_flag_any = patients.with_these_codes_on_death_certificate(
         covid_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
         match_only_underlying_cause = False, # boolean for indicating if filters results to only specified cause of death
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
+        return_expectations = {
+            "rate" : "exponential_increase",
+            "incidence" : 0.005,
+        },
     ),
     died_ons_covid_flag_underlying = patients.with_these_codes_on_death_certificate(
         covid_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
         match_only_underlying_cause = True,
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
+        return_expectations = {
+            "rate" : "exponential_increase"
+        },
+    ),
+    ### Patients with ONS-registered death **covidconf**
+    died_ons_covidconf_flag_any = patients.with_these_codes_on_death_certificate(
+        covidconf_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
+        match_only_underlying_cause = False,
+        return_expectations = {
+            "rate" : "exponential_increase"
+        },
     ),
     died_ons_covidconf_flag_underlying = patients.with_these_codes_on_death_certificate(
         covidconf_codelist, # imported from codelists.py
+        returning = "binary_flag",
+        between = ["index_date", "last_day_of_month(index_date)"],
         match_only_underlying_cause = True,
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
-    ),
-    died_date_ons = patients.died_from_any_cause(
-        returning = "date_of_death",
-        date_format = "YYYY-MM-DD",
-        return_expectations = {"date": {"earliest": "2020-03-01"}},
-    ),
-    died_date_1ocare=patients.with_death_recorded_in_primary_care(
-        returning = "date_of_death",
-        date_format = "YYYY-MM-DD",
-        return_expectations = {"date": {"earliest": "2020-02-02"}},
+        return_expectations = {
+            "rate" : "exponential_increase"
+        },
     ),
 )
+
+# calculate crude mortality rate
+measures = [
+    Measure(
+        id="crude_mortality_rate",
+        numerator="died_ons_covid_flag_any",
+        denominator="population",
+        group_by="population",
+    ),
+]
