@@ -214,15 +214,34 @@ study = StudyDefinition(
         ),
     ),
     ### imd (index of multiple deprivation) quintile
-    imd = patients.address_as_of(
-        "index_date",
-        returning = "index_of_multiple_deprivation",
-        round_to_nearest = 100,
+    imd = patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """index_of_multiple_deprivation >=1 AND index_of_multiple_deprivation < 32844*1/5""",
+            "2": """index_of_multiple_deprivation >= 32844*1/5 AND index_of_multiple_deprivation < 32844*2/5""",
+            "3": """index_of_multiple_deprivation >= 32844*2/5 AND index_of_multiple_deprivation < 32844*3/5""",
+            "4": """index_of_multiple_deprivation >= 32844*3/5 AND index_of_multiple_deprivation < 32844*4/5""",
+            "5": """index_of_multiple_deprivation >= 32844*4/5 AND index_of_multiple_deprivation < 32844""",
+        },
+        index_of_multiple_deprivation=patients.address_as_of(
+            "index_date",
+            returning = "index_of_multiple_deprivation",
+            round_to_nearest = 100,
+        ),
         return_expectations = {
             "rate": "universal",
-            "category": {"ratios": {"100": 0.1, "200": 0.2, "300": 0.7}},
+            "category": {
+                "ratios": {
+                    "0": 0.05,
+                    "1": 0.19,
+                    "2": 0.19,
+                    "3": 0.19,
+                    "4": 0.19,
+                    "5": 0.19,
+                }
+            },
         },
-    ),   
+    ),
     ### stp https://github.com/ebmdatalab/tpp-sql-notebook/issues/54
     stp = patients.registered_practice_as_of(
         "index_date",
@@ -316,7 +335,7 @@ study = StudyDefinition(
             asthma_codes, # imported from codelists.py
         ),
         copd_code_ever = patients.with_these_clinical_events(
-            chronic_respiratory_disease_codes # imported from codelists.py
+            chronic_respiratory_disease_codes, # imported from codelists.py
         ),
         prednisolone_last_year = patients.with_these_medications(
             pred_codes, # imported from codelists.py
@@ -338,10 +357,24 @@ study = StudyDefinition(
         on_or_before = "index_date",
         find_last_match_in_period = True,
     ),
+    #### variable indicating whether patient has had a recent test yes/no
+    hba1c_flag = patients.with_these_clinical_events(
+        combine_codelists(
+            hba1c_new_codes,
+            hba1c_old_codes
+        ),
+        returning = "binary_flag",
+        between = ["index_date - 15 months", "index_date"],
+        find_last_match_in_period = True,
+        return_expectations = {
+            "incidence": 0.95,
+        },
+    ),
+    #### hba1c value in mmol/mol of recent test
     hba1c_mmol_per_mol = patients.with_these_clinical_events(
         hba1c_new_codes, # imported from codelists.py
         returning = "numeric_value",
-        between = ["index_date - 1 year", "index_date"],
+        between = ["index_date - 15 months", "index_date"],
         find_last_match_in_period = True,
         include_date_of_match = True,
         date_format = "YYYY-MM",
@@ -351,10 +384,11 @@ study = StudyDefinition(
             "incidence": 0.95,
         },
     ),
+    #### hba1c value in % of recent test
     hba1c_percentage = patients.with_these_clinical_events(
         hba1c_old_codes, # imported from codelists.py
-        returning="numeric_value",
-        between = ["index_date - 1 year", "index_date"],
+        returning = "numeric_value",
+        between = ["index_date - 15 months", "index_date"],
         find_last_match_in_period = True,
         include_date_of_match = True,
         date_format = "YYYY-MM",
@@ -363,6 +397,39 @@ study = StudyDefinition(
             "float": {"distribution": "normal", "mean": 5, "stddev": 2},
             "incidence": 0.95,
         },
+    ),
+    #### Subcategorise recent hba1c measures in no recent measure (0); measure indicating controlled diabetes (1);
+    #### measure indicating uncontrolled diabetes (2)
+    hba1c_category = patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """
+                hba1c_flag AND (hba1c_mmol_per_mol < 58 OR 
+                hba1c_percentage < 7.5)
+            """,
+            "2": """
+                hba1c_flag AND (hba1c_mmol_per_mol >= 58 OR 
+                hba1c_percentage >= 7.5)
+            """,
+        },
+        return_expectations = {"category": {"ratios": {"0": 0.2, "1": 0.4, "2": 0.4}},},
+    ),
+    #### Subcategorise diabetes in no diabetes (0); controlled diabetes (1); uncontrolled diabetes (2); 
+    #### diabetes with missing recent hba1c measure (3)
+    diabetes_controlled = patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """ 
+                diabetes AND hba1c_category = "1"
+            """,
+            "2": """
+                diabetes AND hba1c_category = "2"
+            """,
+            "3": """
+                diabetes AND hba1c_category = "3"
+            """
+        },
+        return_expectations = {"category": {"ratios": {"0": 0.8, "1": 0.09, "2": 0.09, "3": 0.02}},},
     ),
     ### Cancer
     cancer = patients.with_these_clinical_events(
@@ -543,8 +610,8 @@ study = StudyDefinition(
     ),
 )
 
-# calculate crude mortality rate
 measures = [
+    # calculate crude mortality rate
     Measure(
         id = "crude_mortality_rate",
         numerator = "died_ons_covid_flag_any",
