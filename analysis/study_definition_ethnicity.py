@@ -27,7 +27,7 @@ study = StudyDefinition(
         "rate": "uniform",
         "incidence": 0.5,
     },
-    # Set index date to start date
+    # Set index date to end date
     index_date = end_date,
     # Define the study population (= all patients in this case)
     ## IN AND EXCLUSION CRITERIA
@@ -37,6 +37,7 @@ study = StudyDefinition(
     eth = patients.with_these_clinical_events(
         ethnicity_codes,
         returning = "category",
+        on_or_before = "index_date",
         find_last_match_in_period = True,
         include_date_of_match = False,
         return_expectations = {
