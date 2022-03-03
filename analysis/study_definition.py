@@ -50,7 +50,7 @@ from codelists import (
 )
 
 ## Import study time variables
-from config import start_date, end_date
+from config import start_date, end_date, demographics_list, comorbidities_list
 
 # DEFINE STUDY POPULATION ----
 ## Define study population and variables
@@ -694,39 +694,36 @@ measures = [
         denominator = "population",
         group_by = "population",
     ),
-    # calculate subgroup specific rates
+    # calculate rates in age groups
     Measure(
         id = "age_mortality_rate",
         numerator = "died_ons_covid_flag_any",
         denominator = "population",
-        group_by = ["agegroup"],
+        group_by = ["sex", "agegroup"],
     ),
-
+    # calculate rates in females/males
     Measure(
         id = "sex_mortality_rate",
         numerator = "died_ons_covid_flag_any",
         denominator = "population",
         group_by = ["agegroup_std", "sex"],
     ),
-
-    Measure(
-        id = "bmi_mortality_rate",
-        numerator = "died_ons_covid_flag_any",
-        denominator = "population",
-        group_by = ["agegroup_std", "sex", "bmi"],
-    ),
-
-    Measure(
-        id = "ethnicity_mortality_rate",
-        numerator = "died_ons_covid_flag_any",
-        denominator = "population",
-        group_by = ["agegroup_std", "sex", "ethnicity"],
-    ),
-
-    Measure(
-        id = "imd_mortality_rate",
-        numerator = "died_ons_covid_flag_any",
-        denominator = "population",
-        group_by = ["agegroup_std", "sex", "imd"],
-    ),
 ]
+
+for demographic in demographics_list:
+    m1 = Measure(
+        id = f"{demographic}_mortality_rate",
+        numerator = "died_ons_covid_flag_any",
+        denominator = "population",
+        group_by = ["agegroup_std", "sex", f"{demographic}"],
+)
+    measures.append(m1),
+
+for comorbidity in comorbidities_list: 
+    m2 = Measure(
+        id = f"{comorbidity}_mortality_rate",
+        numerator = "died_ons_covid_flag_any",
+        denominator = "population",
+        group_by = ["agegroup_std", "sex", f"{comorbidity}"],
+)
+    measures.append(m2)
