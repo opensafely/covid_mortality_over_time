@@ -9,8 +9,9 @@ opensafely/diabetes/2020-04-15
 opensafely/haematological-cancer/2020-04-15
 opensafely/lung-cancer/2020-04-15
 opensafely/cancer-excluding-lung-and-haematological/2020-04-15
-opensafely/renal-replacement-therapy/2020-04-14
 opensafely/dialysis/3ce108ac
+opensafely/kidney-transplant/2020-07-15
+pincer/egfr/v1.8
 opensafely/chronic-liver-disease/2020-06-02
 opensafely/stroke-updated/2020-06-02
 opensafely/dementia/2020-04-22

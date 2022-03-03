@@ -29,9 +29,9 @@ from codelists import (
     haem_cancer_codes,
     lung_cancer_codes,
     other_cancer_codes,
-    creatinine_codes,
-    renal_replacement_codes,
     dialysis_codes,
+    kidney_transplant_codes,
+    egfr_codes,
     chronic_liver_disease_codes,
     stroke,
     dementia,
@@ -452,27 +452,6 @@ study = StudyDefinition(
         include_date_of_match = True,
         date_format = "YYYY-MM-DD",
     ),
-    ## Reduced kidney function
-    creatinine = patients.with_these_clinical_events(
-        creatinine_codes, # imported from codelists.py
-        returning = "numeric_value",
-        between = ["index_date - 1 year", "index_date"],
-        find_last_match_in_period = True,
-        include_date_of_match = True,
-        date_format = "YYYY-MM",
-        return_expectations = {
-            "date": {"latest": "index_date"},
-            "float": {"distribution": "normal", "mean": 60.0, "stddev": 15},
-            "incidence": 0.95,
-        },
-    ),
-    ### Renal replacement therapy
-    rrt = patients.with_these_clinical_events(
-        renal_replacement_codes, # imported from codelists.py
-        returning = "binary_flag",
-        on_or_before = "index_date",
-        find_last_match_in_period = True,
-    ),
     ### Dialysis
     dialysis = patients.with_these_clinical_events(
         dialysis_codes, # imported from codelists.py
@@ -480,6 +459,90 @@ study = StudyDefinition(
         on_or_before = "index_date",
         find_last_match_in_period = True,
     ),
+    #### Date of dialysis
+    dialysis_date = patients.with_these_clinical_events(
+        dialysis_codes, # imported from codelists.py
+        returning = "date",
+        on_or_before = "index_date",
+        find_last_match_in_period = True,
+        date_format = "YYYY-MM-DD",
+    ),
+    ### Kidney transplant 
+    kidney_transplant = patients.with_these_clinical_events(
+        kidney_transplant_codes,
+        returning = "binary_flag",
+        on_or_before = "index_date",
+        find_last_match_in_period = True,        
+    ),
+    #### Date of kidney transplant
+    kidney_transplant_date = patients.with_these_clinical_events(
+        kidney_transplant_codes,
+        returning = "date",
+        on_or_before = "index_date",
+        find_last_match_in_period = True, 
+        date_format = "YYYY-MM-DD",       
+    ),
+    #### Categorise dialysis in dialysis with previous kidney transplant; dialysis without previous transplant
+    dialysis_kidney_transplant = patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """
+                (dialysis AND kidney_transplant) AND kidney_transplant_date <= dialysis_date
+            """,
+            "2": """
+                (dialysis AND NOT kidney_transplant) OR ((dialysis AND kidney_transplant) AND kidney_transplant_date > dialysis_date)
+            """,
+        },
+        return_expectations = {"category": {"ratios": {"0": 0.8, "1": 0.1, "2": 0.1}},},
+    ),
+    ### eGFR 
+    #### egfr_flag is needed because missing egfr values will be coded as 0, and we need to make a 
+    #### distinction between missing and not missing in variable 'ckd' below
+    egfr_flag = patients.with_these_clinical_events(
+        egfr_codes, # imported from codelists.py
+        returning = "binary_flag",
+        find_last_match_in_period = True,
+        return_expectations = {
+            "incidence": 0.95,
+        },
+    ),
+    egfr = patients.with_these_clinical_events(
+        egfr_codes, # imported from codelists.py
+        returning = "numeric_value",
+        find_last_match_in_period = True,
+        include_date_of_match = True,
+        date_format = "YYYY-MM",
+        return_expectations = {
+            "date": {"latest": "index_date"},
+            "float": {"distribution": "normal", "mean": 45.0, "stddev": 20},
+            "incidence": 0.95,
+        },
+    ),
+    ### CKD
+    ckd = patients.categorised_as(
+        {
+            "No CKD": "DEFAULT",
+            "0": """
+                (NOT dialysis AND NOT kidney_transplant) AND (egfr_flag AND egfr >= 60)
+            """,
+            "3a": """
+                (NOT dialysis AND NOT kidney_transplant) AND (egfr_flag AND (egfr >= 45 AND egfr < 60))
+            """,
+            "3b": """
+                (NOT dialysis AND NOT kidney_transplant) AND (egfr_flag AND (egfr >= 30 AND egfr < 45))
+            """,
+            "4": """
+                (NOT dialysis AND NOT kidney_transplant) AND (egfr_flag AND (egfr >= 15 AND egfr < 30))
+            """,
+            "5": """
+                (NOT dialysis AND NOT kidney_transplant) AND (egfr_flag AND egfr < 15)
+            """,
+        },
+        return_expectations = {"category": {"ratios": {"No CKD": 0.8, "0": 0.1, "3a": 0.025, "3b": 0.025, "4": 0.025, "5": 0.025}},},
+    ),
+    #### Exclude patients on dialysis / with a kidney transplant
+    #### Based on eGFR, stage 0/ 3a/ 3b/ 4 or 5
+    ### Renal replacement therapy
     ### Liver disease
     chronic_liver_disease = patients.with_these_clinical_events(
         chronic_liver_disease_codes, # imported from codelists.py
@@ -514,6 +577,19 @@ study = StudyDefinition(
         returning = "binary_flag",
         on_or_before = "index_date",
         find_last_match_in_period = True,
+    ),
+    ### Organ or kidney transplant
+    organ_kidney_transplant = patients.categorised_as(
+        {
+            "No transplant": "DEFAULT",
+            "Kidney": """
+                kidney_transplant
+            """,
+            "Organ": """
+                organ_transplant
+            """,
+        },
+        return_expectations = {"category": {"ratios": {"No transplant": 0.95, "Kidney": 0.025, "Organ": 0.025}},},
     ),
     ### Asplenia (splenectomy or a spleen dysfunction, including sickle cell disease)
     dysplenia = patients.with_these_clinical_events(

@@ -101,21 +101,25 @@ other_cancer_codes = codelist_from_csv(
     column="CTV3ID",
 )
 
-### Measure of creatinine
-creatinine_codes = codelist(["XE2q5"], system="ctv3")
-
-### Renal replacement therapy
-renal_replacement_codes = codelist_from_csv(
-    "codelists/opensafely-renal-replacement-therapy.csv", 
-    system="ctv3", 
-    column="CTV3ID",
-)
-
 ### Dialysis
 dialysis_codes = codelist_from_csv(
   "codelists/opensafely-dialysis.csv", 
   system = "ctv3", 
   column = "CTV3ID"
+)
+
+### Kidney transplant
+kidney_transplant_codes = codelist_from_csv(
+  "codelists/opensafely-kidney-transplant.csv",
+  system = "ctv3",
+  column = "CTV3ID",    
+)
+
+### Recorded eGFR values
+egfr_codes = codelist_from_csv(
+    "codelists/pincer-egfr.csv",
+    system = "snomed",
+    column = "code",
 )
 
 ### Chronic liver disease diagnosis
