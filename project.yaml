@@ -22,7 +22,7 @@ actions:
 
 # Join data
   join_data:
-    run: r:latest analysis/data_join.R
+    run: python:latest analysis/join_ethnicity.py
     needs: [generate_study_population, generate_study_population_ethnicity]
     outputs:
       highly_sensitive:
