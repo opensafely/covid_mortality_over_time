@@ -96,6 +96,7 @@ study = StudyDefinition(
             "60-69": "age >= 60 AND age < 70",
             "70-79": "age >= 70 AND age < 80",
             "80plus": "age >= 80",
+            "missing": "DEFAULT",
         },
         return_expectations={
             "rate": "universal",
@@ -107,6 +108,7 @@ study = StudyDefinition(
                     "60-69": 0.17,
                     "70-79": 0.17,
                     "80plus": 0.15,
+                    "missing": 0,
                 }
             },
         },
@@ -130,6 +132,7 @@ study = StudyDefinition(
             "80-84 years": "age >= 80 AND age < 85",
             "85-89 years": "age >= 85 AND age < 90",
             "90plus years": "age >= 90",
+            "missing": "DEFAULT",
         },
         return_expectations={
             "rate": "universal",
@@ -151,6 +154,7 @@ study = StudyDefinition(
                     "80-84 years": 0.05,
                     "85-89 years": 0.05,
                     "90plus years": 0.05,
+                    "missing": 0,
                 }
             },
         },
