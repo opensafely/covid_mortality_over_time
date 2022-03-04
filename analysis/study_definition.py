@@ -65,10 +65,14 @@ study = StudyDefinition(
     index_date = start_date,
     # Define the study population
     ## IN AND EXCLUSION CRITERIA
+    ### (= > 1 year follow up, aged > 18 and no missings in age and sex)
+    ### missings in age are the ones > 110
+    ### missings in sex can be sex = U or sex = I (so filter on M and F)
     population=patients.satisfying(
         """
-        (age >= 18) AND 
         has_follow_up
+        AND (age >=18 AND age <= 110)
+        AND (sex = "M" OR sex = "F")
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "index_date - 1 year", "index_date"
@@ -92,7 +96,6 @@ study = StudyDefinition(
             "60-69": "age >= 60 AND age < 70",
             "70-79": "age >= 70 AND age < 80",
             "80plus": "age >= 80",
-            "missing": "DEFAULT",
         },
         return_expectations={
             "rate": "universal",
@@ -103,8 +106,7 @@ study = StudyDefinition(
                     "50-59": 0.17,
                     "60-69": 0.17,
                     "70-79": 0.17,
-                    "80plus": 0.13,
-                    "missing": 0.02,
+                    "80plus": 0.15,
                 }
             },
         },
@@ -112,45 +114,43 @@ study = StudyDefinition(
     ### age group (used for age standardisation)
     agegroup_std = patients.categorised_as(
         {
-            "15-19": "age >= 15 AND age < 20",
-            "20-24": "age >= 20 AND age < 25",
-            "25-29": "age >= 25 AND age < 30",
-            "30-34": "age >= 30 AND age < 35",
-            "35-39": "age >= 35 AND age < 40",
-            "40-44": "age >= 40 AND age < 45",
-            "45-49": "age >= 45 AND age < 50",
-            "50-54": "age >= 50 AND age < 55",
-            "55-59": "age >= 55 AND age < 60",
-            "60-64": "age >= 60 AND age < 65",
-            "65-69": "age >= 65 AND age < 70",
-            "70-74": "age >= 70 AND age < 75",
-            "75-79": "age >= 75 AND age < 80",
-            "80-84": "age >= 80 AND age < 85",
-            "85-89": "age >= 85 AND age < 90",
-            "90plus": "age >= 90",
-            "missing": "DEFAULT",
+            "15-19 years": "age >= 15 AND age < 20", # (age is here always >= 18 by definition)
+            "20-24 years": "age >= 20 AND age < 25",
+            "25-29 years": "age >= 25 AND age < 30",
+            "30-34 years": "age >= 30 AND age < 35",
+            "35-39 years": "age >= 35 AND age < 40",
+            "40-44 years": "age >= 40 AND age < 45",
+            "45-49 years": "age >= 45 AND age < 50",
+            "50-54 years": "age >= 50 AND age < 55",
+            "55-59 years": "age >= 55 AND age < 60",
+            "60-64 years": "age >= 60 AND age < 65",
+            "65-69 years": "age >= 65 AND age < 70",
+            "70-74 years": "age >= 70 AND age < 75",
+            "75-79 years": "age >= 75 AND age < 80",
+            "80-84 years": "age >= 80 AND age < 85",
+            "85-89 years": "age >= 85 AND age < 90",
+            "90plus years": "age >= 90",
         },
         return_expectations={
             "rate": "universal",
             "category": {
                 "ratios": {
-                    "15-19": 0.05,
-                    "20-24": 0.05,
-                    "25-29": 0.05,
-                    "30-34": 0.05,
-                    "35-39": 0.05,
-                    "40-44": 0.1,
-                    "45-49": 0.1,
-                    "50-54": 0.1,
-                    "55-59": 0.1,
-                    "60-64": 0.05,
-                    "65-69": 0.05,
-                    "70-74": 0.05,
-                    "75-79": 0.05,
-                    "80-84": 0.05,
-                    "85-89": 0.05,
-                    "90plus": 0.03,
-                    "missing": 0.02,
+                    "15-19 years": 0.05,
+                    "20-24 years": 0.05,
+                    "25-29 years": 0.05,
+                    "30-34 years": 0.05,
+                    "35-39 years": 0.05,
+                    "40-44 years": 0.1,
+                    "45-49 years": 0.1,
+                    "50-54 years": 0.1,
+                    "55-59 years": 0.1,
+                    "60-64 years": 0.05,
+                    "65-69 years": 0.05,
+                    "70-74 years": 0.05,
+                    "75-79 years": 0.05,
+                    "80-84 years": 0.05,
+                    "85-89 years": 0.05,
+                    "90plus years": 0.05,
                 }
             },
         },
@@ -159,7 +159,7 @@ study = StudyDefinition(
     sex = patients.sex(
         return_expectations={
             "rate": "universal",
-            "category": {"ratios": {"M": 0.49, "F": 0.51}},
+            "category": {"ratios": {"Male": 0.49, "Female": 0.51}},
         }
     ),
     ### bmi
@@ -694,7 +694,7 @@ measures = [
         denominator = "population",
         group_by = "population",
     ),
-    # calculate rates in age groups
+    # calculate rates in age groups (for females and males seperately)
     Measure(
         id = "age_mortality_rate",
         numerator = "died_ons_covid_flag_any",
