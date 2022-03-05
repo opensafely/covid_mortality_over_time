@@ -18,8 +18,13 @@ library(lubridate)
 source(here("analysis", "config.R"))
 
 # Import data ---
-## Create 
-subgroups_vctr <- c(demographics_vctr, comorbidities_vctr)
+## Create vector containing the demographics and comorbidities
+## demographic sex is added here, as it's a bit 'special' since all rates are
+## grouped by sex *and* another subgroup variable, and sex is sex and the other
+## subgroup variable in one. But, code works fine even if the imported data
+## is grouped by sex twice (line 71, as for sex, eval(.y) = sex). Hence, 
+## sex is added to the subgroups_vctr
+subgroups_vctr <- c("sex", demographics_vctr, comorbidities_vctr)
 subgroups_rates <- 
   map(.x = here("output", 
                 paste0("measure_", subgroups_vctr,"_mortality_rate.csv")),
