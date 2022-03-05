@@ -42,4 +42,12 @@ actions:
     needs: [calculate_measures]
     outputs:
       moderately_sensitive:
-        csv: output/rates/crude_monthly_std.csv 
+        csv: output/rates/crude_monthly_std.rds 
+
+# Standardise subgroup specific mortality rates
+  standardise_subgroup_rates:
+    run: r:latest analysis/subgroups_rates_standardise.R
+    needs: [calculate_measures]
+    outputs:
+      moderately_sensitive:
+        csv: output/rates/*_monthly_std.rds 
