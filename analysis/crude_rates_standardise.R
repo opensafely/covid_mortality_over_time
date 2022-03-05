@@ -29,6 +29,6 @@ crude_rates <-
 
 # Save output ---
 output_dir <- here("output", "rates")
-ifelse(!dir.exists(output_dir), dir.create(output_dir))
-write_csv(crude_rates, 
-          path = paste0(output_dir, "/crude_monthly_std.csv"))
+ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+saveRDS(object = crude_rates, 
+        file = paste0(output_dir, "/crude_monthly_std.rds"))
