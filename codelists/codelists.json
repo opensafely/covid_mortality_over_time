@@ -48,6 +48,12 @@
       "downloaded_at": "2022-02-23 13:03:21.632676Z",
       "sha": "f2781f0c9a0617b30996d681a798eedd152a09af"
     },
+    "opensafely-glycated-haemoglobin-hba1c-tests-ifcc.csv": {
+      "id": "opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8/",
+      "downloaded_at": "2022-03-09 11:23:31.623299Z",
+      "sha": "cd4f06e53ae5eb4c8e16f8f0c0911a417aeba94a"
+    },
     "opensafely-haematological-cancer.csv": {
       "id": "opensafely/haematological-cancer/2020-04-15",
       "url": "https://codelists.opensafely.org/codelist/opensafely/haematological-cancer/2020-04-15/",
