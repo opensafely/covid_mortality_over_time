@@ -52,6 +52,17 @@ from codelists import (
 ## Import study time variables
 from config import start_date, end_date, demographics_list, comorbidities_list
 
+## Import json module
+import json
+with open('analysis/config.json', 'r') as f:
+  config = json.load(f)
+
+dates = config["dates"]
+start_date = dates["start_date"]
+end_date = dates["end_date"]
+demographics_list = config["demographics"]
+comorbidities_list = config["comorbidities"]
+
 # DEFINE STUDY POPULATION ----
 ## Define study population and variables
 study = StudyDefinition(
