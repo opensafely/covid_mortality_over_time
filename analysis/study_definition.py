@@ -36,7 +36,7 @@ from codelists import (
     stroke,
     dementia,
     other_neuro,
-    organ_transplant_codes,
+    other_organ_transplant_codes,
     spleen_codes,
     sickle_cell_codes,
     ra_sle_psoriasis_codes,
@@ -632,9 +632,9 @@ study = StudyDefinition(
         on_or_before="index_date",
         find_last_match_in_period=True,
     ),
-    # Organ transplant
-    organ_transplant=patients.with_these_clinical_events(
-        organ_transplant_codes,  # imported from codelists.py
+    # Other organ transplant (excluding kidney transplants)
+    other_organ_transplant=patients.with_these_clinical_events(
+        other_organ_transplant_codes,  # imported from codelists.py
         returning="binary_flag",
         on_or_before="index_date",
         find_last_match_in_period=True,
@@ -647,7 +647,7 @@ study = StudyDefinition(
                 kidney_transplant
             """,
             "Organ": """
-                organ_transplant
+                other_organ_transplant
             """,
         },
         return_expectations={
