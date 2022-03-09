@@ -1,0 +1,89 @@
+## ###########################################################
+
+##  This script:
+## - Imports data of the cohort in april (20200401)
+## - Makes 'table 1' (description of demographics / comorbidities)
+
+## linda.nab@thedatalab.com - 20220304
+## ###########################################################
+## NOTE: THIS SCRIPT WILL EVENTUALLY BE CHANGED TO CAPTURE A TABLE 1 
+## OF WAVE 1 / WAVE 2 / WAVE 3
+
+# Load libraries & functions ---
+library(here)
+library(readr)
+library(dplyr)
+library(gtsummary)
+
+# Import data cohort in April  ---
+data <- 
+  readRDS(file = here("output", 
+                      "data_processed", 
+                      "data_processed_2020-04-01.rds"))
+
+table1 <- 
+  data %>%
+  select(agegroup,
+         sex,
+         bmi,
+         smoking_status,
+         imd,
+         region,
+         hypertension,
+         chronic_respiratory_disease,
+         asthma,
+         chronic_cardiac_disease,
+         diabetes_controlled,
+         cancer,
+         haem_cancer,
+         dialysis_kidney_transplant,
+         ckd,
+         chronic_liver_disease,
+         stroke,
+         dementia,
+         other_neuro,
+         organ_kidney_transplant,
+         dysplenia,
+         sickle_cell,
+         ra_sle_psoriasis,
+         aplastic_anaemia,
+         permanent_immunodeficiency,
+         temporary_immunodeficiency,
+         learning_disability,
+         sev_mental_ill) %>%
+  tbl_summary(label = list(agegroup ~ "Age Group",
+                           sex ~ "Sex",
+                           bmi ~ "Body Mass Index",
+                           smoking_status ~ "Smoking status",
+                           imd ~ "IMD quintile",
+                           region ~ "Region",
+                           hypertension ~ "Hypertension",
+                           chronic_respiratory_disease ~ "Chronic respiratory disease",
+                           asthma ~ "Asthma",
+                           chronic_cardiac_disease ~ "Chronic cardiac disease",
+                           diabetes_controlled ~ "Diabetes",
+                           cancer ~ "Cancer (non haematological)",
+                           haem_cancer ~ "Haematological malignancy",
+                           dialysis_kidney_transplant ~ "Dialysis",
+                           ckd ~ "Chronic kidney disease",
+                           chronic_liver_disease ~ "Chronic liver disease",
+                           stroke ~ "Stroke",
+                           dementia ~ "Dementia",
+                           other_neuro ~ "Other neurological disease",
+                           organ_kidney_transplant ~ "Organ transplant",
+                           dysplenia ~ "Asplenia",
+                           sickle_cell ~ "Sickle cell",
+                           ra_sle_psoriasis ~ "Rheumatoid arthritis/ lupus/ psoriasis",
+                           aplastic_anaemia ~ "Aplastic anaemia",
+                           permanent_immunodeficiency ~ "Other immunosuppressive conditions",
+                           temporary_immunodeficiency ~ "Temporary immosuppresive condition",
+                           learning_disability ~ "Learning disability",
+                           sev_mental_ill ~ "Severe mental illness")) %>%
+  modify_table_body(filter, !(variable == "asthma" & label == "No asthma") & 
+                              !(variable == "diabetes_controlled" & label == "No diabetes") &
+                              !(variable == "dialysis_kidney_transplant" & label == "No dialysis") &
+                              !(variable == "ckd" & label == "No CKD") ) 
+# organ_kidney_transplant does not work (filtering, not sure why)
+# Save output --
+table1
+write
