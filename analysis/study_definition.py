@@ -553,6 +553,7 @@ study = StudyDefinition(
     egfr_flag=patients.with_these_clinical_events(
         egfr_codes,  # imported from codelists.py
         returning="binary_flag",
+        on_or_before="index_date",
         find_last_match_in_period=True,
         return_expectations={
             "incidence": 0.95,
@@ -561,6 +562,7 @@ study = StudyDefinition(
     egfr=patients.with_these_clinical_events(
         egfr_codes,  # imported from codelists.py
         returning="numeric_value",
+        on_or_before="index_date",
         find_last_match_in_period=True,
         include_date_of_match=True,
         date_format="YYYY-MM",
@@ -570,29 +572,125 @@ study = StudyDefinition(
             "incidence": 0.95,
         },
     ),
+    # Fetch the comparator (<, >=, = etc) associated with a numeric value.
+    # Where a lab result is returned as e.g. <9.5 the numeric_value component
+    # will contain only the value 9.5 and you will need to use this function
+    # to fetch the comparator into a separate column.
+    # https://docs.opensafely.org/study-def-variables/#cohortextractor.patients.comparator_from
+    egfr_comparator=patients.comparator_from(
+        "egfr",
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {  # ~, =, >= , > , < , <=
+                    None: 0.10,
+                    "~": 0.05,
+                    "=": 0.65,
+                    ">=": 0.05,
+                    ">": 0.05,
+                    "<": 0.05,
+                    "<=": 0.05,
+                }
+            },
+            "incidence": 0.80,
+        },
+    ),
+    egfr_category=patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """
+                egfr_flag AND
+                    (egfr>=60 AND NOT
+                        (egfr_comparator = '<' AND NOT
+                        egfr_comparator = '<=' AND NOT
+                        egfr_comparator = '~'))
+            """,
+            "2": """
+                egfr_flag AND
+                    ((egfr>=45 AND NOT
+                        (egfr_comparator = '<' AND NOT
+                        egfr_comparator = '<=' AND NOT
+                        egfr_comparator = '~')) AND
+                            (egfr<60 AND NOT
+                                (egfr_comparator = '>' AND NOT
+                                egfr_comparator = '>=' AND NOT
+                                egfr_comparator = '~' AND NOT
+                                egfr_comparator = '=')))
+
+            """,
+            "3": """
+                egfr_flag AND
+                    ((egfr>=30 AND NOT
+                        (egfr_comparator = '<' AND NOT
+                        egfr_comparator = '<=' AND NOT
+                        egfr_comparator = '~')) AND
+                            (egfr<45 AND NOT
+                                (egfr_comparator = '>' AND NOT
+                                egfr_comparator = '>=' AND NOT
+                                egfr_comparator = '~' AND NOT
+                                egfr_comparator = '=')))
+
+            """,
+            "4": """
+                egfr_flag AND
+                    ((egfr>=15 AND NOT
+                        (egfr_comparator = '<' AND NOT
+                        egfr_comparator = '<=' AND NOT
+                        egfr_comparator = '~')) AND
+                            (egfr<30 AND NOT
+                                (egfr_comparator = '>' AND NOT
+                                egfr_comparator = '>=' AND NOT
+                                egfr_comparator = '~' AND NOT
+                                egfr_comparator = '=')))
+
+            """,
+            "5": """
+                egfr_flag AND
+                    (egfr<15 AND NOT
+                        (egfr_comparator = '>' AND NOT
+                        egfr_comparator = '>=' AND NOT
+                        egfr_comparator = '~' AND NOT
+                        egfr_comparator = '='))
+
+            """,
+        },
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "0": 0.95,
+                    "1": 0.01,
+                    "2": 0.01,
+                    "3": 0.01,
+                    "4": 0.01,
+                    "5": 0.01,
+                }
+            },
+        },
+    ),
     # CKD
     ckd=patients.categorised_as(
         {
             "No CKD": "DEFAULT",
             "0": """
                 (NOT dialysis AND NOT kidney_transplant) AND
-                (egfr_flag AND egfr >= 60)
+                egfr_category = 1
             """,
             "3a": """
                 (NOT dialysis AND NOT kidney_transplant) AND
-                (egfr_flag AND (egfr >= 45 AND egfr < 60))
+                egfr_category = 2
             """,
             "3b": """
                 (NOT dialysis AND NOT kidney_transplant) AND
-                (egfr_flag AND (egfr >= 30 AND egfr < 45))
+                egfr_category = 3
             """,
             "4": """
                 (NOT dialysis AND NOT kidney_transplant) AND
-                (egfr_flag AND (egfr >= 15 AND egfr < 30))
+                egfr_category = 4
             """,
             "5": """
                 (NOT dialysis AND NOT kidney_transplant) AND
-                (egfr_flag AND egfr < 15)
+                egfr_category = 5
             """,
         },
         return_expectations={
