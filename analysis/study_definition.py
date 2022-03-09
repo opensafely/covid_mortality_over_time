@@ -503,13 +503,7 @@ study = StudyDefinition(
         returning="binary_flag",
         on_or_before="index_date",
         find_last_match_in_period=True,
-    ),
-    # Date of dialysis
-    dialysis_date=patients.with_these_clinical_events(
-        dialysis_codes,  # imported from codelists.py
-        returning="date",
-        on_or_before="index_date",
-        find_last_match_in_period=True,
+        include_date_of_match=True,  # generates kidney_transplant_date
         date_format="YYYY-MM-DD",
     ),
     # Kidney transplant
@@ -518,13 +512,7 @@ study = StudyDefinition(
         returning="binary_flag",
         on_or_before="index_date",
         find_last_match_in_period=True,
-    ),
-    # Date of kidney transplant
-    kidney_transplant_date=patients.with_these_clinical_events(
-        kidney_transplant_codes,
-        returning="date",
-        on_or_before="index_date",
-        find_last_match_in_period=True,
+        include_date_of_match=True,  # generates kidney_transplant_date
         date_format="YYYY-MM-DD",
     ),
     # Categorise dialysis in dialysis with previous kidney transplant;
