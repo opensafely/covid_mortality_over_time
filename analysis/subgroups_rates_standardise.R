@@ -83,4 +83,4 @@ ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 walk2(.x = subgroups_rates_std,
       .y = subgroups_vctr,
       .f = ~ write_csv(x = .x,
-                       file = paste0(output_dir, "/", .y, "_monthly_std.csv")))
+                       path = paste0(output_dir, "/", .y, "_monthly_std.csv")))
