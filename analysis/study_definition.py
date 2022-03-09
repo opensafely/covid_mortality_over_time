@@ -79,12 +79,18 @@ study = StudyDefinition(
     # missings in sex can be sex = U or sex = I (so filter on M and F)
     population=patients.satisfying(
         """
-        has_follow_up
-        AND (age >=18 AND age <= 110)
-        AND (sex = "M" OR sex = "F")
+        has_follow_up AND
+        NOT died AND
+        (age >=18 AND age <= 110) AND
+        (sex = "M" OR sex = "F")
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "index_date - 1 year", "index_date"
+        ),
+        died=patients.died_from_any_cause(
+            on_or_before="index_date",
+            returning="binary_flag",
+            return_expectations={"incidence": 0.01},
         ),
     ),
     # DEMOGRAPHICS
