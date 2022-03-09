@@ -77,7 +77,7 @@ diabetes_codes = codelist_from_csv(
 ### Measures of hba1c 
 #### 'new' codes: hba1c in mmol/mol 
 hba1c_new_codes = codelist_from_csv(
-    "codelists/opensafely/glycated-haemoglobin-hba1c-tests-ifcc.csv",
+    "codelists/opensafely-glycated-haemoglobin-hba1c-tests-ifcc.csv",
     system = "ctv3",
     column = "code",
 )
