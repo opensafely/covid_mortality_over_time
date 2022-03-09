@@ -756,19 +756,19 @@ measures = [
 ]
 
 for demographic in demographics_list:
-    m1 = Measure(
+    m = Measure(
         id=f"{demographic}_mortality_rate",
         numerator="died_ons_covid_flag_any",
         denominator="population",
         group_by=["agegroup_std", "sex", f"{demographic}"],
     )
-    measures.append(m1),
+    measures.append(m),
 
 for comorbidity in comorbidities_list:
-    m2 = Measure(
+    m = Measure(
         id=f"{comorbidity}_mortality_rate",
         numerator="died_ons_covid_flag_any",
         denominator="population",
         group_by=["agegroup_std", "sex", f"{comorbidity}"],
     )
-    measures.append(m2)
+    measures.append(m)
