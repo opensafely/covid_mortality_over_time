@@ -51,3 +51,11 @@ actions:
     outputs:
       moderately_sensitive:
         rds: output/rates/*_monthly_std.rds 
+
+# # Process data
+#   process_data:
+#     run: r:latest analysis/data_process.R
+#     needs: [join_data]
+#     outputs:
+#       highly_sensitive: 
+#         rds: output/data_processed/data_processed_2020-04-01.rds
