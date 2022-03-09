@@ -183,10 +183,10 @@ study = StudyDefinition(
             "rate": "universal",
             "category": {
                 "ratios": {
-                "Not obese": 0.7,
-                "Obese I (30-34.9)": 0.1,
-                "Obese II (35-39.9)": 0.1,
-                "Obese III (40+)": 0.1,
+                    "Not obese": 0.7,
+                    "Obese I (30-34.9)": 0.1,
+                    "Obese II (35-39.9)": 0.1,
+                    "Obese III (40+)": 0.1,
                 }
             },
         },
@@ -204,7 +204,15 @@ study = StudyDefinition(
             "M": "DEFAULT",
         },
         return_expectations = {
-            "category": {"ratios": {"S": 0.6, "E": 0.1, "N": 0.2, "M": 0.1}}
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "S": 0.6, 
+                    "E": 0.1, 
+                    "N": 0.2, 
+                    "M": 0.1,
+                }
+            },
         },
         most_recent_smoking_code = patients.with_these_clinical_events(
             clear_smoking_codes,
@@ -330,7 +338,9 @@ study = StudyDefinition(
                 
             """,
         },
-        return_expectations = {"category": {"ratios": {"0": 0.8, "1": 0.1, "2": 0.1}},},
+        return_expectations = {"category": {
+            "rate": "universal",
+            "ratios": {"0": 0.8, "1": 0.1, "2": 0.1}},},
         recent_asthma_code = patients.with_these_clinical_events(
             asthma_codes, # imported from codelists.py
             between = ["index_date - 3 years", "index_date"],
@@ -430,7 +440,7 @@ study = StudyDefinition(
                 diabetes AND hba1c_category = "2"
             """,
             "3": """
-                diabetes AND hba1c_category = "3"
+                diabetes AND hba1c_category = "0"
             """
         },
         return_expectations = {"category": {"ratios": {"0": 0.8, "1": 0.09, "2": 0.09, "3": 0.02}},},
@@ -523,6 +533,8 @@ study = StudyDefinition(
         },
     ),
     ### CKD
+    #### Exclude patients on dialysis / with a kidney transplant
+    #### Based on eGFR, stage 0/ 3a/ 3b/ 4 or 5
     ckd = patients.categorised_as(
         {
             "No CKD": "DEFAULT",
@@ -544,9 +556,6 @@ study = StudyDefinition(
         },
         return_expectations = {"category": {"ratios": {"No CKD": 0.8, "0": 0.1, "3a": 0.025, "3b": 0.025, "4": 0.025, "5": 0.025}},},
     ),
-    #### Exclude patients on dialysis / with a kidney transplant
-    #### Based on eGFR, stage 0/ 3a/ 3b/ 4 or 5
-    ### Renal replacement therapy
     ### Liver disease
     chronic_liver_disease = patients.with_these_clinical_events(
         chronic_liver_disease_codes, # imported from codelists.py
@@ -596,14 +605,11 @@ study = StudyDefinition(
         return_expectations = {"category": {"ratios": {"No transplant": 0.95, "Kidney": 0.025, "Organ": 0.025}},},
     ),
     ### Asplenia (splenectomy or a spleen dysfunction, including sickle cell disease)
-    dysplenia = patients.with_these_clinical_events(
-        spleen_codes, # imported from codelists.py
-        returning = "binary_flag",
-        on_or_before = "index_date",
-        find_last_match_in_period = True,
-    ),
-    sickle_cell = patients.with_these_clinical_events(
-        sickle_cell_codes, # imported from codelists.py
+    asplenia = patients.with_these_clinical_events(
+        combine_codelists(
+            sickle_cell_codes,
+            spleen_codes
+         ), # imported from codelists.py
         returning = "binary_flag",
         on_or_before = "index_date",
         find_last_match_in_period = True,
