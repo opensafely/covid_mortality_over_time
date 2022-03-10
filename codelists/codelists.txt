@@ -6,6 +6,7 @@ opensafely/asthma-diagnosis/2020-04-15
 opensafely/asthma-oral-prednisolone-medication/2020-04-27
 opensafely/chronic-cardiac-disease/2020-04-08
 opensafely/diabetes/2020-04-15
+opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8/
 opensafely/haematological-cancer/2020-04-15
 opensafely/lung-cancer/2020-04-15
 opensafely/cancer-excluding-lung-and-haematological/2020-04-15
@@ -16,7 +17,7 @@ opensafely/chronic-liver-disease/2020-06-02
 opensafely/stroke-updated/2020-06-02
 opensafely/dementia/2020-04-22
 opensafely/other-neurological-conditions/2020-06-02
-opensafely/solid-organ-transplantation/2020-04-10
+opensafely/other-organ-transplant/79caeeee/
 opensafely/asplenia/2020-06-02
 opensafely/sickle-cell-disease/2020-04-14
 opensafely/ra-sle-psoriasis/2020-04-14

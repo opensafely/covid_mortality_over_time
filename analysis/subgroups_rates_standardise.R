@@ -14,8 +14,9 @@ library(readr)
 library(purrr)
 library(dplyr)
 library(lubridate)
-## Load vector demographics_list and comorbidities_list
-source(here("analysis", "config.R"))
+library(jsonlite)
+## Load json file listing demographics and comorbidities
+config <- fromJSON(here("analysis", "config.json"))
 
 # Import data ---
 ## Create vector containing the demographics and comorbidities
@@ -24,7 +25,7 @@ source(here("analysis", "config.R"))
 ## subgroup variable in one. But, code works fine even if the imported data
 ## is grouped by sex twice (line 71, as for sex, eval(.y) = sex). Hence, 
 ## sex is added to the subgroups_vctr
-subgroups_vctr <- c("sex", demographics_vctr, comorbidities_vctr)
+subgroups_vctr <- c("sex", config$demographics, config$comorbidities)
 subgroups_rates <- 
   map(.x = here("output", 
                 paste0("measure_", subgroups_vctr,"_mortality_rate.csv")),
@@ -81,5 +82,5 @@ output_dir <- here("output", "rates")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 walk2(.x = subgroups_rates_std,
       .y = subgroups_vctr,
-      .f = ~ saveRDS(object = .x,
-                     file = paste0(output_dir, "/", .y, "_monthly_std.rds")))
+      .f = ~ write_csv(x = .x,
+                       path = paste0(output_dir, "/", .y, "_monthly_std.csv")))

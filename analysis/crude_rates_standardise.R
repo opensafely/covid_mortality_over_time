@@ -38,7 +38,7 @@ crude_rates_per_agegroup <-
 # Save output ---
 output_dir <- here("output", "rates")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
-saveRDS(object = crude_rates, 
-        file = paste0(output_dir, "/crude_monthly_std.rds"))
-saveRDS(object = crude_rates_per_agegroup, 
-        file = paste0(output_dir, "/crude_per_agegroup_monthly_std.rds"))
+write_csv(x = crude_rates, 
+          path = paste0(output_dir, "/crude_monthly_std.csv"))
+write_csv(x = crude_rates_per_agegroup, 
+         path = paste0(output_dir, "/crude_per_agegroup_monthly_std.csv"))
