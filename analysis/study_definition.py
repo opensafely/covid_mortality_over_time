@@ -185,6 +185,10 @@ study = StudyDefinition(
     # bmi
     # set maximum to avoid any impossibly extreme values being classified as
     # obese
+    bmi_value=patients.most_recent_bmi(
+        on_or_after="index_date - 5 years",
+        minimum_age_at_measurement=16
+    ),
     bmi=patients.categorised_as(
         {
             "Not obese": "DEFAULT",
@@ -192,10 +196,6 @@ study = StudyDefinition(
             "Obese II (35-39.9)": """ bmi_value >= 35 AND bmi_value < 40""",
             "Obese III (40+)": """ bmi_value >= 40 AND bmi_value < 100""",
         },
-        bmi_value=patients.most_recent_bmi(
-            on_or_after="index_date - 5 years",
-            minimum_age_at_measurement=16
-        ),
         return_expectations={
             "rate": "universal",
             "category": {
@@ -243,6 +243,11 @@ study = StudyDefinition(
         ),
     ),
     # imd (index of multiple deprivation) quintile
+    index_of_multiple_deprivation=patients.address_as_of(
+            "index_date",
+            returning="index_of_multiple_deprivation",
+            round_to_nearest=100,
+    ),
     imd=patients.categorised_as(
         {
             "0": "DEFAULT",
@@ -257,11 +262,6 @@ study = StudyDefinition(
             "5": """index_of_multiple_deprivation >= 32844*4/5 AND
                 index_of_multiple_deprivation < 32844""",
         },
-        index_of_multiple_deprivation=patients.address_as_of(
-            "index_date",
-            returning="index_of_multiple_deprivation",
-            round_to_nearest=100,
-        ),
         return_expectations={
             "rate": "universal",
             "category": {
@@ -677,6 +677,8 @@ study = StudyDefinition(
         },
     ),
     # CKD
+    # Exclude patients on dialysis / with a kidney transplant
+    # Based on eGFR, stage 0/ 3a/ 3b/ 4 or 5
     ckd=patients.categorised_as(
         {
             "No CKD": "DEFAULT",
@@ -714,8 +716,6 @@ study = StudyDefinition(
                                     },
                                 },
     ),
-    # Exclude patients on dialysis / with a kidney transplant
-    # Based on eGFR, stage 0/ 3a/ 3b/ 4 or 5
     # Liver disease
     chronic_liver_disease=patients.with_these_clinical_events(
         chronic_liver_disease_codes,  # imported from codelists.py
