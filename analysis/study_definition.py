@@ -598,19 +598,19 @@ study = StudyDefinition(
     # Category 1 is of the form egfr>=a, if value is *a* but
     # the comparator is '<', '<=' or '~' --> exclude.
     # Category 5 is of the form egfr<b, if value is *b* but
-    # the comparator is '>', '>=', '~', '=' or '<=' --> exclude.
+    # the comparator is '>', '>=', '~' or '=' --> exclude.
     # Categories 2, 3, and 4 are of the form a <= egfr < b.
     # We have to exclude patients who's comparator is not '=':
     # Suppose for category 2, value is '>45' or '>=45', this value fullfils
     # egfr>=45 BUT since second rule is <60, we're not sure it actually is <60.
     # Restricting to those not '<', '<=' and '~' (like is done for category 1)
     # is therefore not enough, and we need to be stricter by limiting to '='.
-    # In addition, suppose for category 2 value is '<60' this value fullfils
+    # In addition, suppose for category value is '<60' this value fullfils
     # egfr<60 BUT since first rule is >45, we're not sure it actually is >45.
-    # Restricting to those not '>', '>=', '~', '=' or '<=' (like is done for
-    # category 5) is therefore not enough, and we need to be stricter by 
-    # limiting to '='. The only comparator that can be used AND fullfils 
-    # both rules, is '='.
+    # Restricting to those not '>', '>=', '~' or '=' (like is done for category
+    # 5) is therefore not enough, and we need to be stricter by limiting to
+    # '='. The only comparator that can be used AND fullfils both rules, 
+    # is '='.
     egfr_category=patients.categorised_as(
         {
             "0": "DEFAULT",
@@ -646,8 +646,7 @@ study = StudyDefinition(
                         (egfr_comparator = '>' OR
                         egfr_comparator = '>=' OR
                         egfr_comparator = '~' OR
-                        egfr_comparator = '=' OR
-                        egfr_comparator = '<='))
+                        egfr_comparator = '='))
 
             """,
         },
