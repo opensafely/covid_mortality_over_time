@@ -624,20 +624,20 @@ study = StudyDefinition(
             "2": """
                 egfr_flag AND
                     (egfr>=45 AND
-                    egrf<60 AND
+                    egfr<60 AND
                     egfr_comparator = '=')
             """,
             "3": """
                 egfr_flag AND
                     (egfr>=30 AND
-                    egrf<45 AND
+                    egfr<45 AND
                     egfr_comparator = '=')
 
             """,
             "4": """
                 egfr_flag AND
                     (egfr>=15 AND
-                    egrf<30 AND
+                    egfr<30 AND
                     egfr_comparator = '=')
             """,
             "5": """
