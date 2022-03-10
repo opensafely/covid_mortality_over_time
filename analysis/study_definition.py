@@ -186,7 +186,12 @@ study = StudyDefinition(
     # obese
     bmi_value=patients.most_recent_bmi(
         on_or_after="index_date - 5 years",
-        minimum_age_at_measurement=16
+        minimum_age_at_measurement=16,
+        return_expectations={
+            "date": {"latest": "index_date"},
+            "float": {"distribution": "normal", "mean": 25.0, "stddev": 7.5},
+            "incidence": 0.8,
+        },
     ),
     bmi=patients.categorised_as(
         {
@@ -243,9 +248,22 @@ study = StudyDefinition(
     ),
     # imd (index of multiple deprivation) quintile
     index_of_multiple_deprivation=patients.address_as_of(
-            "index_date",
+            date="index_date",
             returning="index_of_multiple_deprivation",
             round_to_nearest=100,
+            return_expectations={
+                "rate": "universal",
+                "category": {
+                    "ratios": {
+                        "0": 0.05,
+                        "1": 0.19,
+                        "2": 0.19,
+                        "3": 0.19,
+                        "4": 0.19,
+                        "5": 0.19,
+                        }
+                    },
+                },
     ),
     imd=patients.categorised_as(
         {
@@ -789,11 +807,12 @@ study = StudyDefinition(
         on_or_before="index_date",
         find_last_match_in_period=True,
     ),
-    # Immunosuppressive condition 
+    # Immunosuppressive condition
     immunosuppression=patients.with_these_clinical_events(
         combine_codelists(
             immunosuppression_medication_codes,
-            immunosupression_diagnosis_codes),  # imported from codelists.py
+            immunosupression_diagnosis_codes
+        ),  # imported from codelists.py
         returning="binary_flag",
         on_or_before="index_date",
         find_last_match_in_period=True,
