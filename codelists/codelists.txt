@@ -6,7 +6,7 @@ opensafely/asthma-diagnosis/2020-04-15
 opensafely/asthma-oral-prednisolone-medication/2020-04-27
 opensafely/chronic-cardiac-disease/2020-04-08
 opensafely/diabetes/2020-04-15
-opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8/
+opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8
 opensafely/haematological-cancer/2020-04-15
 opensafely/lung-cancer/2020-04-15
 opensafely/cancer-excluding-lung-and-haematological/2020-04-15
@@ -22,7 +22,7 @@ opensafely/asplenia/2020-06-02
 opensafely/sickle-cell-disease/2020-04-14
 opensafely/ra-sle-psoriasis/2020-04-14
 opensafely/aplastic-anaemia/2020-04-24
-opensafely/permanent-immunosuppression/2020-06-02
-opensafely/temporary-immunosuppression/2020-04-24
+primis-covid19-vacc-uptake/immdx_cov/v1
+primis-covid19-vacc-uptake/immrx/v1
 nhsd-primary-care-domain-refsets/ld_cod/20210127
 primis-covid19-vacc-uptake/sev_mental/v1

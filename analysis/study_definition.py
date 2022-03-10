@@ -40,9 +40,8 @@ from codelists import (
     spleen_codes,
     sickle_cell_codes,
     ra_sle_psoriasis_codes,
-    aplastic_codes,
-    permanent_immune_codes,
-    temp_immune_codes,
+    immunosupression_diagnosis_codes,
+    immunosuppression_medication_codes,
     learning_disability_codes,
     sev_mental_ill_codes,
     covid_codelist,  # outcomes
@@ -790,23 +789,11 @@ study = StudyDefinition(
         on_or_before="index_date",
         find_last_match_in_period=True,
     ),
-    # Other immunosuppressive condition (permanent immunodeficiency ever
-    # diagnosed, or aplastic anaemia or temporary immunodeficiency recorded
-    # within the last year)
-    aplastic_anaemia=patients.with_these_clinical_events(
-        aplastic_codes,  # imported from codelists.py
-        returning="binary_flag",
-        on_or_before="index_date",
-        find_last_match_in_period=True,
-    ),
-    permanent_immunodeficiency=patients.with_these_clinical_events(
-        permanent_immune_codes,  # imported from codelists.py
-        returning="binary_flag",
-        on_or_before="index_date",
-        find_last_match_in_period=True,
-    ),
-    temporary_immunodeficiency=patients.with_these_clinical_events(
-        temp_immune_codes,  # imported from codelists.py
+    # Immunosuppressive condition 
+    immunosuppression=patients.with_these_clinical_events(
+        combine_codelists(
+            immunosuppression_medication_codes,
+            immunosupression_diagnosis_codes),  # imported from codelists.py
         returning="binary_flag",
         on_or_before="index_date",
         find_last_match_in_period=True,

@@ -182,27 +182,17 @@ ra_sle_psoriasis_codes = codelist_from_csv(
     column="CTV3ID",
 )
 
-# Other immunosuppressive condition
-# (aplastic anaemia or permanent immunodeficiency ever diagnosed, or temporary
-# immunodeficiency recorded within the last year)
-aplastic_codes = codelist_from_csv(
-    "codelists/opensafely-aplastic-anaemia.csv",
-    system="ctv3",
-    column="CTV3ID",
+# Immunosuppressive condition
+immunosupression_diagnosis_codes = codelist_from_csv(
+    "codelists/primis-covid19-vacc-uptake-immdx_cov.csv",
+    system="snomed",
+    column="code",
 )
-
-permanent_immune_codes = codelist_from_csv(
-    "codelists/opensafely-permanent-immunosuppression.csv",
-    system="ctv3",
-    column="CTV3ID",
+immunosuppression_medication_codes = codelist_from_csv(
+    "codelists/primis-covid19-vacc-uptake-immrx.csv",
+    system="snomed",
+    column="code",
 )
-
-temp_immune_codes = codelist_from_csv(
-    "codelists/opensafely-temporary-immunosuppression.csv",
-    system="ctv3",
-    column="CTV3ID",
-)
-
 # Learning disabilities
 learning_disability_codes = codelist_from_csv(
   "codelists/nhsd-primary-care-domain-refsets-ld_cod.csv",
