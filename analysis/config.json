@@ -21,12 +21,9 @@
         "dementia",
         "other_neuro",
         "organ_kidney_transplant",
-        "dysplenia",
-        "sickle_cell",
+        "asplenia",
         "ra_sle_psoriasis",
-        "aplastic_anaemia",
-        "permanent_immunodeficiency",
-        "temporary_immunodeficiency",
+        "immunosuppression",
         "learning_disability",
         "sev_mental_ill"
     ]
