@@ -48,6 +48,12 @@
       "downloaded_at": "2022-02-23 13:03:21.632676Z",
       "sha": "f2781f0c9a0617b30996d681a798eedd152a09af"
     },
+    "opensafely-glycated-haemoglobin-hba1c-tests-ifcc.csv": {
+      "id": "opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/glycated-haemoglobin-hba1c-tests-ifcc/6d7287f8/",
+      "downloaded_at": "2022-03-09 11:23:31.623299Z",
+      "sha": "cd4f06e53ae5eb4c8e16f8f0c0911a417aeba94a"
+    },
     "opensafely-haematological-cancer.csv": {
       "id": "opensafely/haematological-cancer/2020-04-15",
       "url": "https://codelists.opensafely.org/codelist/opensafely/haematological-cancer/2020-04-15/",
@@ -66,17 +72,23 @@
       "downloaded_at": "2022-02-23 13:03:22.259275Z",
       "sha": "8fa1164b587028c4bd5903289e0948642d399e56"
     },
-    "opensafely-renal-replacement-therapy.csv": {
-      "id": "opensafely/renal-replacement-therapy/2020-04-14",
-      "url": "https://codelists.opensafely.org/codelist/opensafely/renal-replacement-therapy/2020-04-14/",
-      "downloaded_at": "2022-02-23 13:03:22.471387Z",
-      "sha": "08e003f1222fe26781288b2eeff22db99780f202"
-    },
     "opensafely-dialysis.csv": {
       "id": "opensafely/dialysis/3ce108ac",
       "url": "https://codelists.opensafely.org/codelist/opensafely/dialysis/3ce108ac/",
       "downloaded_at": "2022-02-23 13:52:05.712845Z",
       "sha": "ace47eee209d55a7506e60e7e664f8e75ad9848c"
+    },
+    "opensafely-kidney-transplant.csv": {
+      "id": "opensafely/kidney-transplant/2020-07-15",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/kidney-transplant/2020-07-15/",
+      "downloaded_at": "2022-03-03 10:07:24.400871Z",
+      "sha": "db6b47d17273b563cb428e4a97a7ba8b6d62afa9"
+    },
+    "pincer-egfr.csv": {
+      "id": "pincer/egfr/v1.8",
+      "url": "https://codelists.opensafely.org/codelist/pincer/egfr/v1.8/",
+      "downloaded_at": "2022-03-03 10:07:24.666769Z",
+      "sha": "eaa84a4eb8e58348ac89274ea0cea8255fcea1f3"
     },
     "opensafely-chronic-liver-disease.csv": {
       "id": "opensafely/chronic-liver-disease/2020-06-02",
@@ -102,11 +114,11 @@
       "downloaded_at": "2022-02-23 13:03:23.322524Z",
       "sha": "855e7e09a0500401ae2429c6a401978e8c9075ec"
     },
-    "opensafely-solid-organ-transplantation.csv": {
-      "id": "opensafely/solid-organ-transplantation/2020-04-10",
-      "url": "https://codelists.opensafely.org/codelist/opensafely/solid-organ-transplantation/2020-04-10/",
-      "downloaded_at": "2022-02-23 13:03:23.489492Z",
-      "sha": "94178a9e19770b9c43c08fe42df6ab5ed0d9ec49"
+    "opensafely-other-organ-transplant.csv": {
+      "id": "opensafely/other-organ-transplant/79caeeee",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/other-organ-transplant/79caeeee/",
+      "downloaded_at": "2022-03-09 15:53:43.253935Z",
+      "sha": "6191e62cf7520121e4b10346c766e6b71dfdda4c"
     },
     "opensafely-asplenia.csv": {
       "id": "opensafely/asplenia/2020-06-02",
