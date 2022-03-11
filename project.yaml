@@ -6,9 +6,9 @@ expectations:
 actions:
 
 # Extract data
-# When argument --index-date-range is changed, change has to be made in ./analysis/config.R and ./analysis/config.py too
+# When argument --index-date-range is changed, change has to be made in ./analysis/config.json too
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition --skip-existing --output-format=csv.gz --index-date-range "2020-02-01 to 2020-08-01 by month"
+    run: cohortextractor:latest generate_cohort --study-definition study_definition --skip-existing --output-format=csv.gz --index-date-range "2020-03-01 to 2020-04-01 by month"
     outputs:
       highly_sensitive:
         cohort: output/input_*.csv.gz
