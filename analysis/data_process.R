@@ -54,12 +54,9 @@ data_extracted <-
              dementia = col_logical(),
              other_neuro = col_logical(),
              organ_kidney_transplant = col_character(),
-             dysplenia = col_logical(),
-             sickle_cell = col_logical(),
+             asplenia = col_logical(),
              ra_sle_psoriasis = col_logical(),
-             aplastic_anaemia = col_logical(),
-             permanent_immunodeficiency = col_logical(),
-             temporary_immunodeficiency = col_logical(),
+             immunosuppression = col_logical(),
              learning_disability = col_logical(),
              sev_mental_ill = col_logical(),
              
@@ -81,8 +78,8 @@ data_processed <-
          # missing age are not included in the study
          
          sex = fct_case_when(
-           sex == "Female" ~ "Female",
-           sex == "Male" ~ "Male",
+           sex == "F" ~ "Female",
+           sex == "M" ~ "Male",
            TRUE ~ NA_character_), # no missings should occur as only of those 
          # individuals with a female/male sex, data is extracted
          
