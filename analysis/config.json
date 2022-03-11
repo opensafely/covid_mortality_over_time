@@ -1,4 +1,4 @@
-{   "dates": {"start_date": "2020-02-01", "end_date": "2020-08-31"},
+{   "dates": {"start_date": "2020-03-01", "end_date": "2020-04-01"},
     "demographics" : [
         "bmi",
         "ethnicity",
