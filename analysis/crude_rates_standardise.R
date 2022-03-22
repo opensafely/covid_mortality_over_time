@@ -15,9 +15,9 @@ library(dplyr)
 
 # Import rates ---
 crude_rates <- 
-  read_csv(file = here("output", "measure_crude_mortality_rate.csv"))
+  read_csv(file = here("output", "joined", "measure_crude_mortality_rate.csv"))
 crude_rates_per_agegroup <-
-  read_csv(file = here("output", "measure_age_mortality_rate.csv"))
+  read_csv(file = here("output", "joined", "measure_age_mortality_rate.csv"))
 
 # Standardise rates ---
 ## Add column containing number of days in every month

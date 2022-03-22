@@ -28,6 +28,7 @@ config <- fromJSON(here("analysis", "config.json"))
 subgroups_vctr <- c("sex", config$demographics, config$comorbidities)
 subgroups_rates <- 
   map(.x = here("output", 
+                "joined",
                 paste0("measure_", subgroups_vctr,"_mortality_rate.csv")),
       .f = ~ read_csv(file = .x))
 ## European Standard population
