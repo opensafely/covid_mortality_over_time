@@ -33,10 +33,17 @@ subgroups_rates <-
       .f = ~ read_csv(file = .x))
 ## European Standard population
 esp <- 
-  read_csv(file = here("input", "european_standard_pop.csv")) %>%
-  select(- "_id") %>% # remove column '_id"
+  read_csv(file = here("input", "european_standard_pop.csv"),
+           col_types = cols_only( # only read the columns defined here
+             AgeGroup = col_factor(),
+             Sex = col_factor(),
+             EuropeanStandardPopulation = col_integer())) %>%
   filter(!(AgeGroup %in% c("0-4 years", "5-9 years", "10-14 years"))) # remove
 # age groups that are not part of the study population (< 18 year old)
+## Change levels of Sex to "M"/"F" io Male Female 
+esp <- 
+  esp %>%
+  mutate(Sex = recode_factor(Sex, `Male` = "M", `Female` = "F"))
 ## Join mortality rates and European Standard Population
 subgroups_rates <- 
   map(.x = subgroups_rates,
@@ -47,13 +54,13 @@ subgroups_rates <-
 # Workhorse ---
 ## Standard European Population used here does not contain 100000 people, as 
 ## 'young' age categories (first 3) are not included. 
-## We therefore need to calculate in the ESP we're using:
+## We therefore need to calculate number of people in the ESP for our use case:
 n_esp_18_years_or_over <- 
   esp %>%
   group_by(Sex) %>%
   summarise(n = sum(EuropeanStandardPopulation), 
             .groups = "keep") %>%
-  filter(Sex == "Female") %>% 
+  filter(Sex == "F") %>% 
   pull() # note that female and male population are equal, therefore, filter on 
          # female (could have been male)
 ## Calculate for each age group, sex and category of the subgroups (as listed
