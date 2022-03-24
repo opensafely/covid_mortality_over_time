@@ -15,6 +15,7 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 library(jsonlite)
+library(ggplot2)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
 

@@ -15,6 +15,7 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 library(jsonlite)
+library(ggplot2)
 
 # Import rates ---
 crude_rates <- 
