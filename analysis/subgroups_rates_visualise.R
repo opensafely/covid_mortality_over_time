@@ -96,8 +96,8 @@ subgroups_plots <-
                   scale_y_continuous(name = "Standardised Risk per 100,000 Individuals"))
 
 # Save plots ---
-## Plots are saved in ./output/figures
-output_dir <- here("output", "figures", "subgroups")
+## Plots are saved in ./output/figures/rates_subgroups
+output_dir <- here("output", "figures", "rates_subgroups")
 ifelse(!dir.exists(here("output", "figures")), 
        dir.create(here("output", "figures")), 
        FALSE) # create ./output/figures if not already there
