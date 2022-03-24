@@ -30,6 +30,17 @@ crude_rates_per_agegroup <-
                                  std_value = col_double()))
 
 # Plot rates ---
+## make sequence of dates for the y-axis
+dates <- 
+  c("01-03-2020",
+    "01-06-2020",
+    "01-09-2020",
+    "01-12-2020",
+    "01-03-2021",
+    "01-06-2021",
+    "01-09-2021",
+    "01-12-2021") %>%
+  as_date(., format = "%d-%m-%Y")
 ## Plot crude rates
 crude_plot <- 
   crude_rates %>%
@@ -39,14 +50,7 @@ crude_plot <-
   theme_minimal() +
   theme(panel.grid.minor.x = element_blank()) +
   scale_x_date(name = "Calendar Month",
-               breaks = c(my("03-2020"),
-                          my("06-2020"),
-                          my("09-2020"),
-                          my("12-2020"),
-                          my("03-2021"),
-                          my("06-2021"),
-                          my("09-2021"),
-                          my("12-2021")),
+               breaks = dates,
                date_labels = "%b-%y") +
   scale_y_continuous(name = "Standardised Risk per 100,000 Individuals")
 ## Plot crude rates per age group (seperate plot per sex)
@@ -60,14 +64,7 @@ crude_agroup_plots <-
                theme_minimal() +
                theme(panel.grid.minor.x = element_blank()) +
                scale_x_date(name = "Calendar Month",
-                            breaks = c(my("03-2020"),
-                                   my("06-2020"),
-                                   my("09-2020"),
-                                   my("12-2020"),
-                                   my("03-2021"),
-                                   my("06-2021"),
-                                   my("09-2021"),
-                                   my("12-2021")),
+                            breaks = dates,
                             date_labels = "%b-%y") +
                scale_y_continuous(name = "Standardised Risk per 100,000 Individuals"))
 
@@ -81,7 +78,7 @@ ifelse(!dir.exists(output_dir),
        dir.create(output_dir), 
        FALSE)
 ## Save sex plot
-ggsave(filename = here(output_dir, "crude.png"),
+ggsave(filename = paste0(output_dir, "crude.png"),
        device = "png",
        plot = crude_plot)
 ## Save the remaining plots
