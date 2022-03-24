@@ -76,7 +76,7 @@ actions:
       moderately_sensitive:
         pngs: output/figures/rates_crude/*.png
 
-# Plot and save graphs depicting the crude rates
+# Plot and save graphs depicting the subgroup specific mortality rates
   visualise_subgroup_rates:
     run: r:latest analysis/subgroups_rates_visualise.R
     needs: [standardise_subgroup_rates]
