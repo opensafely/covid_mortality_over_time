@@ -30,10 +30,12 @@ crude_rates_per_agegroup <-
 ## Standardise monthly rates to 30 days per month and per 100.000 individuals
 crude_rates <-
   crude_rates %>%
-  mutate(std_value = (value / days_in_month * 30) * 100000)
+  mutate(std_value = (value / days_in_month * 30) * 100000) %>%
+  select(date, std_value)
 crude_rates_per_agegroup <-
   crude_rates_per_agegroup %>%
-  mutate(std_value = (value / days_in_month * 30) * 100000)
+  mutate(std_value = (value / days_in_month * 30) * 100000) %>%
+  select(date, sex, agegroup, std_value)
 
 # Save output ---
 output_dir <- here("output", "rates")

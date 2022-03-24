@@ -30,9 +30,7 @@ config <- fromJSON(here("analysis", "config.json"))
 sex_rates_std <- read_csv(file = here("output", 
                                       "rates",
                                       "sex_monthly_std.csv"),
-                          col_types = cols_only(date = col_date(),
-                                                sex = col_factor(),
-                                                value_std = col_double()))
+                          col_types = cols("D", "f", "d"))
 # Import the rest of the mortality rates:
 subgroups_vctr <- c(config$demographics, config$comorbidities)
 subgroups_rates_std <- 
@@ -40,10 +38,7 @@ subgroups_rates_std <-
       .f = ~ read_csv(file = here("output", 
                                   "rates",
                                   paste0(.x,"_monthly_std.csv")),
-                      col_types = cols_only(date = col_date(), 
-                                            sex = col_factor(),
-                                            !!.x := col_factor(), 
-                                            value_std = col_double())))
+                      col_types = cols("D", "f", "f", "d")))
 
 # Plot rates ---
 ## make sequence of dates for the y-axis
@@ -103,15 +98,16 @@ ifelse(!dir.exists(output_dir),
        dir.create(output_dir), 
        FALSE)
 ## Save sex plot
-ggsave(filename = here(output_dir, "sex.png"),
+ggsave(filename = paste0(output_dir, "/sex.png"),
        device = "png",
        plot = sex_plot)
 ## Save the remaining plots
-file_names <- paste0(here(output_dir, 
-                          paste0(subgroups_plots_grid$subgroups,
-                                 "_", 
-                                 subgroups_plots_grid$sex, 
-                                 ".png")))
+file_names <- paste0(output_dir, 
+                     "/",
+                      paste0(subgroups_plots_grid$subgroups,
+                             "_", 
+                             subgroups_plots_grid$sex, 
+                             ".png"))
 names(subgroups_plots) <- file_names
 iwalk(.x = subgroups_plots,
       .f = ~ ggsave(filename = .y,

@@ -20,14 +20,10 @@ library(ggplot2)
 # Import rates ---
 crude_rates <- 
   read_csv(file = here("output", "rates", "crude_monthly_std.csv"),
-           col_types = cols_only(date = col_date(),
-                                 std_value = col_double()))
+           col_types = cols("D", "d"))
 crude_rates_per_agegroup <-
   read_csv(file = here("output", "rates", "crude_per_agegroup_monthly_std.csv"),
-           col_types = cols_only(date = col_date(),
-                                 sex = col_factor(),
-                                 agegroup = col_factor(),
-                                 std_value = col_double()))
+           col_types = cols("D", "f", "f", "d"))
 
 # Plot rates ---
 ## make sequence of dates for the y-axis
