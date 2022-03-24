@@ -42,9 +42,7 @@ subgroups_rates_std <-
                       col_types = cols_only(date = col_date(), 
                                             sex = col_factor(),
                                             !!.x := col_factor(), 
-                                            value_std = col_double())
-                      )
-      )
+                                            value_std = col_double())))
 
 # Plot rates ---
 ## Plot rates for sex:
@@ -99,8 +97,13 @@ subgroups_plots <-
 
 # Save plots ---
 ## Plots are saved in ./output/figures
-output_dir <- here("output", "figures")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+output_dir <- here("output", "figures", "subgroups")
+ifelse(!dir.exists(here("output", "figures")), 
+       dir.create(here("output", "figures")), 
+       FALSE) # create ./output/figures if not already there
+ifelse(!dir.exists(output_dir), 
+       dir.create(output_dir), 
+       FALSE)
 ## Save sex plot
 ggsave(filename = here(output_dir, "sex.png"),
        device = "png",
