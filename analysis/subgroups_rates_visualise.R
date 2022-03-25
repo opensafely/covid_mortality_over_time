@@ -52,18 +52,23 @@ dates <-
     "01-09-2021",
     "01-12-2021") %>%
   as_date(., format = "%d-%m-%Y")
+## This function contains the common elements of a plot
+plot_elements <- function(plot){
+  plot +
+    geom_point() + 
+    geom_line() +
+    theme_minimal() +
+    theme(panel.grid.minor.x = element_blank()) +
+    scale_x_date(name = "Calendar Month",
+                 breaks = dates,
+                 date_labels = "%b-%y") +
+    scale_y_continuous(name = "Standardised Risk per 100,000 Individuals")
+}
 ## Plot rates for sex:
 sex_plot <- 
   sex_rates_std %>%
-    ggplot(., aes(date, value_std, group = sex, col = sex)) + 
-      geom_point() +
-      geom_line() + 
-      theme_minimal() +
-      theme(panel.grid.minor.x = element_blank()) +
-      scale_x_date(name = "Calendar Month",
-                   breaks = dates,
-                   date_labels = "%b-%y") +
-      scale_y_continuous(name = "Standardised Risk per 100,000 Individuals") +
+    ggplot(., aes(date, value_std, group = sex, col = sex)) %>%
+      plot_elements(.) +
       scale_colour_discrete(name  ="Sex",
                             labels = c("Female", "Male"))
 ## The remaining variables
@@ -78,15 +83,10 @@ subgroups_plots <-
     map2(.x = subgroups_plots_grid$subgroups,
          .y = subgroups_plots_grid$sex,
          .f = ~ subgroups_rates_std[[which(subgroups_vctr == .x)]] %>% filter(sex == .y) %>%
-                  ggplot(., aes(date, value_std, group = get(.x), col = get(.x))) + 
-                  geom_point() + 
-                  geom_line() +
-                  theme_minimal() +
-                  theme(panel.grid.minor.x = element_blank()) +
-                  scale_x_date(name = "Calendar Month",
-                               breaks = dates,
-                               date_labels = "%b-%y") +
-                  scale_y_continuous(name = "Standardised Risk per 100,000 Individuals"))
+                  ggplot(., aes(date, value_std, group = get(.x), col = get(.x))) %>% 
+                  plot_elements(.) +
+                  scale_colour_discrete(name = .x) +
+                  ggtitle(label = ifelse(.y == "M", "Male", "Female"))) # add male/female
 
 # Save plots ---
 ## Plots are saved in ./output/figures/rates_subgroups
@@ -108,7 +108,7 @@ file_names <- paste0(output_dir,
                              "_", 
                              subgroups_plots_grid$sex, 
                              ".png"))
-names(subgroups_plots) <- file_names
+names(subgroups_plots) <- file_names # used in iwalk as .y
 iwalk(.x = subgroups_plots,
       .f = ~ ggsave(filename = .y,
                     device = "png",
