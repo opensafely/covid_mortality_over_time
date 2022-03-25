@@ -8,33 +8,49 @@ actions:
 # Extract data
 # When argument --index-date-range is changed, change has to be made in ./analysis/config.json too
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition --skip-existing --output-format=csv.gz --index-date-range "2020-03-01 to 2020-04-01 by month"
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition 
+        --skip-existing 
+        --output-format=csv.gz 
+        --index-date-range "2020-03-01 to 2021-12-01 by month"
     outputs:
       highly_sensitive:
         cohort: output/input_*.csv.gz
 
 # Extract ethnicity
   generate_study_population_ethnicity:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_ethnicity --output-format=csv.gz
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_ethnicity 
+        --output-format=csv.gz
     outputs:
       highly_sensitive:
         cohort: output/input_ethnicity.csv.gz
 
 # Join data
-  join_data:
-    run: python:latest analysis/join_ethnicity.py
+  join_cohorts:
+    run: >
+      cohort-joiner:v0.0.7
+        --lhs output/input_202*.csv.gz
+        --rhs output/input_ethnicity.csv.gz
+        --output-dir=output/joined
     needs: [generate_study_population, generate_study_population_ethnicity]
     outputs:
       highly_sensitive:
-        cohort: output/input*.csv.gz
+        cohort: output/joined/input_202*.csv.gz
 
 # Calculate mortality rates (crude + subgroup specific)
   calculate_measures:
-    run: cohortextractor:latest generate_measures --study-definition study_definition
-    needs: [join_data]
+    run: >
+      cohortextractor:latest generate_measures 
+        --study-definition study_definition
+        --skip-existing
+        --output-dir=output/joined
+    needs: [join_cohorts]
     outputs:
       moderately_sensitive:
-        measure: output/measure_*_mortality_rate.csv
+        measure: output/joined/measure_*_mortality_rate.csv
 
 # Standardise crude mortality rate
   standardise_crude_rates:
