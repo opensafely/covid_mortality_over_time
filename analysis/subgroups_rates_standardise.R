@@ -84,7 +84,7 @@ subgroups_rates_std <-
                           .groups = "keep") %>%
                 mutate(., days_in_month = days_in_month(date)) %>%
                 mutate(., value_std = ((value_sum) / days_in_month) * 30) %>%
-                select(date, sex, !!.y, value_std) )
+                select(date, sex, !!.y, value_std))
 
 # Save output ---
 output_dir <- here("output", "rates")
