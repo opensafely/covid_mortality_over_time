@@ -2,7 +2,7 @@
 
 ##  This script:
 ## - Imports the standardised rates
-## - Makes plots over time
+## - Create and saves plots for each demographic and comorbidity (see config.json)
 
 ## linda.nab@thedatalab.com - 20220323
 ## ###########################################################
@@ -49,8 +49,7 @@ sex_plot <-
   plot_rates(., 
              x = "date", 
              y = "value_std",
-             group = "sex",
-             col = "sex") +
+             group = "sex") +
   scale_colour_discrete(name  ="Sex",
                         labels = c("Female", "Male"))
 ## The remaining variables
@@ -69,8 +68,7 @@ subgroups_plots <-
                 plot_rates(.,
                            x = "date",
                            y = "value_std",
-                           group = .x,
-                           col = .x) +
+                           group = .x) +
                   scale_colour_discrete(name = .x) +
                   ggtitle(label = ifelse(.y == "M", "Male", "Female"))) # add male/female
 

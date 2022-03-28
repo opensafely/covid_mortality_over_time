@@ -2,7 +2,7 @@
 
 ##  This script:
 ## - Imports the crude rates
-## - Makes plots over time
+## - Create and saves 3 plots (crude mortality rates over time)
 
 ## linda.nab@thedatalab.com - 20220324
 ## ###########################################################
@@ -40,8 +40,7 @@ crude_agroup_plots <-
              plot_rates(.,
                         x = "date",
                         y = "std_value",
-                        group = "agegroup",
-                        col = "agegroup") +
+                        group = "agegroup") +
              ggtitle(label = ifelse(.x == "M", "Male", "Female")))
 
 # Save plots ---
@@ -52,12 +51,13 @@ ifelse(!dir.exists(here("output", "figures")),
        FALSE) # create ./output/figures if not already there
 ifelse(!dir.exists(output_dir), 
        dir.create(output_dir), 
-       FALSE)
-## Save sex plot
-ggsave(filename = paste0(output_dir, "crude.png"),
+       FALSE) # create ./output/figures/rates_crude if not already there
+## Save plot with crude mortality rates
+ggsave(filename = paste0(output_dir, "/crude.png"),
        device = "png",
        plot = crude_plot)
-## Save the remaining plots
+## Save plot with crude mortality rates per agegroup, one for females and one 
+## for males
 file_names <- c(paste0(output_dir, "/crude_agegroup_F.png"),
                 paste0(output_dir, "/crude_agegroup_M.png"))
 names(crude_agroup_plots) <- file_names

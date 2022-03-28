@@ -12,8 +12,18 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 
-## This function contains the common elements of a plot
-plot_rates <- function(df, x, y, group = NULL, col = NULL){
+## This function contains the common elements of a plot visualising standardised
+## mortality rates over time, optionally for different levels of a variable
+## Arguments:
+## df: data.frame containing columns 'x' and 'y' (and optionally, 'group')
+## x: string of the name of the column in df that contains dates 
+## (column type in df: date)
+## y: string of the name of the column if df that contains the standardised 
+## mortality rates per 100.000 people (column type in df: double)
+## group: optional argument, string of the name of the column in df reflecting 
+## different levels of a demographic variable or comorbidity 
+## (column type in df: factor)
+plot_rates <- function(df, x, y, group = NULL){
   ## make sequence of dates for the y-axis
   dates <- 
     c("01-03-2020",
@@ -26,7 +36,7 @@ plot_rates <- function(df, x, y, group = NULL, col = NULL){
       "01-12-2021") %>%
     as_date(., format = "%d-%m-%Y")
   plot <- 
-    ggplot(df, aes_string(x, y, group = group, col = col)) +
+    ggplot(df, aes_string(x, y, group = group, col = group)) +
     geom_point() + 
     geom_line() +
     theme_minimal() +
