@@ -30,8 +30,8 @@ crude_rates_per_agegroup <-
 crude_plot <- 
   crude_rates %>%
   plot_rates(.,
-             x = "date",
-             y = "std_value")
+             x = date,
+             y = std_value)
 ## Plot crude rates per age group (separate plot per sex)
 crude_agroup_plots <- 
   map(.x = c("F", "M"),
