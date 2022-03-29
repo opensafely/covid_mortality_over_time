@@ -12,6 +12,7 @@
 library(here)
 library(dplyr)
 library(readr)
+library(purrr)
 utils_dir <- here("analysis", "utils")
 source(paste0(utils_dir, "/extract_data.R")) # function extract_data()
 source(paste0(utils_dir, "/process_data.R")) # function process_data()
