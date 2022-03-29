@@ -71,6 +71,14 @@ subgroups_rates <-
   map(.x = subgroups_rates,
       .f = ~ mutate(.x, value_weighted = value * (EuropeanStandardPopulation / 
                                                     n_esp_18_years_or_over)))
+## The expected deaths is equal to crude rate (value) * EuropeanStandardPopulation, 
+## to calculate the Direct Standardised Mortality Rate, you sum over all age 
+## categories per sex (+ second var e.g. bmi) and divide by the total number 
+## in the ESP (= 84000). In the above, value_weighted is the expected number 
+## of deaths in a specific (sex, agegroup) strata of the pop, already divided by
+## total number in the ESP --> summing over the age groups will then result in 
+## the Direct Standardised Mortality Rate as x1/y + ... + xk/y=(x1 + .. + xk)/y.
+## Here -->
 ## Sum over all age categories for a specific date, sex and subgroup, to get
 ## the age standardised mortality rate
 ## multiply by 100000 to calculate mortality rate per 100000 people
