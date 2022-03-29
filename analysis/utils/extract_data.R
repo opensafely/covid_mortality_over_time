@@ -16,7 +16,7 @@ library(here)
 ## - file_name: string with the location of the input file extracted by the 
 ##   cohortextracter
 ## output:
-## data.frame of the input file, with columns with the correct type
+## data.frame of the input file, with columns of the correct type
 extract_data <- function(file_name) {
   data_extracted <-
     read_csv(

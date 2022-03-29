@@ -1,13 +1,15 @@
 ## ###########################################################
 
 ##  This script:
-## - Contains a general function that is used to extract data
+## - Contains a general function that is used to process data that is extracted
+##   for table 1
 
 ## linda.nab@thedatalab.com - 20220328
 ## ###########################################################
 
 # Load libraries & functions ---
 library(dplyr)
+# Function needed inside process_data
 fct_case_when <- function(...) {
   # uses dplyr::case_when but converts the output to a factor,
   # with factors ordered as they appear in the case_when's  ... argument
@@ -17,7 +19,14 @@ fct_case_when <- function(...) {
   factor(dplyr::case_when(...), levels=levels)
 }
 
-# function ---
+# Function ---
+## Processes the extracted data in extract_data(): changes levels of factors in 
+## data
+## args:
+## - data_extracted: a data.frame extracted by function extract_data() in 
+##   ./analysis/utils/extract_data.R
+## output:
+## data.frame of data_extracted with factor columns with correct levels
 process_data <- function(data_extracted) {
   data_processed <-
     data_extracted %>%
@@ -37,7 +46,7 @@ process_data <- function(data_extracted) {
       sex = fct_case_when(sex == "F" ~ "Female",
                           sex == "M" ~ "Male",
                           TRUE ~ NA_character_),
-      # no missings should occur as only of those
+      # no missings should occur as only of
       # individuals with a female/male sex, data is extracted
       
       bmi = fct_case_when(
