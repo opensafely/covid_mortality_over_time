@@ -10,7 +10,7 @@
 library(readr)
 library(here)
 
-# function ---
+# Function ---
 ## Extracts data and maps columns to the correct format (integer, factor etc)
 ## args:
 ## - file_name: string with the location of the input file extracted by the 
