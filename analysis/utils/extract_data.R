@@ -1,19 +1,26 @@
 ## ###########################################################
 
 ##  This script:
-## - Contains a general function that is used to extract data
+## - Contains a general function that is used to extract data to create table 1
 
 ## linda.nab@thedatalab.com - 20220328
 ## ###########################################################
 
 # Load libraries & functions ---
 library(readr)
+library(here)
 
 # function ---
+## Extracts data and maps columns to the correct format (integer, factor etc)
+## args:
+## - file_name: string with the location of the input file extracted by the 
+##   cohortextracter
+## output:
+## data.frame of the input file, with columns with the correct type
 extract_data <- function(file_name) {
   data_extracted <-
     read_csv(
-      file = here("output", "joined", "input_wave2.csv.gz"),
+      file = file_name,
       col_types = cols_only(
         # only read the columns defined here
         patient_id = col_integer(),
