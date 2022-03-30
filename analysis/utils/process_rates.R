@@ -73,30 +73,34 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "imd")]] <-
     imd == "3" ~ "3",
     imd == "4" ~ "4",
     imd == "5" ~ "5 (most)",
-    imd == "0" ~ NA_character_
+    imd == "0" ~ NA_character_,
+    TRUE ~ NA_character_
   ))
 # comorbidities
 subgroups_rates_std[[which(names(subgroups_rates_std) == "asthma")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "asthma")]] %>%
   mutate(asthma = fct_case_when(
-    asthma == "0.0" ~ "No asthma",
-    asthma == "1.0" ~ "With no oral steroid use",
-    asthma == "2.0" ~ "With oral steroid use"
+    asthma == "0" ~ "No asthma",
+    asthma == "1" ~ "With no oral steroid use",
+    asthma == "2" ~ "With oral steroid use",
+    TRUE ~ NA_character_
   ))
 subgroups_rates_std[[which(names(subgroups_rates_std) == "diabetes_controlled")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "diabetes_controlled")]] %>%
   mutate(diabetes_controlled = fct_case_when(
-    diabetes_controlled == "0.0" ~ "No diabetes",
-    diabetes_controlled == "1.0" ~ "Controlled",
-    diabetes_controlled == "2.0" ~ "Not controlled",
-    diabetes_controlled == "3.0" ~ "Without recent Hb1ac measure"
+    diabetes_controlled == "0" ~ "No diabetes",
+    diabetes_controlled == "1" ~ "Controlled",
+    diabetes_controlled == "2" ~ "Not controlled",
+    diabetes_controlled == "3" ~ "Without recent Hb1ac measure",
+    TRUE ~ NA_character_
   ))
 subgroups_rates_std[[which(names(subgroups_rates_std) == "dialysis_kidney_transplant")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "dialysis_kidney_transplant")]] %>%
   mutate(dialysis_kidney_transplant = fct_case_when(
-    dialysis_kidney_transplant == "0.0" ~ "No dialysis",
-    dialysis_kidney_transplant == "1.0" ~ "With previous kidney transplant",
-    dialysis_kidney_transplant == "2.0" ~ "Without previous kidney transplant"
+    dialysis_kidney_transplant == "0" ~ "No dialysis",
+    dialysis_kidney_transplant == "1" ~ "With previous kidney transplant",
+    dialysis_kidney_transplant == "2" ~ "Without previous kidney transplant",
+    TRUE ~ NA_character_
   ))
 subgroups_rates_std[[which(names(subgroups_rates_std) == "ckd")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "ckd")]] %>%
@@ -106,22 +110,20 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "ckd")]] <-
     ckd == "3a" ~ "Stage 3a",
     ckd == "3b" ~ "Stage 3b",
     ckd == "4" ~ "Stage 4",
-    ckd == "5" ~ "Stage 5"
+    ckd == "5" ~ "Stage 5",
+    TRUE ~ NA_character_
   ))
 subgroups_rates_std[[which(names(subgroups_rates_std) == "organ_kidney_transplant")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "organ_kidney_transplant")]] %>%
   mutate(organ_kidney_transplant = fct_case_when(
     organ_kidney_transplant == "No transplant" ~ "No transplant",
     organ_kidney_transplant == "Kidney" ~ "Kidney transplant",
-    organ_kidney_transplant == "Organ" ~ "Other organ transplant"
+    organ_kidney_transplant == "Organ" ~ "Other organ transplant",
+    TRUE ~ NA_character_
   ))
-# Create data.frame mapping reference levels of vars ---
-reference_values <- 
-  cbind(subgroup = subgroups_vctr, reference = NA) %>%
-  as.data.frame()
 
 # Save output ---
-output_dir <- here("output", "rates")
+output_dir <- here("output", "rates", "processed")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 iwalk(.x = subgroups_rates_std,
       .f = ~ write_csv(x = .x,
