@@ -246,7 +246,8 @@ study = StudyDefinition(
             "N + M": "DEFAULT",
         },
         return_expectations={
-            "category": {"ratios": {"S": 0.6, "E": 0.1, "N + M": 0.3}}
+            "rate": "universal",
+            "category": {"ratios": {"S": 0.6, "E": 0.1, "N + M": 0.3},}
         },
     ),
     # imd (index of multiple deprivation) quintile
