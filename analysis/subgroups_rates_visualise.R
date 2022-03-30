@@ -39,6 +39,7 @@ subgroups_rates_std <-
   map(.x = subgroups_vctr,
       .f = ~ read_csv(file = here("output", 
                                   "rates",
+                                  "processed",
                                   paste0(.x,"_monthly_std.csv")),
                       col_types = cols("D", "f", "f", "d")))
 

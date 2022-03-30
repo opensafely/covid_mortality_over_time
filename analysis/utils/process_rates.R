@@ -121,6 +121,8 @@ reference_values <-
   as.data.frame()
 
 # Save output ---
+output_dir <- here("output", "rates")
+ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 iwalk(.x = subgroups_rates_std,
       .f = ~ write_csv(x = .x,
-                       path = here("output", "rates", paste0(.y, "_montlhy_std.csv"))))
+                       path = paste0(output_dir, "/", .y, "_monthly_std.csv")))
