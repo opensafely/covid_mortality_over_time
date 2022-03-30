@@ -71,10 +71,19 @@ actions:
 # Process subgroup specific mortality rates
   process_subgroup_rates:
     run: r:latest analysis/utils/process_rates.R
-    needs: [standardise_subgroup_rates]
+    needs: [standardise_subgroup_rates, standardise_subgroup_rates]
+    outputs:
+      moderately_sensitive:
+        csvs: output/ratios/*.csv
+
+# Calculate rate ratios
+  calc_rate_ratios:
+    run: r:latest analysis/subgroups_ratios.R
+    needs: [process_subgroup_rates]
     outputs:
       moderately_sensitive:
         csvs: output/rates/processed/*_monthly_std.csv
+
 
 # Plot and save graphs depicting the crude rates
   visualise_crude_rates:
