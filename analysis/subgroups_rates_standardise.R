@@ -57,7 +57,7 @@ subgroups_rates <-
 ## (added because needed in function calc_dsr_i and calc_var_dsr_i)
 subgroups_rates <- 
   imap(.x = subgroups_rates,
-       .f = ~ group_by(.x, across(.cols = c(date, sex, eval(.y)))) %>%
+       .f = ~ group_by_at(.x, vars("date", "sex", !!.y)) %>%
          mutate(M_total = sum(EuropeanStandardPopulation)))
 
 ## Add column 'dsr_i' to subgroups_rates using funcion calc_dsr_i
@@ -89,7 +89,7 @@ subgroups_rates <-
 ## --> sum over age to get dsr and var_dsr
 subgroups_rates <-
   imap(.x = subgroups_rates,
-       .f = ~ group_by(.x, across(.cols = c(date, sex, eval(.y)))) %>%
+       .f = ~ group_by_at(.x, vars("date", "sex", !!.y)) %>%
          summarise(dsr = sum(dsr_i, na.rm = TRUE),
                    var_dsr = sum(var_dsr_i, na.rm = TRUE),
                    .groups = "drop"))
