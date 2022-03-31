@@ -38,26 +38,59 @@ subgroups_rates_std <-
                       col_types = cols("D", "f", "f", "d")))
 names(subgroups_rates_std) <- subgroups_vctr
 
+# Prepare data ---
+## Add reference --> needed to calculate standardised rate ratios (srr) = 
+## rate_a / rate_b where rate_b is rate of the reference.
+## Add reference to 'sex_rates_std' using df reference_values sourced from 
+## ./analysis/utils/reference_values.R
+sex_rates_std <-
+  sex_rates_std %>%
+  mutate(reference = 
+           reference_values %>% filter(subgroup == "sex") %>% pull(reference))
+## Add reference to 'subgroups_rates_std' using df reference_values sourced from
+## ./analysis/utils/reference_values.R
+subgroups_rates_std <-
+  imap(.x = subgroups_rates_std,
+       .f = ~ 
+         mutate(.x, 
+                reference = 
+                reference_values %>% filter(subgroup == .y) %>% pull(reference)
+                )
+       )
+
 # Calculate ratios ---
 ## Sex
+## srr = dsr_a / dsr_b where dsr_b is dsr of the reference (here sex == F)
+## confidence interval of srr is calculated as follows:
+## log(srr) = log(dsr_a) - log(dsr_b)
+## var(log(srr)) = var(log(dsr_a)) + var(log(dsr_b))
+## var(log(dsr_a)) = 1 / dsr_a ^2 * var(dsr_a) (idem for b) [using delta method]
+## ci_srr = exp[log(srr) +/- 1.96 * sqrt(var(log(srr)))]
+## see also:
+## https://docs.google.com/document/d/1Slo6FxC2Jv2qrqz5T4rnH_VXJhRajq7bKc_pcuveV5s/edit#
 sex_ratios <- 
   sex_rates_std %>%
   group_by(date) %>%
-  mutate(ratio = value_std / 
-           value_std[sex == reference_values %>%
-                       filter(subgroup == "sex") %>%
-                       pull(reference)]) %>%
-  select(-value_std)
-## Rest
+  mutate(srr = dsr / dsr[sex == reference],
+         log_dsr = log(dsr),
+         var_log_dsr = 1 / dsr^2 * var_dsr) %>%
+  mutate(log_srr = log(srr),
+         var_log_srr = var_log_dsr + var_log_dsr[sex == reference]) %>%
+  mutate(srr_ci_lo = exp(log_srr - qnorm(0.975) * sqrt(var_log_srr)),
+         srr_ci_up = exp(log_srr + qnorm(0.975) * sqrt(var_log_srr))) %>%
+  select(date, sex, srr, srr_ci_lo, srr_ci_up)
+## Rest (works as described above)
 subgroups_ratios <- 
   imap(.x = subgroups_rates_std,
-       .f = ~ .x %>% 
-         group_by(date, sex) %>%
-         mutate(ratio = value_std / 
-                  value_std[.y %>% get() == reference_values %>%
-                              filter(subgroup == .y) %>%
-                              pull(reference)]) %>%
-         select(-value_std))
+       .f = ~ group_by(.x, date, sex) %>%
+         mutate(srr = dsr / dsr[get(.y) == reference],
+                    log_dsr = log(dsr),
+                    var_log_dsr = 1 / dsr^2 * var_dsr) %>%
+         mutate(log_srr = log(srr),
+                var_log_srr = var_log_dsr + var_log_dsr[get(.y) == reference]) %>%
+         mutate(srr_ci_lo = exp(log_srr - qnorm(0.975) * sqrt(var_log_srr)),
+                srr_ci_up = exp(log_srr + qnorm(0.975) * sqrt(var_log_srr))) %>%
+         select(date, sex, !!.y, srr, srr_ci_lo, srr_ci_up)) 
 
 # Save output ---
 output_dir <- here("output", "ratios")
