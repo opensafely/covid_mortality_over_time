@@ -25,7 +25,7 @@ library(lubridate)
 ## - group: optional argument, string of the name of the column in df reflecting 
 ## different levels of a demographic variable or comorbidity 
 ## (column type in df: factor)
-plot_rates <- function(df, x, y, ci_lo, ci_up, group = NULL){
+plot_rates <- function(df, x, y, ci_lo = NULL, ci_up = NULL, group = NULL){
   ## make sequence of dates for the y-axis
   dates <- 
     c("01-03-2020",
@@ -41,15 +41,19 @@ plot_rates <- function(df, x, y, ci_lo, ci_up, group = NULL){
     ggplot(df, aes_string(x, y, group = group, col = group)) +
     geom_point() + 
     geom_line() +
-    geom_ribbon(data = df, 
-                mapping = aes_string(ymin = ci_lo, ymax = ci_up),
-                alpha = 0.1,
-                linetype = 0) +
     theme_minimal() +
     theme(panel.grid.minor.x = element_blank()) +
     scale_x_date(name = "Calendar Month",
                  breaks = dates,
                  date_labels = "%b-%y") +
     scale_y_continuous(name = "Standardised Risk per 100,000 Individuals")
+  if (!is.null(ci_lo) & !is.null(ci_up)){ # add CIs if boundaries provided
+    plot <- 
+      plot +
+      geom_ribbon(data = df, 
+                  mapping = aes_string(ymin = ci_lo, ymax = ci_up),
+                  alpha = 0.1,
+                  linetype = 0)
+  }
   plot
 }
