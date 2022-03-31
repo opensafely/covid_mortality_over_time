@@ -15,15 +15,17 @@ library(lubridate)
 ## This function contains the common elements of a plot visualising standardised
 ## mortality rates over time, optionally for different levels of a variable
 ## Arguments:
-## df: data.frame containing columns 'x' and 'y' (and optionally, 'group')
-## x: string of the name of the column in df that contains dates 
+## - df: data.frame containing columns 'x' and 'y' (and optionally, 'group')
+## - x: string of the name of the column in df that contains dates 
 ## (column type in df: date)
-## y: string of the name of the column if df that contains the standardised 
+## - y: string of the name of the column in df that contains the standardised 
 ## mortality rates per 100.000 people (column type in df: double)
-## group: optional argument, string of the name of the column in df reflecting 
+## - ci_lo: string of the name of the column in df that contains the lower ci's
+## - ci_up: string of the name of the column in df that contains the upper ci's
+## - group: optional argument, string of the name of the column in df reflecting 
 ## different levels of a demographic variable or comorbidity 
 ## (column type in df: factor)
-plot_rates <- function(df, x, y, group = NULL){
+plot_rates <- function(df, x, y, ci_lo, ci_up, group = NULL){
   ## make sequence of dates for the y-axis
   dates <- 
     c("01-03-2020",
@@ -39,6 +41,10 @@ plot_rates <- function(df, x, y, group = NULL){
     ggplot(df, aes_string(x, y, group = group, col = group)) +
     geom_point() + 
     geom_line() +
+    geom_ribbon(data = df, 
+                mapping = aes_string(ymin = ci_lo, ymax = ci_up),
+                alpha = 0.1,
+                linetype = 0) +
     theme_minimal() +
     theme(panel.grid.minor.x = element_blank()) +
     scale_x_date(name = "Calendar Month",
