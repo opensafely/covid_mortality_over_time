@@ -247,7 +247,7 @@ study = StudyDefinition(
         },
         return_expectations={
             "rate": "universal",
-            "category": {"ratios": {"S": 0.6, "E": 0.1, "N + M": 0.3},}
+            "category": {"ratios": {"S": 0.6, "E": 0.1, "N + M": 0.3}, }
         },
     ),
     # imd (index of multiple deprivation) quintile
@@ -625,7 +625,7 @@ study = StudyDefinition(
     # egfr<60 BUT since first rule is >45, we're not sure it actually is >45.
     # Restricting to those not '>', '>=', '~' or '=' (like is done for category
     # 5) is therefore not enough, and we need to be stricter by limiting to
-    # '='. The only comparator that can be used AND fullfils both rules, 
+    # '='. The only comparator that can be used AND fullfils both rules,
     # is '='.
     egfr_category=patients.categorised_as(
         {
