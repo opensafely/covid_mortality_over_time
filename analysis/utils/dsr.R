@@ -9,8 +9,8 @@
 ## Functions used for the calculation of direct standardised rates and its 
 ## variance.
 ## The direct standardised rate (DSR) = sum_i dsr_i
-## Details can be found in 
-## https://docs.google.com/document/d/1Slo6FxC2Jv2qrqz5T4rnH_VXJhRajq7bKc_pcuveV5s/edit#
+## Details can be found in: (restricted access to bennett institute)
+## https://docs.google.com/document/d/1Slo6FxC2Jv2qrqz5T4rnH_VXJhRajq7bKc_pcuveV5s/edit?usp=sharing
 
 # Functions ---
 ## input:
