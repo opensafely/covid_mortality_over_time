@@ -246,6 +246,22 @@ study = StudyDefinition(
             on_or_before="index_date",
         ),
     ),
+    # smoking status (combining never and missing)
+    smoking_status_comb=patients.categorised_as(
+        {
+            "S": "most_recent_smoking_code = 'S'",
+            "E": """
+                     most_recent_smoking_code = 'E' OR (
+                       most_recent_smoking_code = 'N' AND ever_smoked
+                    )
+                """,
+            "N + M": "DEFAULT",
+        },
+        return_expectations={
+            "rate": "universal",
+            "category": {"ratios": {"S": 0.6, "E": 0.1, "N + M": 0.3}, }
+        },
+    ),
     # imd (index of multiple deprivation) quintile
     index_of_multiple_deprivation=patients.address_as_of(
             date="index_date",
@@ -634,7 +650,7 @@ study = StudyDefinition(
     # egfr<60 BUT since first rule is >45, we're not sure it actually is >45.
     # Restricting to those not '>', '>=', '~' or '=' (like is done for category
     # 5) is therefore not enough, and we need to be stricter by limiting to
-    # '='. The only comparator that can be used AND fullfils both rules, 
+    # '='. The only comparator that can be used AND fullfils both rules,
     # is '='.
     egfr_category=patients.categorised_as(
         {
@@ -837,7 +853,7 @@ study = StudyDefinition(
         # results to only specified cause of death
         return_expectations={
             "rate": "exponential_increase",
-            "incidence": 0.005,
+            "incidence": 0.05,
         },
     ),
 )

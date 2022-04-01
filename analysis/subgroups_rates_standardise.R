@@ -17,6 +17,8 @@ library(lubridate)
 library(jsonlite)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
+## Load functions calc_dsr_i() and calc_var_dsr_i()
+source(here("analysis", "utils", "dsr.R"))
 
 # Import data ---
 ## Create vector containing the demographics and comorbidities
@@ -31,6 +33,7 @@ subgroups_rates <-
                 "joined",
                 paste0("measure_", subgroups_vctr,"_mortality_rate.csv")),
       .f = ~ read_csv(file = .x))
+names(subgroups_rates) <- subgroups_vctr # used in imap and iwalk (.y)
 ## European Standard population
 esp <- 
   read_csv(file = here("input", "european_standard_pop.csv"),
@@ -50,54 +53,50 @@ subgroups_rates <-
       .f= ~ left_join(.x, 
                       esp, 
                       by = c("agegroup_std" = "AgeGroup", "sex" = "Sex")))
-
-# Workhorse ---
-## Standard European Population used here does not contain 100000 people, as 
-## 'young' age categories (first 3) are not included. 
-## We therefore need to calculate number of people in the ESP for our use case:
-n_esp_18_years_or_over <- 
-  esp %>%
-  group_by(Sex) %>%
-  summarise(n = sum(EuropeanStandardPopulation), 
-            .groups = "keep") %>%
-  filter(Sex == "F") %>% 
-  pull() # note that female and male population are equal, therefore, filter on 
-         # female (could have been male)
-## Calculate for each age group, sex and category of the subgroups (as listed
-## in subgroups_vctr) the weighted mortality rate by multiplying the mortality
-## rate by the percentage of that age category in the European Standard 
-## Population 
+## Add column with total number in ESP for date, sex and subgroup variable
+## (added because needed in function calc_dsr_i and calc_var_dsr_i)
 subgroups_rates <- 
+  imap(.x = subgroups_rates,
+       .f = ~ group_by_at(.x, vars("date", "sex", !!.y)) %>%
+         mutate(M_total = sum(EuropeanStandardPopulation)))
+
+## Add column 'dsr_i' to subgroups_rates using funcion calc_dsr_i
+subgroups_rates <-
   map(.x = subgroups_rates,
-      .f = ~ mutate(.x, value_weighted = value * (EuropeanStandardPopulation / 
-                                                    n_esp_18_years_or_over)))
-## The expected deaths is equal to crude rate (value) * EuropeanStandardPopulation, 
-## to calculate the Direct Standardised Mortality Rate, you sum over all age 
-## categories per sex (+ second var e.g. bmi) and divide by the total number 
-## in the ESP (= 84000). In the above, value_weighted is the expected number 
-## of deaths in a specific (sex, agegroup) strata of the pop, already divided by
-## total number in the ESP --> summing over the age groups will then result in 
-## the Direct Standardised Mortality Rate as x1/y + ... + xk/y=(x1 + .. + xk)/y.
-## Here -->
-## Sum over all age categories for a specific date, sex and subgroup, to get
-## the age standardised mortality rate
-## multiply by 100000 to calculate mortality rate per 100000 people
-## divide by days in that month and multiply by 30 to month standardise rate
-subgroups_rates_std <-
-  map2(.x = subgroups_rates, 
-       .y = subgroups_vctr,
-       .f = ~ group_by(.x, across(.cols = c(date, sex, eval(.y)))) %>%
-                summarise(.,
-                          value_sum = sum(value_weighted, na.rm = TRUE) * 100000, 
-                          .groups = "keep") %>%
-                mutate(., days_in_month = days_in_month(date)) %>%
-                mutate(., value_std = ((value_sum) / days_in_month) * 30) %>%
-                select(date, sex, !!.y, value_std))
+      .f = ~ mutate(
+        .x,
+        dsr_i = calc_dsr_i(
+          C = 100000 * 30 / days_in_month(date),
+          M_total = M_total,
+          p = value,
+          M = EuropeanStandardPopulation
+        )
+      ))
+## Add column 'var_dsr_i' to subgroups_rates using function calc_var_dsr_i
+subgroups_rates <-
+  map(.x = subgroups_rates,
+      .f = ~ mutate(
+        .x,
+        var_dsr_i = calc_var_dsr_i(
+          C = 100000 * 30 / days_in_month(date),
+          M_total = M_total,
+          p = value,
+          M = EuropeanStandardPopulation,
+          N = population
+        )
+      ))
+## For each date, sex, and level of 'subgroup', 
+## --> sum over age to get dsr and var_dsr
+subgroups_rates <-
+  imap(.x = subgroups_rates,
+       .f = ~ group_by_at(.x, vars("date", "sex", !!.y)) %>%
+         summarise(dsr = sum(dsr_i, na.rm = TRUE),
+                   var_dsr = sum(var_dsr_i, na.rm = TRUE),
+                   .groups = "drop"))
 
 # Save output ---
 output_dir <- here("output", "rates")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
-walk2(.x = subgroups_rates_std,
-      .y = subgroups_vctr,
+iwalk(.x = subgroups_rates,
       .f = ~ write_csv(x = .x,
                        path = paste0(output_dir, "/", .y, "_monthly_std.csv")))

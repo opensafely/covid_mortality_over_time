@@ -68,6 +68,22 @@ actions:
       moderately_sensitive:
         csvs: output/rates/*_monthly_std.csv
 
+# Process subgroup specific mortality rates
+  process_subgroup_rates:
+    run: r:latest analysis/utils/process_rates.R
+    needs: [standardise_subgroup_rates, standardise_subgroup_rates]
+    outputs:
+      moderately_sensitive:
+        csvs: output/rates/processed/*_monthly_std.csv
+
+# Calculate standardised rate ratios
+  calculate_rate_ratios:
+    run: r:latest analysis/subgroups_ratios.R
+    needs: [standardise_subgroup_rates, process_subgroup_rates]
+    outputs:
+      moderately_sensitive:
+        csvs: output/ratios/*.csv
+
 # Plot and save graphs depicting the crude rates
   visualise_crude_rates:
     run: r:latest analysis/crude_rates_visualise.R
@@ -79,10 +95,17 @@ actions:
 # Plot and save graphs depicting the subgroup specific mortality rates
   visualise_subgroup_rates:
     run: r:latest analysis/subgroups_rates_visualise.R
-    needs: [standardise_subgroup_rates]
+    needs: [standardise_subgroup_rates, process_subgroup_rates]
     outputs:
       moderately_sensitive:
         pngs: output/figures/rates_subgroups/*.png
+
+  visualise_subgroup_ratios:
+    run: r:latest analysis/subgroups_ratios_visualise.R
+    needs: [calculate_rate_ratios]
+    outputs:
+      moderately_sensitive:
+        pngs: output/figures/ratios_subgroups/*.png
 
 # SECOND PART OF STUDY
   generate_study_population_wave1:
@@ -134,3 +157,4 @@ actions:
 #     outputs:
 #       highly_sensitive: 
 #         rds: output/data_processed/data_processed_2020-04-01.rds
+# Plot and save graphs depicting the subgroup specific mortality ratios

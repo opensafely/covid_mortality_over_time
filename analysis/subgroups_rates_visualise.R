@@ -32,15 +32,26 @@ source(here("analysis", "utils", "plot_rates.R"))
 sex_rates_std <- read_csv(file = here("output", 
                                       "rates",
                                       "sex_monthly_std.csv"),
-                          col_types = cols("D", "f", "d"))
+                          col_types = cols("D", "f", "d", "d"))
 # Import the rest of the mortality rates:
 subgroups_vctr <- c(config$demographics, config$comorbidities)
 subgroups_rates_std <- 
   map(.x = subgroups_vctr,
       .f = ~ read_csv(file = here("output", 
                                   "rates",
+                                  "processed",
                                   paste0(.x,"_monthly_std.csv")),
-                      col_types = cols("D", "f", "f", "d")))
+                      col_types = cols("D", "f", "f", "d", "d")))
+# calculate ci's
+sex_rates_std <- 
+  sex_rates_std %>%
+  mutate(ci_lo = dsr - qnorm(0.975) * sqrt(var_dsr),
+         ci_up = dsr + qnorm(0.975) * sqrt(var_dsr))
+subgroups_rates_std <-
+  map(.x = subgroups_rates_std,
+      .f = ~ mutate(.x, 
+                    ci_lo = dsr - qnorm(0.975) * sqrt(var_dsr),
+                    ci_up = dsr + qnorm(0.975) * sqrt(var_dsr)))
 
 # Plot rates ---
 ## Plot rates for sex:
@@ -48,7 +59,9 @@ sex_plot <-
   sex_rates_std %>%
   plot_rates(., 
              x = "date", 
-             y = "value_std",
+             y = "dsr",
+             ci_lo = "ci_lo",
+             ci_up = "ci_up",
              group = "sex") +
   scale_colour_discrete(name  ="Sex",
                         labels = c("Female", "Male"))
@@ -67,7 +80,9 @@ subgroups_plots <-
                 filter(sex == .y) %>%
                 plot_rates(.,
                            x = "date",
-                           y = "value_std",
+                           y = "dsr",
+                           ci_lo = "ci_lo",
+                           ci_up = "ci_up",
                            group = .x) +
                   scale_colour_discrete(name = .x) +
                   ggtitle(label = ifelse(.y == "M", "Male", "Female"))) # add male/female
