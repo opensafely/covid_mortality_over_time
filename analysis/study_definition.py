@@ -842,7 +842,7 @@ study = StudyDefinition(
         # results to only specified cause of death
         return_expectations={
             "rate": "exponential_increase",
-            "incidence": 0.005,
+            "incidence": 0.05,
         },
     ),
 )
