@@ -32,7 +32,7 @@ source(here("analysis", "utils", "plot_rates.R"))
 sex_rates_std <- read_csv(file = here("output", 
                                       "rates",
                                       "sex_monthly_std.csv"),
-                          col_types = cols("D", "f", "d"))
+                          col_types = cols("D", "f", "d", "d"))
 # Import the rest of the mortality rates:
 subgroups_vctr <- c(config$demographics, config$comorbidities)
 subgroups_rates_std <- 
