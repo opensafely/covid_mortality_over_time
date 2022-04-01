@@ -27,7 +27,7 @@ subgroups_vctr <- c(config$demographics, config$comorbidities)
 sex_rates_std <- read_csv(file = here("output", 
                                       "rates",
                                       "sex_monthly_std.csv"),
-                          col_types = cols("D", "f", "d"))
+                          col_types = cols("D", "f", "d", "d"))
 ## Import the rest of the mortality rates
 subgroups_rates_std <- 
   map(.x = subgroups_vctr,
@@ -35,7 +35,7 @@ subgroups_rates_std <-
                                   "rates",
                                   "processed",
                                   paste0(.x,"_monthly_std.csv")),
-                      col_types = cols("D", "f", "f", "d")))
+                      col_types = cols("D", "f", "f", "d", "d")))
 names(subgroups_rates_std) <- subgroups_vctr
 
 # Prepare data ---
@@ -66,8 +66,8 @@ subgroups_rates_std <-
 ## var(log(srr)) = var(log(dsr_a)) + var(log(dsr_b))
 ## var(log(dsr_a)) = 1 / dsr_a ^2 * var(dsr_a) (idem for b) [using delta method]
 ## ci_srr = exp[log(srr) +/- 1.96 * sqrt(var(log(srr)))]
-## see also:
-## https://docs.google.com/document/d/1Slo6FxC2Jv2qrqz5T4rnH_VXJhRajq7bKc_pcuveV5s/edit#
+## see also: (restricted access to Bennett institute)
+## https://docs.google.com/document/d/1Slo6FxC2Jv2qrqz5T4rnH_VXJhRajq7bKc_pcuveV5s/edit?usp=sharing
 sex_ratios <- 
   sex_rates_std %>%
   group_by(date) %>%
@@ -78,7 +78,8 @@ sex_ratios <-
          var_log_srr = var_log_dsr + var_log_dsr[sex == reference]) %>%
   mutate(srr_ci_lo = exp(log_srr - qnorm(0.975) * sqrt(var_log_srr)),
          srr_ci_up = exp(log_srr + qnorm(0.975) * sqrt(var_log_srr))) %>%
-  select(date, sex, srr, srr_ci_lo, srr_ci_up)
+  select(date, sex, 
+         srr, srr_ci_lo, srr_ci_up)
 ## Rest (works as described above)
 subgroups_ratios <- 
   imap(.x = subgroups_rates_std,
@@ -90,7 +91,8 @@ subgroups_ratios <-
                 var_log_srr = var_log_dsr + var_log_dsr[get(.y) == reference]) %>%
          mutate(srr_ci_lo = exp(log_srr - qnorm(0.975) * sqrt(var_log_srr)),
                 srr_ci_up = exp(log_srr + qnorm(0.975) * sqrt(var_log_srr))) %>%
-         select(date, sex, !!.y, srr, srr_ci_lo, srr_ci_up)) 
+         select(date, sex, !!.y,
+                srr, srr_ci_lo, srr_ci_up)) 
 
 # Save output ---
 output_dir <- here("output", "ratios")
