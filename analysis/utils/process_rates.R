@@ -29,7 +29,7 @@ subgroups_rates_std <-
       .f = ~ read_csv(file = here("output", 
                                   "rates",
                                   paste0(.x,"_monthly_std.csv")),
-                      col_types = cols("D", "f", "f", "d")))
+                      col_types = cols("D", "f", "f", "d", "d")))
 names(subgroups_rates_std) <- subgroups_vctr
 
 # Change levels of factors (demographics + comorbidities) ---
