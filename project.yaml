@@ -77,9 +77,9 @@ actions:
         csvs: output/rates/processed/*_monthly_std.csv
 
 # Calculate standardised rate ratios
-  calc_rate_ratios:
+  calculate_rate_ratios:
     run: r:latest analysis/subgroups_ratios.R
-    needs: [process_subgroup_rates]
+    needs: [standardise_subgroup_rates, process_subgroup_rates]
     outputs:
       moderately_sensitive:
         csvs: output/ratios/*.csv
@@ -99,3 +99,11 @@ actions:
     outputs:
       moderately_sensitive:
         pngs: output/figures/rates_subgroups/*.png
+
+# Plot and save graphs depicting the subgroup specific mortality ratios
+  visualise_subgroup_ratios:
+    run: r:latest analysis/subgroups_ratios_visualise.R
+    needs: [calculate_rate_ratios]
+    outputs:
+      moderately_sensitive:
+        pngs: output/figures/ratios_subgroups/*.png
