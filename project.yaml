@@ -160,7 +160,7 @@ actions:
         rds: output/processed/input_wave*.rds
 
 # Create table one
-  process_data:
+  create_table_one:
     run: r:latest analysis/table_one.R
     needs: [process_data]
     outputs:
