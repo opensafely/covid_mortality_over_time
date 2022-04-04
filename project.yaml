@@ -100,6 +100,7 @@ actions:
       moderately_sensitive:
         pngs: output/figures/rates_subgroups/*.png
 
+# Plot and save graphs depicting the subgroup specific mortality ratios
   visualise_subgroup_ratios:
     run: r:latest analysis/subgroups_ratios_visualise.R
     needs: [calculate_rate_ratios]
@@ -150,11 +151,10 @@ actions:
       highly_sensitive:
         cohort: output/joined/input_wave*.csv.gz
 
-# # Process data
-#   process_data:
-#     run: r:latest analysis/data_process.R
-#     needs: [join_data]
-#     outputs:
-#       highly_sensitive: 
-#         rds: output/data_processed/data_processed_2020-04-01.rds
-# Plot and save graphs depicting the subgroup specific mortality ratios
+# Process data
+  process_data:
+    run: r:latest analysis/data_process.R
+    needs: [join_cohorts_waves]
+    outputs:
+      highly_sensitive: 
+        rds: output/processed/input_wave*.rds
