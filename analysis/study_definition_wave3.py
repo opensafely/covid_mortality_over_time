@@ -838,12 +838,23 @@ study = StudyDefinition(
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
         covid_codelist,  # imported from codelists.py
         returning="binary_flag",
-        between=["index_date", "last_day_of_month(index_date)"],
+        between=["index_date", "2021-12-14"],
         match_only_underlying_cause=False,  # boolean for indicating if filters
         # results to only specified cause of death
         return_expectations={
             "rate": "exponential_increase",
             "incidence": 0.005,
+        },
+    ),
+    died_ons_covid_flag_any_date=patients.with_these_codes_on_death_certificate(
+        covid_codelist,  # imported from codelists.py
+        returning="date_of_death",
+        between=["index_date", "2021-12-14"],
+        match_only_underlying_cause=False,  # boolean for indicating if filters
+        # results to only specified cause of death
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "index_date", "latest": "2021-12-14"},
         },
     ),
 )
