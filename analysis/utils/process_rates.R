@@ -47,13 +47,15 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "bmi")]] <-
 subgroups_rates_std[[which(names(subgroups_rates_std) == "ethnicity")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "ethnicity")]] %>%
   mutate(ethnicity = fct_case_when(
-    ethnicity == 1 ~ "White - British",
-    ethnicity == 2 ~ "White - Irish",
-    ethnicity == 3 ~ "White - Any other White background",
-    ethnicity == 4 ~ "Mixed - White and Black Caribbean",
+    ethnicity == 1 ~ "White",
+    ethnicity == 2 ~ "Mixed",
+    ethnicity == 3 ~ "South Asian",
+    ethnicity == 4 ~ "Black",
     ethnicity == 5 ~ "Other",
-    ethnicity == 6 ~ "Unknown",
-    TRUE ~ NA_character_
+    ethnicity == 0 ~ "Unknown",
+    TRUE ~ NA_character_ # no missings in real data expected 
+    # (all mapped into 0) but dummy data will have missings (data is joined
+    # and patient ids are not necessarily the same in both cohorts)
   ))
 ## Smoking_status
 subgroups_rates_std[[which(names(subgroups_rates_std) == "smoking_status_comb")]] <-

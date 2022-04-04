@@ -89,16 +89,17 @@ study = StudyDefinition(
                 "5": "eth='5' OR (NOT eth AND ethnicity_sus='5')",
             },
             return_expectations={
-                                    "category": {
-                                        "ratios": {
-                                            "1": 0.2,
-                                            "2": 0.2,
-                                            "3": 0.2,
-                                            "4": 0.2,
-                                            "5": 0.2
-                                            }
-                                        },
-                                    "incidence": 0.4,
+                "category": {
+                                "ratios": {
+                                    "0": 0.5,  # missing in 50%
+                                    "1": 0.1,
+                                    "2": 0.1,
+                                    "3": 0.1,
+                                    "4": 0.1,
+                                    "5": 0.1
+                                    }
+                                },
+                "rate": "universal",
             },
     ),
 )

@@ -57,6 +57,18 @@ process_data <- function(data_extracted) {
         TRUE ~ NA_character_
       ),
       
+      ethnicity = fct_case_when(
+        ethnicity == 1 ~ "White",
+        ethnicity == 2 ~ "Mixed",
+        ethnicity == 3 ~ "South Asian",
+        ethnicity == 4 ~ "Black",
+        ethnicity == 5 ~ "Other",
+        ethnicity == 0 ~ "Unknown",
+        TRUE ~ NA_character_ # no missings in real data expected 
+        # (all mapped into 0) but dummy data will have missings (data is joined
+        # and patient ids are not necessarily the same in both cohorts)
+      ),
+      
       smoking_status_comb = fct_case_when(
         smoking_status_comb == "N + M" ~ "Never and unknown",
         smoking_status_comb == "E" ~ "Former",
