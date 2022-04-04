@@ -1,7 +1,7 @@
 ## ###########################################################
 
 ##  This script:
-## - Imports data of the cohort in april (20200401)
+## - Imports data of the three waves
 ## - Makes 'table 1' (description of demographics / comorbidities)
 
 ## linda.nab@thedatalab.com - 20220304
