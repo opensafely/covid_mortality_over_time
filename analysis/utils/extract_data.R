@@ -7,8 +7,18 @@
 ## ###########################################################
 
 # Load libraries & functions ---
-library(readr)
+library(dplyr)
 library(here)
+library(jsonlite)
+## Load json file listing demographics and comorbidities
+config <- fromJSON(here("analysis", "config.json"))
+comorbidities_multilevel_vctr <- c("asthma",
+                                   "diabetes_controlled",
+                                   "dialysis_kidney_transplant",
+                                   "ckd",
+                                   "organ_kidney_transplant")
+comorbidities_binary_vctr <-
+  config$comorbidities[!config$comorbidities %in% comorbidities_multilevel_vctr]
 
 # Function ---
 ## Extracts data and maps columns to the correct format (integer, factor etc)
@@ -18,45 +28,25 @@ library(here)
 ## output:
 ## data.frame of the input file, with columns of the correct type
 extract_data <- function(file_name) {
-  data_extracted <-
-    read_csv(
-      file = file_name,
-      col_types = cols_only(
-        # only read the columns defined here
-        patient_id = col_integer(),
-        
-        # demographics
-        agegroup = col_character(),
-        sex = col_character(),
-        bmi = col_character(),
-        smoking_status = col_character(),
-        imd = col_character(),
-        region = col_character(),
-        
-        # comorbidities
-        hypertension = col_logical(),
-        chronic_respiratory_disease = col_logical(),
-        asthma = col_character(),
-        chronic_cardiac_disease = col_logical(),
-        diabetes_controlled = col_character(),
-        cancer = col_logical(),
-        haem_cancer = col_logical(),
-        dialysis_kidney_transplant = col_character(),
-        ckd = col_character(),
-        chronic_liver_disease = col_logical(),
-        stroke = col_logical(),
-        dementia = col_logical(),
-        other_neuro = col_logical(),
-        organ_kidney_transplant = col_character(),
-        asplenia = col_logical(),
-        ra_sle_psoriasis = col_logical(),
-        immunosuppression = col_logical(),
-        learning_disability = col_logical(),
-        sev_mental_ill = col_logical(),
-        
-        # outcome
-        died_ons_covid_flag_any = col_logical(),
-      )
-    )
+  ## read all data with default col_types 
+  data_extracted <- 
+    read_csv(file_name)
+  ## select only columns needed and map to correct col type
+  data_extracted <- 
+    data_extracted %>%
+    select(patient_id,
+           # demographics 
+           agegroup,
+           sex,
+           config$demographics,
+           # comorbidities
+           config$comorbidities,
+           # outcome
+           died_ons_covid_flag_any) %>%
+    mutate(patient_id = as.integer(patient_id),
+           across(c(agegroup, sex, config$demographics), as.character),
+           across(all_of(comorbidities_multilevel_vctr), as.character),
+           across(all_of(comorbidities_binary_vctr), as.logical),
+           died_ons_covid_flag_any = as.logical(died_ons_covid_flag_any))
   data_extracted
 }
