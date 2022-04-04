@@ -57,10 +57,10 @@ process_data <- function(data_extracted) {
         TRUE ~ NA_character_
       ),
       
-      smoking_status = fct_case_when(
-        smoking_status %in% c("N", "M") ~ "Never and unknown",
-        smoking_status == "E" ~ "Former",
-        smoking_status == "S" ~ "Current",
+      smoking_status_comb = fct_case_when(
+        smoking_status_comb == "N + M" ~ "Never and unknown",
+        smoking_status_comb == "E" ~ "Former",
+        smoking_status_comb == "S" ~ "Current",
         TRUE ~ NA_character_
       ),
       

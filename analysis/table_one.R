@@ -36,7 +36,7 @@ table1 <-
     agegroup,
     sex,
     bmi,
-    smoking_status,
+    smoking_status_comb,
     imd,
     region,
     hypertension,
@@ -69,7 +69,7 @@ table1 <-
                       agegroup ~ "Age Group",
                       sex ~ "Sex",
                       bmi ~ "Body Mass Index",
-                      smoking_status ~ "Smoking status",
+                      smoking_status_comb ~ "Smoking status",
                       imd ~ "IMD quintile",
                       region ~ "Region",
                       hypertension ~ "Hypertension",
@@ -97,25 +97,12 @@ table1 <-
   )
 table1
   
-# number of deaths 
+# number of deaths in waves
 n_deaths <- map(.x = data_processed,
                 .f = ~ .x %>% 
                        filter(died_ons_covid_flag_any == TRUE) %>%
                        nrow())
-
-n_deaths_wave1 <- 
-  wave1 %>% 
-    filter(died_ons_covid_flag_any == TRUE) %>% 
-    nrow()
-n_deaths_wave2 <- 
-  wave2 %>% 
-  filter(died_ons_covid_flag_any == TRUE) %>% 
-  nrow()
-n_deaths_wave3 <- 
-  wave3 %>% 
-  filter(died_ons_covid_flag_any == TRUE) %>% 
-  nrow()
-
+## Change labels in table
 table1 <- 
   table1 %>% 
   modify_table_body(
