@@ -6,16 +6,17 @@
 
 ## linda.nab@thedatalab.com - 20220304
 ## ###########################################################
-## NOTE: THIS SCRIPT WILL EVENTUALLY BE CHANGED TO CAPTURE A TABLE 1 
-## OF WAVE 1 / WAVE 2 / WAVE 3
 
 # Load libraries & functions ---
 library(here)
 library(readr)
 library(purrr)
-library(tidyverse)
+library(dplyr)
 library(gtsummary)
 library(gt)
+library(jsonlite)
+## Load json file listing demographics and comorbidities
+config <- fromJSON(here("analysis", "config.json"))
 
 # Import data extracts of waves  ---
 input_files_processed <-
@@ -35,29 +36,8 @@ table1 <-
     wave,
     agegroup,
     sex,
-    bmi,
-    smoking_status_comb,
-    imd,
-    region,
-    hypertension,
-    chronic_respiratory_disease,
-    asthma,
-    chronic_cardiac_disease,
-    diabetes_controlled,
-    cancer,
-    haem_cancer,
-    dialysis_kidney_transplant,
-    ckd,
-    chronic_liver_disease,
-    stroke,
-    dementia,
-    other_neuro,
-    organ_kidney_transplant,
-    asplenia,
-    ra_sle_psoriasis,
-    immunosuppression,
-    learning_disability,
-    sev_mental_ill,
+    config$demographics,
+    config$comorbidities,
     died_ons_covid_flag_any
   ) %>%
   tbl_strata(
@@ -69,6 +49,7 @@ table1 <-
                       agegroup ~ "Age Group",
                       sex ~ "Sex",
                       bmi ~ "Body Mass Index",
+                      ethnicity ~ "Ethnicity",
                       smoking_status_comb ~ "Smoking status",
                       imd ~ "IMD quintile",
                       region ~ "Region",
@@ -95,8 +76,7 @@ table1 <-
       add_overall(),
     .header = "**Wave {strata}**, N = {n}"
   )
-table1
-  
+
 # number of deaths in waves
 n_deaths <- map(.x = data_processed,
                 .f = ~ .x %>% 

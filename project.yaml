@@ -158,3 +158,11 @@ actions:
     outputs:
       highly_sensitive: 
         rds: output/processed/input_wave*.rds
+
+# Create table one
+  process_data:
+    run: r:latest analysis/table_one.R
+    needs: [process_data]
+    outputs:
+      moderately_sensitive: 
+        html: output/tables/table1.html
