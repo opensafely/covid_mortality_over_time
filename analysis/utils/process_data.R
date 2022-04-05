@@ -8,17 +8,10 @@
 ## ###########################################################
 
 # Load libraries & functions ---
+library(here)
 library(dplyr)
-# Function needed inside process_data
-fct_case_when <- function(...) {
-  # uses dplyr::case_when but converts the output to a factor,
-  # with factors ordered as they appear in the case_when's  ... argument
-  args <- as.list(match.call())
-  levels <- sapply(args[-1], function(f) f[[3]])  # extract RHS of formula
-  levels <- levels[!is.na(levels)]
-  factor(dplyr::case_when(...), levels=levels)
-}
-
+# Function fct_case_when needed inside process_data
+source(here("analysis", "utils", "fct_case_when.R"))
 # Function ---
 ## Processes the extracted data in extract_data(): changes levels of factors in 
 ## data
