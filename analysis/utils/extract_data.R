@@ -9,6 +9,7 @@
 # Load libraries & functions ---
 library(dplyr)
 library(here)
+library(lubridate)
 library(jsonlite)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
@@ -42,11 +43,13 @@ extract_data <- function(file_name) {
            # comorbidities
            config$comorbidities,
            # outcome
-           died_ons_covid_flag_any) %>%
+           died_ons_covid_flag_any,
+           died_ons_covid_flag_any_date) %>%
     mutate(patient_id = as.integer(patient_id),
            across(c(agegroup, sex, config$demographics), as.character),
            across(all_of(comorbidities_multilevel_vctr), as.character),
            across(all_of(comorbidities_binary_vctr), as.logical),
-           died_ons_covid_flag_any = as.logical(died_ons_covid_flag_any))
+           died_ons_covid_flag_any = as.logical(died_ons_covid_flag_any),
+           died_ons_covid_flag_any_date = as_date(died_ons_covid_flag_any_date))
   data_extracted
 }
