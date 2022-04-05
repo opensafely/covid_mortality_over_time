@@ -23,7 +23,6 @@ config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
 subgroups_vctr <- c(config$demographics, config$comorbidities)
 # Import the standardised mortality rates:
-subgroups_vctr <- c(config$demographics, config$comorbidities)
 subgroups_rates_std <- 
   map(.x = subgroups_vctr,
       .f = ~ read_csv(file = here("output", 
@@ -47,12 +46,12 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "bmi")]] <-
 subgroups_rates_std[[which(names(subgroups_rates_std) == "ethnicity")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "ethnicity")]] %>%
   mutate(ethnicity = fct_case_when(
-    ethnicity == 1 ~ "White - British",
-    ethnicity == 2 ~ "White - Irish",
-    ethnicity == 3 ~ "White - Any other White background",
-    ethnicity == 4 ~ "Mixed - White and Black Caribbean",
+    ethnicity == 1 ~ "White",
+    ethnicity == 2 ~ "Mixed",
+    ethnicity == 3 ~ "South Asian",
+    ethnicity == 4 ~ "Black",
     ethnicity == 5 ~ "Other",
-    ethnicity == 6 ~ "Unknown",
+    ethnicity == 0 ~ "Unknown",
     TRUE ~ NA_character_
   ))
 ## Smoking_status
