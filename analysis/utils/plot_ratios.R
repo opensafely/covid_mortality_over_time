@@ -2,7 +2,7 @@
 
 ##  This script:
 ## - Contains a general function that is used for visualising the 
-##   mortality rates
+##   rate ratios
 
 ## linda.nab@thedatalab.com - 20220325
 ## ###########################################################
@@ -25,7 +25,15 @@ library(lubridate)
 ## - group: optional argument, string of the name of the column in df reflecting 
 ## different levels of a demographic variable or comorbidity 
 ## (column type in df: factor)
-plot_rates <- function(df, x, y, ci_lo = NULL, ci_up = NULL, group = NULL){
+plot_ratios <-
+  function(df,
+           x,
+           y,
+           ci_lo = NULL,
+           ci_up = NULL,
+           group = NULL,
+           subgroup = NA,
+           reference = NA) {
   ## make sequence of dates for the y-axis
   dates <- 
     c("01-03-2020",
@@ -37,6 +45,12 @@ plot_rates <- function(df, x, y, ci_lo = NULL, ci_up = NULL, group = NULL){
       "01-09-2021",
       "01-12-2021") %>%
     as_date(., format = "%d-%m-%Y")
+  df <-
+    df %>% filter(get(y) != 0 & get(ci_lo) != 0 & get(ci_up) != 0)
+  if (!is.na(subgroup) & !is.na(reference)) {
+    df <- 
+      df %>% filter(get(!!subgroup) != reference)
+  }
   plot <- 
     ggplot(df, aes_string(x, y, group = group, col = group)) +
     geom_point() + 
@@ -46,7 +60,8 @@ plot_rates <- function(df, x, y, ci_lo = NULL, ci_up = NULL, group = NULL){
     scale_x_date(name = "Calendar Month",
                  breaks = dates,
                  date_labels = "%b-%y") +
-    scale_y_continuous(name = "Standardised Risk per 100,000 Individuals")
+    scale_y_continuous(name = "Ratio of Standardised Risk per 100,000 Individuals (log-scale)",
+                       trans = "log10")
   if (!is.null(ci_lo) & !is.null(ci_up)){ # add CIs if boundaries provided
     plot <- 
       plot +

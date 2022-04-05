@@ -2,7 +2,7 @@
     "demographics" : [
         "bmi",
         "ethnicity",
-        "smoking_status",
+        "smoking_status_comb",
         "imd",
         "region"
     ],
