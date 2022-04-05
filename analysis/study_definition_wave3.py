@@ -2,7 +2,9 @@
 
 # This script provides the formal specification of the study data that will
 # be extracted from the OpenSAFELY database.
-# This data extract is the data extract for the third wave (delta) from 28/05/2021-14/12/2021
+# This data extract is the data extract for one of the UK pandemic waves
+# (see file name which wave)
+# (see config.json for start and end dates of the wave)
 
 ######################################
 
@@ -47,8 +49,15 @@ from codelists import (
     covid_codelist,  # outcomes
 )
 
-start_date = "2021-05-28"
-end_date = "2021-12-14"
+# Import config variables (start_date and end_date of wave1)
+# Import json module
+import json
+with open('analysis/config.json', 'r') as f:
+    config = json.load(f)
+
+wave3 = config["wave3"]
+start_date = wave3["start_date"]
+end_date = wave3["end_date"]
 
 # DEFINE STUDY POPULATION ----
 # Define study population and variables
@@ -838,7 +847,7 @@ study = StudyDefinition(
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
         covid_codelist,  # imported from codelists.py
         returning="binary_flag",
-        between=["index_date", "last_day_of_month(index_date)"],
+        between=["index_date", end_date],
         match_only_underlying_cause=False,  # boolean for indicating if filters
         # results to only specified cause of death
         return_expectations={
