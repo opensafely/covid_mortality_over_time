@@ -52,7 +52,9 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "ethnicity")]] <-
     ethnicity == 4 ~ "Black",
     ethnicity == 5 ~ "Other",
     ethnicity == 0 ~ "Unknown",
-    TRUE ~ NA_character_
+    TRUE ~ NA_character_ # no missings in real data expected 
+    # (all mapped into 0) but dummy data will have missings (data is joined
+    # and patient ids are not necessarily the same in both cohorts)
   ))
 ## Smoking_status
 subgroups_rates_std[[which(names(subgroups_rates_std) == "smoking_status_comb")]] <-

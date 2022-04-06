@@ -2,6 +2,9 @@
 
 # This script provides the formal specification of the study data that will
 # be extracted from the OpenSAFELY database.
+# This data extract is the data extract for one of the UK pandemic waves
+# (see file name which wave)
+# (see config.json for start and end dates of the wave)
 
 ######################################
 
@@ -12,7 +15,6 @@ from cohortextractor import (
     patients,
     filter_codes_by_category,
     combine_codelists,
-    Measure,
 )
 
 # Import codelists from codelist.py (which pulls them from the codelist folder)
@@ -47,18 +49,15 @@ from codelists import (
     covid_codelist,  # outcomes
 )
 
-# Import config variables (dates, list of demographics and list of
-# comorbidities)
+# Import config variables (start_date and end_date of wave1)
 # Import json module
 import json
 with open('analysis/config.json', 'r') as f:
     config = json.load(f)
 
-dates = config["dates"]
-start_date = dates["start_date"]
-end_date = dates["end_date"]
-demographics_list = config["demographics"]
-comorbidities_list = config["comorbidities"]
+wave1 = config["wave1"]
+start_date = wave1["start_date"]
+end_date = wave1["end_date"]
 
 # DEFINE STUDY POPULATION ----
 # Define study population and variables
@@ -650,7 +649,7 @@ study = StudyDefinition(
     # egfr<60 BUT since first rule is >45, we're not sure it actually is >45.
     # Restricting to those not '>', '>=', '~' or '=' (like is done for category
     # 5) is therefore not enough, and we need to be stricter by limiting to
-    # '='. The only comparator that can be used AND fullfils both rules,
+    # '='. The only comparator that can be used AND fullfils both rules, 
     # is '='.
     egfr_category=patients.categorised_as(
         {
@@ -848,54 +847,12 @@ study = StudyDefinition(
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
         covid_codelist,  # imported from codelists.py
         returning="binary_flag",
-        between=["index_date", "last_day_of_month(index_date)"],
+        between=["index_date", end_date],
         match_only_underlying_cause=False,  # boolean for indicating if filters
         # results to only specified cause of death
         return_expectations={
             "rate": "exponential_increase",
-            "incidence": 0.05,
+            "incidence": 0.005,
         },
     ),
 )
-
-measures = [
-    # calculate crude mortality rate
-    Measure(
-        id="crude_mortality_rate",
-        numerator="died_ons_covid_flag_any",
-        denominator="population",
-        group_by="population",
-    ),
-    # calculate rates in age groups (for females and males seperately)
-    Measure(
-        id="age_mortality_rate",
-        numerator="died_ons_covid_flag_any",
-        denominator="population",
-        group_by=["sex", "agegroup"],
-    ),
-    # calculate rates in females/males
-    Measure(
-        id="sex_mortality_rate",
-        numerator="died_ons_covid_flag_any",
-        denominator="population",
-        group_by=["agegroup_std", "sex"],
-    ),
-]
-
-for demographic in demographics_list:
-    m = Measure(
-        id=f"{demographic}_mortality_rate",
-        numerator="died_ons_covid_flag_any",
-        denominator="population",
-        group_by=["agegroup_std", "sex", f"{demographic}"],
-    )
-    measures.append(m),
-
-for comorbidity in comorbidities_list:
-    m = Measure(
-        id=f"{comorbidity}_mortality_rate",
-        numerator="died_ons_covid_flag_any",
-        denominator="population",
-        group_by=["agegroup_std", "sex", f"{comorbidity}"],
-    )
-    measures.append(m)

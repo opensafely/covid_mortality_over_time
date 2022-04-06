@@ -144,17 +144,17 @@
       "downloaded_at": "2022-02-23 13:03:24.236240Z",
       "sha": "bd34ff54f789dce031e3581006cc0befcee0b35c"
     },
-    "opensafely-permanent-immunosuppression.csv": {
-      "id": "opensafely/permanent-immunosuppression/2020-06-02",
-      "url": "https://codelists.opensafely.org/codelist/opensafely/permanent-immunosuppression/2020-06-02/",
-      "downloaded_at": "2022-02-23 13:03:24.432711Z",
-      "sha": "15dd49a1cbc8b8e9f4a9e05bbcbeb45b4e03106e"
+    "primis-covid19-vacc-uptake-immdx_cov.csv": {
+      "id": "primis-covid19-vacc-uptake/immdx_cov/v1",
+      "url": "https://codelists.opensafely.org/codelist/primis-covid19-vacc-uptake/immdx_cov/v1/",
+      "downloaded_at": "2022-03-10 10:06:44.839872Z",
+      "sha": "c2bfedbbea1ca4027e571b00ec3b549b03fa3ee6"
     },
-    "opensafely-temporary-immunosuppression.csv": {
-      "id": "opensafely/temporary-immunosuppression/2020-04-24",
-      "url": "https://codelists.opensafely.org/codelist/opensafely/temporary-immunosuppression/2020-04-24/",
-      "downloaded_at": "2022-02-23 13:03:24.604808Z",
-      "sha": "99f6c0787e17e16430549a4cfb5084612faba2ac"
+    "primis-covid19-vacc-uptake-immrx.csv": {
+      "id": "primis-covid19-vacc-uptake/immrx/v1",
+      "url": "https://codelists.opensafely.org/codelist/primis-covid19-vacc-uptake/immrx/v1/",
+      "downloaded_at": "2022-03-10 10:06:45.195668Z",
+      "sha": "8523d6c40d34eeedaab6bf7e550a4b295b83b7dd"
     },
     "nhsd-primary-care-domain-refsets-ld_cod.csv": {
       "id": "nhsd-primary-care-domain-refsets/ld_cod/20210127",
