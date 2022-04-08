@@ -25,9 +25,9 @@ process_data <- function(data_extracted) {
     data_extracted %>%
     mutate(
       agegroup = fct_case_when(
+        agegroup == "50-59" ~ "50-59", # = reference
         agegroup == "18-39" ~ "18-39",
         agegroup == "40-49" ~ "40-49",
-        agegroup == "50-59" ~ "50-59",
         agegroup == "60-69" ~ "60-69",
         agegroup == "70-79" ~ "70-79",
         agegroup == "80plus" ~ "80plus",
@@ -95,6 +95,12 @@ process_data <- function(data_extracted) {
         asthma == "0.0" ~ "No asthma",
         asthma == "1.0" ~ "With no oral steroid use",
         asthma == "2.0" ~ "With oral steroid use"
+      ),
+      
+      bp = fct_case_when(
+        bp == "1" ~ "Normal",
+        bp == "2" ~ "Elevated/high",
+        bp == "0" ~ "Unknown"
       ),
       
       diabetes_controlled = fct_case_when(
