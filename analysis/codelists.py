@@ -54,14 +54,6 @@ asthma_codes = codelist_from_csv(
     column="CTV3ID",
 )
 
-# Blood pressure
-systolic_blood_pressure_codes = codelist(
-    ["2469."],
-    system="ctv3",)
-diastolic_blood_pressure_codes = codelist(
-    ["246A."],
-    system="ctv3")
-
 # Presence of a prescription for a course of prednisolone (likely to be related
 # to poor asthma control)
 pred_codes = codelist_from_csv(
