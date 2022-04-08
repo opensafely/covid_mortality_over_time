@@ -8,17 +8,10 @@
 ## ###########################################################
 
 # Load libraries & functions ---
+library(here)
 library(dplyr)
-# Function needed inside process_data
-fct_case_when <- function(...) {
-  # uses dplyr::case_when but converts the output to a factor,
-  # with factors ordered as they appear in the case_when's  ... argument
-  args <- as.list(match.call())
-  levels <- sapply(args[-1], function(f) f[[3]])  # extract RHS of formula
-  levels <- levels[!is.na(levels)]
-  factor(dplyr::case_when(...), levels=levels)
-}
-
+# Function fct_case_when needed inside process_data
+source(here("analysis", "utils", "fct_case_when.R"))
 # Function ---
 ## Processes the extracted data in extract_data(): changes levels of factors in 
 ## data
@@ -32,9 +25,9 @@ process_data <- function(data_extracted) {
     data_extracted %>%
     mutate(
       agegroup = fct_case_when(
+        agegroup == "50-59" ~ "50-59", # = reference
         agegroup == "18-39" ~ "18-39",
         agegroup == "40-49" ~ "40-49",
-        agegroup == "50-59" ~ "50-59",
         agegroup == "60-69" ~ "60-69",
         agegroup == "70-79" ~ "70-79",
         agegroup == "80plus" ~ "80plus",
@@ -99,22 +92,28 @@ process_data <- function(data_extracted) {
       
       # comorbidities
       asthma = fct_case_when(
-        asthma == "0.0" ~ "No asthma",
-        asthma == "1.0" ~ "With no oral steroid use",
-        asthma == "2.0" ~ "With oral steroid use"
+        asthma == "0" ~ "No asthma",
+        asthma == "1" ~ "With no oral steroid use",
+        asthma == "2" ~ "With oral steroid use"
+      ),
+      
+      bp = fct_case_when(
+        bp == "1" ~ "Normal",
+        bp == "2" ~ "Elevated/high",
+        bp == "0" ~ "Unknown"
       ),
       
       diabetes_controlled = fct_case_when(
-        diabetes_controlled == "0.0" ~ "No diabetes",
-        diabetes_controlled == "1.0" ~ "Controlled",
-        diabetes_controlled == "2.0" ~ "Not controlled",
-        diabetes_controlled == "3.0" ~ "Without recent Hb1ac measure"
+        diabetes_controlled == "0" ~ "No diabetes",
+        diabetes_controlled == "1" ~ "Controlled",
+        diabetes_controlled == "2" ~ "Not controlled",
+        diabetes_controlled == "3" ~ "Without recent Hb1ac measure"
       ),
       
       dialysis_kidney_transplant = fct_case_when(
-        dialysis_kidney_transplant == "0.0" ~ "No dialysis",
-        dialysis_kidney_transplant == "1.0" ~ "With previous kidney transplant",
-        dialysis_kidney_transplant == "2.0" ~ "Without previous kidney transplant"
+        dialysis_kidney_transplant == "0" ~ "No dialysis",
+        dialysis_kidney_transplant == "1" ~ "With previous kidney transplant",
+        dialysis_kidney_transplant == "2" ~ "Without previous kidney transplant"
       ),
       
       ckd = fct_case_when(
