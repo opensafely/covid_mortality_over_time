@@ -57,8 +57,12 @@ coxmodel_list <- function(data, variables) {
       .f = ~ coxmodel(data, .x))
 }
 
-output <- coxmodel_list(data_processed[[1]], 
+output1 <- coxmodel_list(data_processed[[1]], 
               c(config$demographics, config$comorbidities))
+output2 <- coxmodel_list(data_processed[[2]], 
+                         c(config$demographics, config$comorbidities))
+output3 <- coxmodel_list(data_processed[[3]], 
+                         c(config$demographics, config$comorbidities))
 
 # to do: 
 # - account for competing risk death from other cause
@@ -67,4 +71,6 @@ output <- coxmodel_list(data_processed[[1]],
 # Save output --
 output_dir <- here("output", "tables")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
-saveRDS(output, file = paste0(output_dir, "/HR.rds"))
+saveRDS(output1, file = paste0(output_dir, "/HRs_wave1.rds"))
+saveRDS(output2, file = paste0(output_dir, "/HRs_wave2.rds"))
+saveRDS(output3, file = paste0(output_dir, "/HRs_wave3.rds"))
