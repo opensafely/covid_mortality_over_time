@@ -99,7 +99,7 @@ process_data <- function(data_extracted) {
       
       bp = fct_case_when(
         bp == "1" ~ "Normal",
-        bp == "2" ~ "Elevated/high",
+        bp == "2" ~ "Elevated/High",
         bp == "0" ~ "Unknown"
       ),
       

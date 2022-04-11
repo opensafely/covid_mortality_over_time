@@ -42,6 +42,7 @@ sex_ratios <- read_csv(file = here("output",
                                          "d", "d", "d"))
 # Import multilevel rate ratios:
 comorbidities_multilevel_vctr <- c("asthma",
+                                   "bp",
                                    "diabetes_controlled",
                                    "dialysis_kidney_transplant",
                                    "ckd",

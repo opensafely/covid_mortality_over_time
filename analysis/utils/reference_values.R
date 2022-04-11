@@ -32,11 +32,13 @@ reference_values <-
     subgroup == "region" ~ "London" ,
     subgroup %in% config$comorbidities[!config$comorbidities %in% 
                                          c("asthma", 
+                                           "bp",
                                            "diabetes_controlled",
                                            "dialysis_kidney_transplant",
                                            "ckd",
                                            "organ_kidney_transplant")] ~ "0",
     subgroup == "asthma" ~ "No asthma",
+    subgroup == "bp" ~ "Normal",
     subgroup == "diabetes_controlled" ~ "No diabetes",
     subgroup == "dialysis_kidney_transplant" ~ "No dialysis",
     subgroup == "ckd" ~ "No CKD",
