@@ -23,6 +23,8 @@ from codelists import (
     hypertension_codes,  # comorbidities
     chronic_respiratory_disease_codes,
     asthma_codes,
+    systolic_blood_pressure_codes,
+    diastolic_blood_pressure_codes,
     pred_codes,
     chronic_cardiac_disease_codes,
     diabetes_codes,
@@ -66,7 +68,7 @@ study = StudyDefinition(
     default_expectations={
         "date": {"earliest": "1900-01-01", "latest": end_date},
         "rate": "uniform",
-        "incidence": 0.5,
+        "incidence": 0.95,
     },
     # Set index date to start date
     index_date=start_date,
@@ -80,7 +82,8 @@ study = StudyDefinition(
         has_follow_up AND
         NOT died AND
         (age >=18 AND age <= 110) AND
-        (sex = "M" OR sex = "F")
+        (sex = "M" OR sex = "F") AND
+        NOT stp = ""
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "index_date - 1 year", "index_date"
@@ -416,6 +419,54 @@ study = StudyDefinition(
             returning="number_of_matches_in_period",
         ),
     ),
+    # Blood pressure
+    # filtering on >0 as missing values are returned as 0
+    bp=patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """
+                    (bp_sys > 0 AND bp_sys < 120) AND
+                        (bp_dia > 0 AND bp_dia < 80)
+            """,
+            "2": """
+                    ((bp_sys >= 120 AND bp_sys < 130) AND
+                        (bp_dia > 0 AND bp_dia < 80)) OR
+                    ((bp_sys >= 130 AND bp_sys >= 90) AND
+                        (bp_dia >= 90))
+            """,
+        },
+        return_expectations={
+                                "category": {
+                                    "ratios": {
+                                        "0": 0.8,
+                                        "1": 0.1,
+                                        "2": 0.1
+                                        }
+                                    },
+                                },
+        bp_sys=patients.mean_recorded_value(
+            systolic_blood_pressure_codes,
+            on_most_recent_day_of_measurement=True,
+            on_or_before="index_date",
+            include_measurement_date=True,
+            include_month=True,
+            return_expectations={
+                "incidence": 0.6,
+                "float": {"distribution": "normal", "mean": 80, "stddev": 10},
+            },
+        ),
+        bp_dia=patients.mean_recorded_value(
+            diastolic_blood_pressure_codes,
+            on_most_recent_day_of_measurement=True,
+            on_or_before="index_date",
+            include_measurement_date=True,
+            include_month=True,
+            return_expectations={
+                "incidence": 0.6,
+                "float": {"distribution": "normal", "mean": 120, "stddev": 10},
+            },
+        ),
+    ),
     # Chronic heart disease
     chronic_cardiac_disease=patients.with_these_clinical_events(
         chronic_cardiac_disease_codes,  # imported from codelists.py
@@ -549,7 +600,7 @@ study = StudyDefinition(
         returning="binary_flag",
         on_or_before="index_date",
         find_last_match_in_period=True,
-        include_date_of_match=True,  # generates kidney_transplant_date
+        include_date_of_match=True,  # generates dialysis_date
         date_format="YYYY-MM-DD",
     ),
     # Kidney transplant
@@ -853,6 +904,26 @@ study = StudyDefinition(
         return_expectations={
             "rate": "exponential_increase",
             "incidence": 0.005,
+        },
+    ),
+    died_ons_covid_flag_any_date=patients.with_these_codes_on_death_certificate(
+        covid_codelist,  # imported from codelists.py
+        returning="date_of_death",
+        between=["index_date", end_date],
+        match_only_underlying_cause=False,  # boolean for indicating if filters
+        # results to only specified cause of death
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "index_date", "latest": end_date},
+        },
+    ),
+    # Death from any cause (to be used for censoring)
+    died_any_date=patients.died_from_any_cause(
+        between=["index_date", end_date],
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "index_date", "latest": end_date}
         },
     ),
 )

@@ -21,6 +21,8 @@ from codelists import (
     hypertension_codes,  # comorbidities
     chronic_respiratory_disease_codes,
     asthma_codes,
+    systolic_blood_pressure_codes,
+    diastolic_blood_pressure_codes,
     pred_codes,
     chronic_cardiac_disease_codes,
     diabetes_codes,
@@ -415,6 +417,53 @@ study = StudyDefinition(
             pred_codes,  # imported from codelists.py
             between=["index_date - 1 year", "index_date"],
             returning="number_of_matches_in_period",
+        ),
+    ),
+    # Blood pressure
+    bp=patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """
+                    (bp_sys > 0 AND bp_sys < 120) AND
+                        (bp_dia > 0 AND bp_dia < 80)
+            """,
+            "2": """
+                    ((bp_sys >= 120 AND bp_sys < 130) AND
+                        (bp_dia > 0 AND bp_dia < 80)) OR
+                    ((bp_sys >= 130 AND bp_sys >= 90) AND
+                        (bp_dia >= 90))
+            """,
+        },
+        return_expectations={
+                                "category": {
+                                    "ratios": {
+                                        "0": 0.8,
+                                        "1": 0.1,
+                                        "2": 0.1
+                                        }
+                                    },
+                                },
+        bp_sys=patients.mean_recorded_value(
+            systolic_blood_pressure_codes,
+            on_most_recent_day_of_measurement=True,
+            on_or_before="index_date",
+            include_measurement_date=True,
+            include_month=True,
+            return_expectations={
+                "incidence": 0.6,
+                "float": {"distribution": "normal", "mean": 80, "stddev": 10},
+            },
+        ),
+        bp_dia=patients.mean_recorded_value(
+            diastolic_blood_pressure_codes,
+            on_most_recent_day_of_measurement=True,
+            on_or_before="index_date",
+            include_measurement_date=True,
+            include_month=True,
+            return_expectations={
+                "incidence": 0.6,
+                "float": {"distribution": "normal", "mean": 120, "stddev": 10},
+            },
         ),
     ),
     # Chronic heart disease
