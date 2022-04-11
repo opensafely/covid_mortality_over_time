@@ -13,7 +13,7 @@ actions:
         --study-definition study_definition 
         --skip-existing 
         --output-format=csv.gz 
-        --index-date-range "2020-03-01 to 2022-02-01 by month"
+        --index-date-range "2020-03-01 to 2021-12-01 by month"
     outputs:
       highly_sensitive:
         cohort: output/input_*.csv.gz
