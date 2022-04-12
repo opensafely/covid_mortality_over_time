@@ -77,13 +77,14 @@ coxmodel <- function(data, variable) {
                                         ncol = 3)
                           return(out)}
   )
-  # output processing
-  # create vector with booleans (TRUE for main effect)
+  # output processing ---
+  # create vector with booleans (TRUE for main effect else FALSE) used to 
+  # select main effects from 'model'ß
   selection <- model$coefficients %>% names %>% startsWith(variable)
   # count number of estimated main effects (levels of 'variable' minus one)
   # which is used to create the data.frame 'out' with output
   n_selection <- sum(selection)
-  # init objects in whcih output is saved ---
+  # init objects in which output is saved ---
   # create data.frame 'out' where output is saved 
   # out has 3 columns with the HR and upper and lower limit of CI
   # and number of rows is equal to number of levels of 'variable' minus one
