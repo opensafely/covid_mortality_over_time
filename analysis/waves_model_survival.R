@@ -49,10 +49,12 @@ names(data_processed) <- c("wave1", "wave2", "wave3")
 #   variables in config$demographics/ config$comorbidities)
 # output:
 # list of:
-# - named data.frame with 4 columns and number of rows equal to the number of 
+# - 'effect_estimates'
+# named data.frame with 4 columns and number of rows equal to the number of 
 # levels of the 'variable' minus one. First column contains the HR, second 
 # and third column contains the lower and upper CI, 
-# - named data.frame with 2 columns and one row: contains the global test of 
+# - 'ph_test'
+# named data.frame with 2 columns and one row: contains the global test of 
 # the proportional hazards assumption of the Cox regression
 coxmodel <- function(data, variable) {
   # init formula adjusted for age using rcs with 4 knots, sex, stratified by 
@@ -99,7 +101,7 @@ coxmodel <- function(data, variable) {
   out[, 2:3] <- confint(model)[selection,] %>% exp()
   # save global test in 'out_ph'
   out_ph[1, 1] <- test_ph[4, 3]
-  list(effects = out, ph_test = out_ph)
+  list(effect_estimates = out, ph_test = out_ph)
 }
 # Function 'coxmodel_list()'
 # arguments:
@@ -111,20 +113,20 @@ coxmodel <- function(data, variable) {
 # - 'effect_estimates': named data.frame with 3 columns and number of rows 
 # equal to the number of variables in argument 'variables' times (the number of 
 # levels minus one)
-# - 'ph_test' named data.frame with 1 column named 'p' and number of rows equal 
-# to number of items in argument 'variable' (+ rownames equal to 'variable')
+# - 'ph_tests' named data.frame with 1 column named 'p' and number of rows equal 
+# to number of items in argument 'variable' (--> rownames equal to 'variable')
 coxmodel_list <- function(data, variables) {
   # create data.frame with all main effect estimates + CIs
-  effects_list <- 
+  effect_estimates_df <- 
     map_dfr(.x = variables,
             .f = ~ coxmodel(data, .x)$effect) 
-  # create list with global PH test
-  ph_list <- 
+  # create data.frame with global PH test
+  ph_tests_df <- 
     map_dfr(.x = variables,
             .f = ~ coxmodel(data, .x)$ph_test) 
   # output
-  list(effect_estimates = effects_list, 
-       ph_tests = ph_list)
+  list(effect_estimates = effect_estimates_df, 
+       ph_tests = ph_tests_df)
 }
 # create list with 2 levels, first level is 'wave1', 'wave2', 'wave3' and 
 # second level is 'effect_estimates' and 'ph_tests'
