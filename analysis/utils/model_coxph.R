@@ -29,10 +29,10 @@ library(rms)
 # the proportional hazards assumption of the Cox regression
 coxmodel <- function(data, variable) {
   # init formula adjusted for age using rcs with 4 knots, sex, stratified by 
-  # region to account for regional differences in infection rates
+  # stp to account for regional differences in infection rates
   formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
                                variable, 
-                               "+ rcs(age, 4) + sex + strata(region)"))
+                               "+ rcs(age, 4) + sex + strata(stp)"))
   # Cox regression
   model <- coxph(formula, data)
   # Test PH assumption
