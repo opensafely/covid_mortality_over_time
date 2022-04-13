@@ -166,3 +166,20 @@ actions:
     outputs:
       moderately_sensitive: 
         html: output/tables/table1.html
+
+# Kaplan-Meier
+  create_kaplan_meier:
+    run: r:latest analysis/waves_kaplan_meier.R
+    needs: [process_data]
+    outputs:
+      moderately_sensitive:
+        pngs: output/figures/kaplan_meier/wave*_*.png
+
+# COX ph models
+  model_cox_ph:
+    run: r:latest analysis/waves_model_survival.R
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs1: output/tables/wave*_effect_estimates.csv
+        csvs2: output/tables/wave*_ph_tests.csv
