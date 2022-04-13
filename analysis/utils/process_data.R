@@ -20,7 +20,7 @@ source(here("analysis", "utils", "fct_case_when.R"))
 ##   ./analysis/utils/extract_data.R
 ## output:
 ## data.frame of data_extracted with factor columns with correct levels
-process_data <- function(data_extracted) {
+process_data <- function(data_extracted, waves_dates_list) {
   data_processed <-
     data_extracted %>%
     mutate(
@@ -129,7 +129,36 @@ process_data <- function(data_extracted) {
         organ_kidney_transplant == "No transplant" ~ "No transplant",
         organ_kidney_transplant == "Kidney" ~ "Kidney transplant",
         organ_kidney_transplant == "Organ" ~ "Other organ transplant"
+      ), 
+      
+      # died from covid (1); died from other cause (2); 
+      # alive at the end of study (0)
+      status = fct_case_when(
+        !is.na(died_ons_covid_flag_any_date) ~ "1",
+        # died from other cause
+        (is.na(died_ons_covid_flag_any_date) &
+           !is.na(died_any_date)) ~ "2",
+        TRUE ~ "0"
       )
-    )
+    ) %>%
+    mutate(
+      fu = case_when(
+        status == "1" ~
+          difftime(
+            died_ons_covid_flag_any_date,
+            waves_dates_list$start_date,
+            tz = "UTC"
+          ),
+        status == "2" ~
+          difftime(
+            died_any_date,
+            waves_dates_list$start_date,
+            tz = "UTC"),
+        TRUE ~
+          difftime(
+            waves_dates_list$end_date,
+            waves_dates_list$start_date,
+            tz = "UTC")
+      ))
   data_processed
 }
