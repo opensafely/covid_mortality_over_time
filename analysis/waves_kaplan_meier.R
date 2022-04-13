@@ -32,25 +32,17 @@ input_files_processed <-
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
-## add variable fu
-data_processed <-
-  map2(.x = data_processed,
-       .y = c(config$wave1$start_date, 
-              config$wave2$start_date,
-              config$wave3$start_date),
-       .f = ~ mutate(.x, 
-                     fu = difftime(died_ons_covid_flag_any_date, .y)))
 names(data_processed) <- waves_vctr
 
 # Kaplan-Meier plotting ---
-# Create list containing 2 survfit objects ('Female' and 'Male') for each wave.
+# Creates list containing 2 survfit objects ('Female' and 'Male') for each wave.
 # This is a list of a list, first level = waves, second level is 
 # 'Females' and 'Males' and for each level a survfit object is saved
 sfit_list_waves_list <- 
   map(.x = data_processed,
       .f = ~ km_fit(.x))
 
-# Create list containing the plots of the survfit objects in 
+# Creates list containing the plots of the survfit objects in 
 # 'sfit_list_waves_list'. It is a list of a list, first level = waves, second
 # level is 'Females' and 'Males' and for each level a plot of the survfit 
 # objects is saved

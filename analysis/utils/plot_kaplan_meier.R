@@ -23,9 +23,9 @@ library(survminer)
 # sex == 'Female' and object 'Male' = KM for each agegroup in data for
 # sex == 'Male'
 km_fit <- function(data){
-  sfit_f <- survfit(Surv(fu, died_ons_covid_flag_any) ~ agegroup,
+  sfit_f <- survfit(Surv(fu, status == 1) ~ agegroup,
                     data = data %>% filter(sex == "Female"))
-  sfit_m <- survfit(Surv(fu, died_ons_covid_flag_any) ~ agegroup,
+  sfit_m <- survfit(Surv(fu, status == 1) ~ agegroup,
                     data = data %>% filter(sex == "Male"))
   # names later used for plot title
   out <- list(Females = sfit_f, 
