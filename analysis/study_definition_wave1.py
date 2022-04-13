@@ -902,7 +902,7 @@ study = StudyDefinition(
         # results to only specified cause of death
         return_expectations={
             "rate": "exponential_increase",
-            "incidence": 0.005,
+            "incidence": 0.05,
         },
     ),
     died_ons_covid_flag_any_date=patients.with_these_codes_on_death_certificate(
@@ -914,6 +914,7 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
         return_expectations={
             "date": {"earliest": "index_date", "latest": end_date},
+            "incidence": 0.05,
         },
     ),
     # Death from any cause (to be used for censoring)
@@ -922,7 +923,8 @@ study = StudyDefinition(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "index_date", "latest": end_date}
+            "date": {"earliest": "index_date", "latest": end_date},
+            "incidence": 0.01,
         },
     ),
 )
