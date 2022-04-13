@@ -31,14 +31,7 @@ input_files_processed <-
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
-## add variable fu
-data_processed <-
-  map2(.x = data_processed,
-       .y = c(config$wave1$start_date, 
-              config$wave2$start_date,
-              config$wave3$start_date),
-       .f = ~ mutate(.x, 
-                     fu = difftime(died_ons_covid_flag_any_date, .y)))
+
 names(data_processed) <- c("wave1", "wave2", "wave3")
 
 # Survival modelling ---
@@ -59,7 +52,7 @@ names(data_processed) <- c("wave1", "wave2", "wave3")
 coxmodel <- function(data, variable) {
   # init formula adjusted for age using rcs with 4 knots, sex, stratified by 
   # region to account for regional differences in infection rates
-  formula <- as.formula(paste0("Surv(fu, died_ons_covid_flag_any) ~", 
+  formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
                         variable, 
                         "+ rcs(age, 4) + sex + strata(region)"))
   # Cox regression
@@ -142,8 +135,6 @@ output_cox_models <- unlist(output_cox_models, recursive = FALSE)
 names(output_cox_models) <- str_replace(names(output_cox_models),
                                         "[.]",
                                         "_")
-# to do: 
-# - account for competing risk death from other cause
 
 # Save output --
 output_dir <- here("output", "tables")
