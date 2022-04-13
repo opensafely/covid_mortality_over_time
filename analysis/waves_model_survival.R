@@ -18,12 +18,15 @@ library(readr)
 library(purrr)
 library(dplyr)
 library(jsonlite)
+library(stringr)
 # load json file listing demographics, comorbidities and start dates waves
 config <- fromJSON(here("analysis", "config.json"))
 # load functions 'coxmodel_list()'
 source(here("analysis", "utils", "model_coxph.R"))
 # create vector containing subgroups
-subgroups_vctr <- c(config$demographics, config$comorbidities)
+# each model is stratified by region so region is excluded here
+subgroups_vctr <- c(config$demographics[config$demographics != "region"], 
+                    config$comorbidities)
 # vector with waves
 waves_vctr <- c("wave1", "wave2", "wave3")
 
