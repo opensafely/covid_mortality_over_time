@@ -48,6 +48,8 @@ coxmodel <- function(data, variable) {
                                         ncol = 3)
                           return(out)}
   )
+  print(variable)
+  print(test_ph)
   # output processing ---
   # create vector with booleans (TRUE for main effect else FALSE) used to 
   # select main effects from 'model'ß
