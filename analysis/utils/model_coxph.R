@@ -22,11 +22,13 @@ library(rms)
 # list of:
 # - 'effect_estimates'
 # named data.frame with 4 columns and number of rows equal to the number of 
-# levels of the 'variable' minus one. First column contains the HR, second 
-# and third column contains the lower and upper CI, 
+# levels of the 'variable' minus one. First column contains the names of the 
+# coefficients of the model, second column contains the HR, third
+# and fourth column contain the lower and upper CI. The row.names are name of 
+# the variable.
 # - 'ph_test'
 # named data.frame with 2 columns and one row: contains the global test of 
-# the proportional hazards assumption of the Cox regression
+# the proportional hazards assumption of the Cox regression.
 coxmodel <- function(data, variable) {
   # init formula adjusted for age using rcs with 4 knots, sex, stratified by 
   # region to account for regional differences in infection rates
@@ -48,11 +50,9 @@ coxmodel <- function(data, variable) {
                                         ncol = 3)
                           return(out)}
   )
-  print(variable)
-  print(test_ph)
   # output processing ---
   # create vector with booleans (TRUE for main effect else FALSE) used to 
-  # select main effects from 'model'ß
+  # select main effects from 'model'
   selection <- model$coefficients %>% names %>% startsWith(variable)
   # count number of estimated main effects (levels of 'variable' minus one)
   # which is used to create the data.frame 'out' with output
@@ -61,20 +61,22 @@ coxmodel <- function(data, variable) {
   # create data.frame 'out' where output is saved 
   # out has 3 columns with the HR and upper and lower limit of CI
   # and number of rows is equal to number of levels of 'variable' minus one
-  out <- matrix(nrow = n_selection, ncol = 3) %>% as.data.frame()
+  out <- matrix(nrow = n_selection, ncol = 5) %>% as.data.frame()
   # give row and column names
-  dimnames(out) <- list(names(model$coefficients)[selection],
-                        c("HR", "LowerCI", "UpperCI"))
+  colnames(out) <- c("subgroup", "level", "HR", "LowerCI", "UpperCI")
   # create data.frame 'out_ph' where global test for ph assumption is saved
-  out_ph <- matrix(nrow = 1, ncol = 1) %>% as.data.frame()
+  out_ph <- matrix(nrow = 1, ncol = 2) %>% as.data.frame()
   # give row and column names
-  dimnames(out_ph) <- list(variable, "p")
+  colnames(out_ph) <- c("subgroup", "p")
   # save output ---
   # save coefficients of model and CIs in out
-  out[, 1] <- model$coefficients[selection] %>% exp()
-  out[, 2:3] <- confint(model)[selection,] %>% exp()
+  out[, 1] <- rep(variable, n_selection)
+  out[, 2] <- names(model$coefficients)[selection] %>% sub(variable, "", .)
+  out[, 3] <- model$coefficients[selection] %>% exp()
+  out[, 4:5] <- confint(model)[selection,] %>% exp()
   # save global test in 'out_ph'
-  out_ph[1, 1] <- test_ph[4, 3]
+  out_ph[1, 1] <- variable
+  out_ph[1, 2] <- test_ph[4, 3]
   list(effect_estimates = out, ph_test = out_ph)
 }
 # Function 'coxmodel_list()'
