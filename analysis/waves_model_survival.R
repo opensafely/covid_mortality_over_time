@@ -24,6 +24,8 @@ library(rms)
 config <- fromJSON(here("analysis", "config.json"))
 # create vector containing subgroups
 subgroups_vctr <- c(config$demographics, config$comorbidities)
+# vector with waves
+waves_vctr <- c("wave1", "wave2", "wave3")
 
 # Import data extracts of waves  ---
 input_files_processed <-
@@ -31,8 +33,7 @@ input_files_processed <-
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
-
-names(data_processed) <- c("wave1", "wave2", "wave3")
+names(data_processed) <- waves_vctr
 
 # Survival modelling ---
 # Function 'coxmodel()'
@@ -143,4 +144,3 @@ ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 iwalk(.x = output_cox_models,
       .f = ~ write.csv(.x,
                        paste0(output_dir, "/", .y, ".csv")))
-
