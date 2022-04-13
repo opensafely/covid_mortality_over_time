@@ -141,6 +141,9 @@ process_data <- function(data_extracted, waves_dates_list) {
         TRUE ~ "0"
       )
     ) %>%
+    # add variable 'fu', follow up time for status == 1 and status == 0 and
+    # fu is end_date - start_date of wave if no event occured (administrative
+    # censoring)
     mutate(
       fu = case_when(
         status == "1" ~
