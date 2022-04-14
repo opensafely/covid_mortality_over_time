@@ -28,8 +28,13 @@ data_extracted <-
       .f = ~ extract_data(file_name = .x))
 ## Process data_extracted by using correct levels for each column of type factor
 data_processed <- 
-  map(.x = data_extracted,
-      .f = ~ process_data(data_extracted = .x))
+  map2(.x = data_extracted,
+       .y = list(config$wave1, 
+                 config$wave2,
+                 config$wave3),
+       .f = ~ process_data(data_extracted = .x,
+                           waves_dates_list = .y))
+
 ## Name data.frames in list (used as file name when output is saved)
 names(data_processed) <-
   c("wave1", "wave2", "wave3")

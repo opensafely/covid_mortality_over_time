@@ -14,6 +14,7 @@ library(jsonlite)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
 comorbidities_multilevel_vctr <- c("asthma",
+                                   "bp",
                                    "diabetes_controlled",
                                    "dialysis_kidney_transplant",
                                    "ckd",
@@ -44,8 +45,6 @@ extract_data <- function(file_name) {
            config$demographics,
            # comorbidities
            config$comorbidities,
-           bp, # needs to be included in config.json but here for now
-           # outcome
            died_ons_covid_flag_any,
            died_ons_covid_flag_any_date,
            died_any_date) %>%
@@ -53,7 +52,6 @@ extract_data <- function(file_name) {
            age = as.numeric(patient_id),
            stp = as.factor(stp),
            across(c(agegroup, sex, config$demographics), as.character),
-           bp = as.factor(bp),
            across(all_of(comorbidities_multilevel_vctr), as.character),
            across(all_of(comorbidities_binary_vctr), as.logical),
            died_ons_covid_flag_any = as.logical(died_ons_covid_flag_any),

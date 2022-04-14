@@ -95,6 +95,14 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "diabetes_controlled")]
     diabetes_controlled == "3" ~ "Without recent Hb1ac measure",
     TRUE ~ NA_character_
   ))
+subgroups_rates_std[[which(names(subgroups_rates_std) == "bp")]] <-
+  subgroups_rates_std[[which(names(subgroups_rates_std) == "bp")]] %>%
+  mutate(bp = fct_case_when(
+    bp == "1" ~ "Normal",
+    bp == "2" ~ "Elevated/High",
+    bp == "0" ~ "Unknown",
+    TRUE ~ NA_character_
+  ))
 subgroups_rates_std[[which(names(subgroups_rates_std) == "dialysis_kidney_transplant")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "dialysis_kidney_transplant")]] %>%
   mutate(dialysis_kidney_transplant = fct_case_when(

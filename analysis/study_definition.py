@@ -83,7 +83,8 @@ study = StudyDefinition(
         has_follow_up AND
         NOT died AND
         (age >=18 AND age <= 110) AND
-        (sex = "M" OR sex = "F")
+        (sex = "M" OR sex = "F") AND
+        NOT stp = ""
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "index_date - 1 year", "index_date"
