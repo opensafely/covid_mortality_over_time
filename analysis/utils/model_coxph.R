@@ -32,9 +32,24 @@ library(rms)
 coxmodel <- function(data, variable) {
   # init formula adjusted for age using rcs with 4 knots, sex, stratified by 
   # stp to account for regional differences in infection rates
-  formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
-                               variable, 
-                               "+ rcs(age, 4) + sex + strata(stp)"))
+  # init 'n_vars' (= number of terms in formula) which is used to make matrix
+  # ph_test if error occurs (mostly of use for dummy data)
+  if (variable == "agegroup") {
+    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+                                 variable, 
+                                 "+ sex + strata(stp)"))
+    n_vars <- 2
+  } else if (variable == "sex") {
+    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+                                 variable, 
+                                 "+ rcs(age, 4) + strata(stp)")) 
+    n_vars <- 2
+  } else {
+    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+                                 variable, 
+                                 "+ rcs(age, 4) + sex + strata(stp)"))
+    n_vars <- 3
+  }
   # Cox regression
   model <- coxph(formula, data)
   # Test PH assumption
@@ -46,7 +61,7 @@ coxmodel <- function(data, variable) {
                         # plus 1 (global test) (= 4)
                         # ncol is 3, chisq, df and p
                         function(e) {
-                          out <- matrix(nrow = 4,
+                          out <- matrix(nrow = n_vars + 1,
                                         ncol = 3)
                           return(out)}
   )
@@ -76,7 +91,7 @@ coxmodel <- function(data, variable) {
   out[, 4:5] <- confint(model)[selection,] %>% exp()
   # save global test in 'out_ph'
   out_ph[1, 1] <- variable
-  out_ph[1, 2] <- test_ph[4, 3]
+  out_ph[1, 2] <- test_ph[n_vars + 1, 3]
   list(effect_estimates = out, ph_test = out_ph)
 }
 # Function 'coxmodel_list()'
