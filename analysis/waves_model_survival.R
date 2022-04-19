@@ -59,4 +59,5 @@ ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 # .y is equal to names of output_cox_models
 iwalk(.x = output_cox_models,
       .f = ~ write.csv(.x,
+                       row.names = FALSE,
                        paste0(output_dir, "/", .y, ".csv")))

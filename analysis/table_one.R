@@ -63,6 +63,7 @@ table_columns_list <-
         hypertension ~ "Hypertension",
         chronic_respiratory_disease ~ "Chronic respiratory disease",
         asthma ~ "Asthma",
+        bp ~ "Blood pressure",
         chronic_cardiac_disease ~ "Chronic cardiac disease",
         diabetes_controlled ~ "Diabetes",
         cancer ~ "Cancer (non haematological)",
