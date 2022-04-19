@@ -13,6 +13,7 @@ library(readr)
 library(purrr)
 library(dplyr)
 library(jsonlite)
+library(gt)
 # load json file listing demographics, comorbidities and start dates waves
 config <- fromJSON(here("analysis", "config.json"))
 # create vector containing subgroups
@@ -38,8 +39,7 @@ input_files_effect_estimates <-
   Sys.glob(here("output", "tables", "wave*_effect_estimates.csv"))
 effect_estimates_list <- 
   map(.x = input_files_effect_estimates,
-      .f = ~ read_csv(.x,
-                      col_types = c("c", "c", "d", "d", "d")))
+      .f = ~ read_csv(.x))
 names(effect_estimates_list) <- waves_vctr
 
 # Make reference_table_two ---
@@ -99,6 +99,7 @@ table2 <-
             by = c("subgroup", "level"))
 # Add suffix to last column
 colnames(table2)[5] <- paste0(colnames(table2)[5], ".3") 
+print(colnames(table2))
 table2 <- 
   table2 %>%
   mutate(subgroup = case_when(
@@ -130,19 +131,18 @@ table2 <-
       subgroup == "sev_mental_ill" ~ "Severe mental illness"
     )
   )
-# modify table (rename columns and add spanner)
+# modify table (rename columns and add spanner) 
 table2 <-
-  table2 %>%
-  gt() %>%
-  cols_label(
-    subgroup = "Characteristic",
-    level = "Category",
-    HR_95CI.1 = "Wave 1",
-    HR_95CI.2 = "Wave 2",
-    HR_95CI.3 = "Wave 3"
-  ) %>%
-  tab_spanner(label = "COVID-19 Death HR (95% CI) (adjusted for age and sex)",
-              columns = c(HR_95CI.1, HR_95CI.2, HR_95CI.3))
+  table2 %>% gt()
+table2$`_boxhead`$column_label <-
+  c("Characteristic",
+    "Category",
+    "Wave 1",
+    "Wave 2",
+    "Wave 3")
+# does not work on server
+# tab_spanner(label = "COVID-19 Death HR (95% CI) (adjusted for age and sex)",
+#             columns = c(HR_95CI.1, HR_95CI.2, HR_95CI.3))
 
 # Save output --
 output_dir <- here("output", "tables")
