@@ -183,3 +183,11 @@ actions:
       moderately_sensitive:
         csvs1: output/tables/wave*_effect_estimates.csv
         csvs2: output/tables/wave*_ph_tests.csv
+
+# Create table two
+  create_table_two:
+    run: r:latest analysis/table_two.R
+    needs: [model_cox_ph]
+    outputs:
+      moderately_sensitive: 
+        html: output/tables/table2.html
