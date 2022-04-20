@@ -102,8 +102,8 @@ colnames(table2)[5] <- paste0(colnames(table2)[5], ".3")
 table2 <- 
   table2 %>%
   mutate(subgroup = case_when(
-      #agegroup ~ "Age Group",
-      #sex ~ "Sex",
+      subgroup == "agegroup" ~ "Age Group",
+      subgroup == "sex" ~ "Sex",
       subgroup == "bmi" ~ "Body Mass Index",
       subgroup == "ethnicity" ~ "Ethnicity",
       subgroup == "smoking_status_comb" ~ "Smoking status",
