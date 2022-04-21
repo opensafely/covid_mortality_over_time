@@ -50,25 +50,25 @@ coxmodel <- function(data, variable) {
                                  "+ rcs(age, 4) + sex + strata(stp)"))
     n_vars <- 3
   }
+  log_file <- matrix(nrow = 1, ncol = 3) %>% as.data.frame()
+  colnames(log_file) <- c("variable", "warning_coxph", "error_cox.zph")
+  log_file[, 1] <- variable
   # Cox regression
-  model <- coxph(formula, data)
+  # returns function model() with components result, output, messages and warnings
+  model <- quietly(.f = ~ coxph(formula, data))
   # Test PH assumption
-  test_ph <- tryCatch(cox.zph(model)$table,
-                      error = 
-                        # if error, return matrix with NAs with the same
-                        # dimensions as when there is no error
-                        # nrow is 3 (variable, rcs(age,4) and sex) 
-                        # plus 1 (global test) (= 4)
-                        # ncol is 3, chisq, df and p
-                        function(e) {
-                          out <- matrix(nrow = n_vars + 1,
-                                        ncol = 3)
-                          return(out)}
-  )
+  # returns function test_ph() with components result and error
+  # if error, return matrix with NAs with the same
+  # dimensions as when there is no error
+  # nrow is 3 (variable, rcs(age,4) and sex) 
+  # plus 1 (global test) (= 4)
+  # ncol is 3, chisq, df and p
+  test_ph <- safely(.f = ~ cox.zph(model()$result)$table,
+                    otherwise = matrix(nrow = n_vars + 1, ncol = 3))
   # output processing ---
   # create vector with booleans (TRUE for main effect else FALSE) used to 
   # select main effects from 'model'
-  selection <- model$coefficients %>% names %>% startsWith(variable)
+  selection <- model()$result$coefficients %>% names %>% startsWith(variable)
   # count number of estimated main effects (levels of 'variable' minus one)
   # which is used to create the data.frame 'out' with output
   n_selection <- sum(selection)
@@ -86,13 +86,19 @@ coxmodel <- function(data, variable) {
   # save output ---
   # save coefficients of model and CIs in out
   out[, 1] <- rep(variable, n_selection)
-  out[, 2] <- names(model$coefficients)[selection] %>% sub(variable, "", .)
-  out[, 3] <- model$coefficients[selection] %>% exp()
-  out[, 4:5] <- confint(model)[selection,] %>% exp()
+  out[, 2] <- names(model()$result$coefficients)[selection] %>% 
+    sub(variable, "", .)
+  out[, 3] <- model()$result$coefficients[selection] %>% exp()
+  out[, 4:5] <- confint(model()$result)[selection,] %>% exp()
   # save global test in 'out_ph'
   out_ph[1, 1] <- variable
-  out_ph[1, 2] <- test_ph[n_vars + 1, 3]
-  list(effect_estimates = out, ph_test = out_ph)
+  out_ph[1, 2] <- test_ph()$result[n_vars + 1, 3]
+  # save warnings
+  log_file[, 2] <- model()$warnings
+  log_file[, 3] <- test_ph()$error$message
+  list(effect_estimates = out, 
+       ph_test = out_ph,
+       log_file = log_file)
 }
 # Function 'coxmodel_list()'
 # arguments:
@@ -108,14 +114,11 @@ coxmodel <- function(data, variable) {
 # to number of items in argument 'variable' (--> rownames equal to 'variable')
 coxmodel_list <- function(data, variables) {
   # create data.frame with all main effect estimates + CIs
-  effect_estimates_df <- 
+  coxmodels_output <- 
     map_dfr(.x = variables,
-            .f = ~ coxmodel(data, .x)$effect) 
-  # create data.frame with global PH test
-  ph_tests_df <- 
-    map_dfr(.x = variables,
-            .f = ~ coxmodel(data, .x)$ph_test) 
+            .f = ~ coxmodel(data, .x)) 
   # output
-  list(effect_estimates = effect_estimates_df, 
-       ph_tests = ph_tests_df)
+  list(effect_estimates = coxmodels_output$effect_estimates, 
+       ph_tests = coxmodels_output$ph_test,
+       log_file = coxmodels_output$log_file)
 }
