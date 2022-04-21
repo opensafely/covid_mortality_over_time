@@ -71,16 +71,23 @@ coxmodel <- function(data, variable) {
   # save variable for reference
   out_ph[1, 1] <- variable
   # create data.frame 'log_file' where error and warning messages are saved
-  log_file <- matrix(nrow = 1, ncol = 3) %>% as.data.frame()
+  log_file <- matrix(nrow = 1, ncol = 4) %>% as.data.frame()
   # give column names
-  colnames(log_file) <- c("subgroup", "warning_coxph", "error_cox.zph")
+  colnames(log_file) <-
+    c("subgroup", "warning_coxph", "error_coxph", "error_cox.zph")
   # save variable in 'log_file' for reference
   log_file[1, 1] <- variable
   # Cox regression
   # returns function model() with components result, output, messages and warnings
   model <- safely(.f = ~ quietly(.f = ~ coxph(formula, data)),
                   otherwise = NULL)
-  if (!is.null(model()$result)){
+  if (is.null(model()$error)){
+    # no error
+    log_file[, 3] <- NA_character_
+    # if warning, save warning
+    if(length(model()$result()$warnings) != 0){
+      log_file[, 2] <- model()$result()$warnings
+    } else log_file[, 2] <- NA_character_
     # Test PH assumption
     # returns function test_ph() with components result and error
     # if error, return matrix with NAs with the same
@@ -90,6 +97,10 @@ coxmodel <- function(data, variable) {
     # ncol is 3, chisq, df and p
     test_ph <- safely(.f = ~ cox.zph(model()$result()$result)$table,
                       otherwise = matrix(nrow = n_vars + 1, ncol = 3))
+    # if error, save error
+    if(!is.null(test_ph()$error)){
+      log_file[, 4] <- test_ph()$error$message
+    } else log_file[, 4] <- NA_character_
     # output processing ---
     # create vector with booleans (TRUE for main effect else FALSE) used to 
     # select main effects from 'model'
@@ -102,14 +113,7 @@ coxmodel <- function(data, variable) {
     out[, 4:5] <- confint(model()$result()$result)[selection,] %>% exp()
     # save global test in 'out_ph'
     out_ph[1, 2] <- test_ph()$result[n_vars + 1, 3]
-    # save warnings
-    if(length(model()$result()$warnings) != 0){
-      log_file[, 2] <- model()$result()$warnings
-    } else log_file[, 2] <- NA_character_
-    if(!is.null(test_ph()$error)){
-      log_file[, 3] <- test_ph()$error$message
-    } else log_file[, 3] <- NA_character_
-  }
+  } else log_file[, 3] <- model()$error$message
   list(effect_estimates = out, 
        ph_test = out_ph,
        log_file = log_file)
