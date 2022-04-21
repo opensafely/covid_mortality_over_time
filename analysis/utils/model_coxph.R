@@ -50,7 +50,6 @@ coxmodel <- function(data, variable) {
                                  "+ rcs(age, 4) + sex + strata(stp)"))
     n_vars <- 3
   }
-  print(formula)
   log_file <- matrix(nrow = 1, ncol = 3) %>% as.data.frame()
   colnames(log_file) <- c("variable", "warning_coxph", "error_cox.zph")
   log_file[, 1] <- variable
@@ -101,9 +100,6 @@ coxmodel <- function(data, variable) {
   if(!is.null(test_ph()$error)){
     log_file[, 3] <- test_ph()$error$message
   } else log_file[, 3] <- NA_character_
-  print(out)
-  print(out_ph)
-  print(log_file)
   list(effect_estimates = out, 
        ph_test = out_ph,
        log_file = log_file)
