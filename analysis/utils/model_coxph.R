@@ -110,9 +110,6 @@ coxmodel <- function(data, variable) {
       log_file[, 3] <- test_ph()$error$message
     } else log_file[, 3] <- NA_character_
   }
-  print(out)
-  print(out_ph)
-  print(log_file)
   list(effect_estimates = out, 
        ph_test = out_ph,
        log_file = log_file)
