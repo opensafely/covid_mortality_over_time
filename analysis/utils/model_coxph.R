@@ -50,6 +50,7 @@ coxmodel <- function(data, variable) {
                                  "+ rcs(age, 4) + sex + strata(stp)"))
     n_vars <- 3
   }
+  print(formula)
   log_file <- matrix(nrow = 1, ncol = 3) %>% as.data.frame()
   colnames(log_file) <- c("variable", "warning_coxph", "error_cox.zph")
   log_file[, 1] <- variable
@@ -94,8 +95,15 @@ coxmodel <- function(data, variable) {
   out_ph[1, 1] <- variable
   out_ph[1, 2] <- test_ph()$result[n_vars + 1, 3]
   # save warnings
-  log_file[, 2] <- model()$warnings
-  log_file[, 3] <- test_ph()$error$message
+  if(length(model()$warnings) != 0){
+    log_file[, 2] <- model()$warnings
+  } else log_file[, 2] <- NA_character_
+  if(!is.null(test_ph()$error)){
+    log_file[, 3] <- test_ph()$error$message
+  } else log_file[, 3] <- NA_character_
+  print(out)
+  print(out_ph)
+  print(log_file)
   list(effect_estimates = out, 
        ph_test = out_ph,
        log_file = log_file)
@@ -115,10 +123,24 @@ coxmodel <- function(data, variable) {
 coxmodel_list <- function(data, variables) {
   # create data.frame with all main effect estimates + CIs
   coxmodels_output <- 
-    map_dfr(.x = variables,
-            .f = ~ coxmodel(data, .x)) 
+    map(.x = variables,
+        .f = ~ coxmodel(data, .x)) 
   # output
-  list(effect_estimates = coxmodels_output$effect_estimates, 
-       ph_tests = coxmodels_output$ph_test,
-       log_file = coxmodels_output$log_file)
+  effect_estimates <- coxmodels_output[[1]]$effect_estimates
+  ph_tests <- coxmodels_output[[1]]$ph_test
+  log_file <- coxmodels_output[[1]]$log_file
+  for (i in seq_along(coxmodels_output)[-1]) {
+    effect_estimates <-
+      rbind(effect_estimates,
+            coxmodels_output[[i]]$effect_estimates)
+    ph_test <- 
+      rbind(ph_tests,
+            coxmodels_output[[i]]$ph_test)
+    log_file <- 
+      rbind(log_file,
+            coxmodels_output[[i]]$log_file)
+  }
+  list(effect_estimates = effect_estimates, 
+       ph_tests = ph_test,
+       log_file = log_file)
 }
