@@ -46,8 +46,13 @@ names(effect_estimates_list) <- waves_vctr
 # Needed to add reference values to table two
 reference_table_two <- 
   reference_values %>%
-  filter(subgroup %in% c(config$demographics[config$demographics != "region"], 
+  filter(subgroup %in% c(config$demographics[config$demographics != "region"],
+                         "agegroup",
+                         "sex",
                          comorbidities_multilevel_vctr)) %>%
+  mutate(reference = 
+           case_when(subgroup == "sex" & reference == "F" ~ "Female",
+                     TRUE ~ reference)) %>%
   mutate(HR_95CI = "1.00 (ref)")
 colnames(reference_table_two) <- c("subgroup", "level", "HR_95CI")
 
@@ -99,12 +104,11 @@ table2 <-
             by = c("subgroup", "level"))
 # Add suffix to last column
 colnames(table2)[5] <- paste0(colnames(table2)[5], ".3") 
-print(colnames(table2))
 table2 <- 
   table2 %>%
   mutate(subgroup = case_when(
-      #agegroup ~ "Age Group",
-      #sex ~ "Sex",
+      subgroup == "agegroup" ~ "Age Group",
+      subgroup == "sex" ~ "Sex",
       subgroup == "bmi" ~ "Body Mass Index",
       subgroup == "ethnicity" ~ "Ethnicity",
       subgroup == "smoking_status_comb" ~ "Smoking status",
@@ -131,6 +135,10 @@ table2 <-
       subgroup == "sev_mental_ill" ~ "Severe mental illness"
     )
   )
+# relocate reference value agegroup 
+# references values is first, but for agegroup it should be third since
+# reference value for agegroup is 50-59
+table2 <- table2[c(2, 3, 1, 4:nrow(table2)),]
 # modify table (rename columns and add spanner) 
 table2 <-
   table2 %>% gt()

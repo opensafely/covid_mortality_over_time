@@ -183,6 +183,7 @@ actions:
       moderately_sensitive:
         csvs1: output/tables/wave*_effect_estimates.csv
         csvs2: output/tables/wave*_ph_tests.csv
+        csvs3: output/tables/wave*_log_file.csv
 
 # Create table two
   create_table_two:

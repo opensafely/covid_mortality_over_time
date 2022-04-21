@@ -27,6 +27,8 @@ source(here("analysis", "utils", "model_coxph.R"))
 # each model is stratified by stp so region is excluded here
 subgroups_vctr <- c(config$demographics[config$demographics != "region"], 
                     config$comorbidities)
+# add agegroup and sex
+subgroups_vctr <- c("agegroup", "sex", subgroups_vctr)
 # vector with waves
 waves_vctr <- c("wave1", "wave2", "wave3")
 
