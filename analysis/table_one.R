@@ -85,7 +85,8 @@ table_deaths_list <-
       .x,
       by = died_ons_covid_flag_any,
       label = labels,
-      percent = "row"
+      percent = "row", 
+      digits = list(everything() ~ c(0, 3))
     )
   )
 # table has a column 'number of individuals (column %) with the overall
@@ -99,7 +100,8 @@ table_overall_list <-
       .x,
       label = labels,
       percent = "column", 
-      include = c(-"died_ons_covid_flag_any")
+      include = c(-"died_ons_covid_flag_any"),
+      digits = list(everything() ~ c(0, 1))
     )
   )
 # merge two list of tables --> output is a list with 3 tables with a overall 
@@ -120,24 +122,24 @@ table1 <-
 # number of deaths in waves --> used in table header for overall column
 n_deaths <- map(.x = data_processed,
                 .f = ~ .x %>% 
-                       filter(died_ons_covid_flag_any == TRUE) %>%
-                       nrow())
+                  filter(died_ons_covid_flag_any == TRUE) %>%
+                  nrow())
 ## Reference in multicategorical variables are omitted
 ## + 'FALSE' column of deaths is hidden
 table1 <- 
   table1 %>% 
   modify_table_body(
-  filter,
-  !(variable == "asthma" &
-      label == "No asthma") &
-    !(variable == "diabetes_controlled" &
-        label == "No diabetes") &
-    !(variable == "dialysis_kidney_transplant" &
-        label == "No dialysis") &
-    !(variable == "ckd" &
-        label == "No CKD") &
-    !(variable == "organ_kidney_transplant" &
-        label == "No transplant")) %>%
+    filter,
+    !(variable == "asthma" &
+        label == "No asthma") &
+      !(variable == "diabetes_controlled" &
+          label == "No diabetes") &
+      !(variable == "dialysis_kidney_transplant" &
+          label == "No dialysis") &
+      !(variable == "ckd" &
+          label == "No CKD") &
+      !(variable == "organ_kidney_transplant" &
+          label == "No transplant")) %>%
   modify_column_hide(column = c(stat_1_2_1, stat_1_2_2, stat_1_2_3)) %>%
   modify_header(stat_2_2_1 = paste0("**Number of COVID-19 related deaths (stratum %)**, N = ", n_deaths[[1]]),
                 stat_2_2_2 = paste0("**Number of COVID-19 related deaths (stratum %)**, N = ", n_deaths[[2]]),
