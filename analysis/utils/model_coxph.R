@@ -35,17 +35,17 @@ coxmodel <- function(data, variable) {
   # init 'n_vars' (= number of terms in formula) which is used to make matrix
   # ph_test if error occurs (mostly of use for dummy data)
   if (variable == "agegroup") {
-    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+    formula <- as.formula(paste0("Surv(fu, status == '1') ~", 
                                  variable, 
                                  "+ sex + strata(stp)"))
     n_vars <- 2
   } else if (variable == "sex") {
-    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+    formula <- as.formula(paste0("Surv(fu, status == '1') ~", 
                                  variable, 
                                  "+ rcs(age, 4) + strata(stp)")) 
     n_vars <- 2
   } else {
-    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+    formula <- as.formula(paste0("Surv(fu, status == '1') ~", 
                                  variable, 
                                  "+ rcs(age, 4) + sex + strata(stp)"))
     n_vars <- 3
