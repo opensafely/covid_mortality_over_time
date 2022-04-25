@@ -1,3 +1,11 @@
+## ###########################################################
+
+## This script is copied from: 
+## https://github.com/opensafely/comparative-booster/blob/fefa245aebba4cca792d991caebe0cb5d8d40de6/analysis/data_skim.R
+
+## ** written by @wjchulme **
+## ###########################################################
+
 #################
 
 # This script takes a dataset, summarises the variables using:

@@ -1,3 +1,11 @@
+## ###########################################################
+
+## This script is copied from: 
+## https://github.com/opensafely/comparative-booster/tree/fefa245aebba4cca792d991caebe0cb5d8d40de6/lib/functions
+
+## ** written by @wjchulme **
+## ###########################################################
+
 # Import libraries ----
 library('tidyverse')
 library('lubridate')
