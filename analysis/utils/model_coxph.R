@@ -87,7 +87,7 @@ coxmodel <- function(data, variable) {
     log_file[, 3] <- NA_character_
     # if warning, save warning
     if(length(model()$warnings) != 0){
-      log_file[, 2] <- model()$warnings
+      log_file[, 2] <- paste(model()$warnings, collapse = '; ')
     } else log_file[, 2] <- NA_character_
     # Test PH assumption
     # returns function test_ph() with components result and error
@@ -114,7 +114,7 @@ coxmodel <- function(data, variable) {
     out[, 4:5] <- confint(model()$result)[selection,] %>% exp()
     # save global test in 'out_ph'
     out_ph[1, 2] <- test_ph()$result[n_vars + 1, 3]
-  } else log_file[, 3] <- model()$messages
+  } else log_file[, 3] <- model()$error
   list(effect_estimates = out, 
        ph_test = out_ph,
        log_file = log_file)

@@ -131,12 +131,17 @@ process_data <- function(data_extracted, waves_dates_list) {
         organ_kidney_transplant == "Organ" ~ "Other organ transplant"
       ), 
       
+      died_ons_covid_flag_any = case_when(
+        !is.na(died_ons_covid_any_date) ~ TRUE,
+        TRUE ~ FALSE
+      ),
+      
       # died from covid (1); died from other cause (2); 
       # alive at the end of study (0)
       status = fct_case_when(
-        !is.na(died_ons_covid_flag_any_date) ~ "1",
+        !is.na(died_ons_covid_any_date) ~ "1",
         # died from other cause
-        (is.na(died_ons_covid_flag_any_date) &
+        (is.na(died_ons_covid_any_date) &
            !is.na(died_any_date)) ~ "2",
         TRUE ~ "0"
       )
@@ -148,7 +153,7 @@ process_data <- function(data_extracted, waves_dates_list) {
       fu = case_when(
         status == "1" ~
           difftime(
-            died_ons_covid_flag_any_date,
+            died_ons_covid_any_date,
             waves_dates_list$start_date,
             tz = "UTC"
           ),

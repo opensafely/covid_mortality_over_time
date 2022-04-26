@@ -420,6 +420,7 @@ study = StudyDefinition(
         ),
     ),
     # Blood pressure
+    # filtering on >0 as missing values are returned as 0
     bp=patients.categorised_as(
         {
             "0": "DEFAULT",
@@ -559,7 +560,7 @@ study = StudyDefinition(
                 diabetes AND hba1c_category = "2"
                 """,
             "3": """
-                diabetes AND hba1c_category = "3"
+                diabetes AND hba1c_category = "0"
                 """
         }, return_expectations={
                                 "category": {
@@ -699,7 +700,7 @@ study = StudyDefinition(
     # egfr<60 BUT since first rule is >45, we're not sure it actually is >45.
     # Restricting to those not '>', '>=', '~' or '=' (like is done for category
     # 5) is therefore not enough, and we need to be stricter by limiting to
-    # '='. The only comparator that can be used AND fullfils both rules, 
+    # '='. The only comparator that can be used AND fullfils both rules,
     # is '='.
     egfr_category=patients.categorised_as(
         {
@@ -894,18 +895,7 @@ study = StudyDefinition(
     ),
     # OUTCOMES
     # Patients with ONS-registered death
-    died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
-        covid_codelist,  # imported from codelists.py
-        returning="binary_flag",
-        between=["index_date", end_date],
-        match_only_underlying_cause=False,  # boolean for indicating if filters
-        # results to only specified cause of death
-        return_expectations={
-            "rate": "exponential_increase",
-            "incidence": 0.05,
-        },
-    ),
-    died_ons_covid_flag_any_date=patients.with_these_codes_on_death_certificate(
+    died_ons_covid_any_date=patients.with_these_codes_on_death_certificate(
         covid_codelist,  # imported from codelists.py
         returning="date_of_death",
         between=["index_date", end_date],

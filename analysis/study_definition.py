@@ -421,6 +421,7 @@ study = StudyDefinition(
         ),
     ),
     # Blood pressure
+    # filtering on >0 as missing values are returned as 0
     bp=patients.categorised_as(
         {
             "0": "DEFAULT",
@@ -560,7 +561,7 @@ study = StudyDefinition(
                 diabetes AND hba1c_category = "2"
                 """,
             "3": """
-                diabetes AND hba1c_category = "3"
+                diabetes AND hba1c_category = "0"
                 """
         }, return_expectations={
                                 "category": {
@@ -600,7 +601,7 @@ study = StudyDefinition(
         returning="binary_flag",
         on_or_before="index_date",
         find_last_match_in_period=True,
-        include_date_of_match=True,  # generates kidney_transplant_date
+        include_date_of_match=True,  # generates dialysis_date
         date_format="YYYY-MM-DD",
     ),
     # Kidney transplant
