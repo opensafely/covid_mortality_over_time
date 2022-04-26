@@ -159,6 +159,34 @@ actions:
       highly_sensitive: 
         rds: output/processed/input_wave*.rds
 
+# Skim data
+  skim_data_wave1:
+    run: r:latest analysis/data_skim.R output/processed/input_wave1.rds output/data_properties
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        txt1: output/data_properties/input_wave1_skim.txt
+        txt2: output/data_properties/input_wave1_coltypes.txt
+        txt3: output/data_properties/input_wave1_tabulate.txt
+
+  skim_data_wave2:
+    run: r:latest analysis/data_skim.R output/processed/input_wave2.rds output/data_properties
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        txt1: output/data_properties/input_wave2_skim.txt
+        txt2: output/data_properties/input_wave2_coltypes.txt
+        txt3: output/data_properties/input_wave2_tabulate.txt
+
+  skim_data_wave3:
+    run: r:latest analysis/data_skim.R output/processed/input_wave3.rds output/data_properties
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        txt1: output/data_properties/input_wave3_skim.txt
+        txt2: output/data_properties/input_wave3_coltypes.txt
+        txt3: output/data_properties/input_wave3_tabulate.txt
+
 # Create table one
   create_table_one:
     run: r:latest analysis/table_one.R
