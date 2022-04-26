@@ -45,8 +45,7 @@ extract_data <- function(file_name) {
            config$demographics,
            # comorbidities
            config$comorbidities,
-           died_ons_covid_flag_any,
-           died_ons_covid_flag_any_date,
+           died_ons_covid_any_date,
            died_any_date) %>%
     mutate(patient_id = as.integer(patient_id),
            age = as.numeric(patient_id),
@@ -54,8 +53,7 @@ extract_data <- function(file_name) {
            across(c(agegroup, sex, config$demographics), as.character),
            across(all_of(comorbidities_multilevel_vctr), as.character),
            across(all_of(comorbidities_binary_vctr), as.logical),
-           died_ons_covid_flag_any = as.logical(died_ons_covid_flag_any),
-           died_ons_covid_flag_any_date = as_date(died_ons_covid_flag_any_date),
+           died_ons_covid_any_date = as_date(died_ons_covid_any_date),
            died_any_date = as_date(died_any_date))
   data_extracted
 }

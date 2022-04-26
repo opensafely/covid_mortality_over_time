@@ -895,18 +895,7 @@ study = StudyDefinition(
     ),
     # OUTCOMES
     # Patients with ONS-registered death
-    died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
-        covid_codelist,  # imported from codelists.py
-        returning="binary_flag",
-        between=["index_date", end_date],
-        match_only_underlying_cause=False,  # boolean for indicating if filters
-        # results to only specified cause of death
-        return_expectations={
-            "rate": "exponential_increase",
-            "incidence": 0.05,
-        },
-    ),
-    died_ons_covid_flag_any_date=patients.with_these_codes_on_death_certificate(
+    died_ons_covid_any_date=patients.with_these_codes_on_death_certificate(
         covid_codelist,  # imported from codelists.py
         returning="date_of_death",
         between=["index_date", end_date],
