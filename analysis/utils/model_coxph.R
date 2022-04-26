@@ -11,6 +11,7 @@ library(purrr)
 library(dplyr)
 library(survival)
 library(rms)
+source(here("lib", "functions", "safely_n_quietly.R"))
 
 # Survival modelling ---
 # Function 'coxmodel()'
@@ -35,17 +36,17 @@ coxmodel <- function(data, variable) {
   # init 'n_vars' (= number of terms in formula) which is used to make matrix
   # ph_test if error occurs (mostly of use for dummy data)
   if (variable == "agegroup") {
-    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+    formula <- as.formula(paste0("Surv(fu, status == '1') ~", 
                                  variable, 
                                  "+ sex + strata(stp)"))
     n_vars <- 2
   } else if (variable == "sex") {
-    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+    formula <- as.formula(paste0("Surv(fu, status == '1') ~", 
                                  variable, 
                                  "+ rcs(age, 4) + strata(stp)")) 
     n_vars <- 2
   } else {
-    formula <- as.formula(paste0("Surv(fu, status == 1) ~", 
+    formula <- as.formula(paste0("Surv(fu, status == '1') ~", 
                                  variable, 
                                  "+ rcs(age, 4) + sex + strata(stp)"))
     n_vars <- 3
@@ -78,15 +79,15 @@ coxmodel <- function(data, variable) {
   # save variable in 'log_file' for reference
   log_file[1, 1] <- variable
   # Cox regression
-  # returns function model() with components result, output, messages and warnings
-  model <- safely(.f = ~ quietly(.f = ~ coxph(formula, data)),
-                  otherwise = NULL)
+  # returns function model() with components result, output, messages, warnings
+  # and error
+  model <- safely_n_quietly(.f = ~ coxph(formula, data))
   if (is.null(model()$error)){
     # no error
     log_file[, 3] <- NA_character_
     # if warning, save warning
-    if(length(model()$result()$warnings) != 0){
-      log_file[, 2] <- model()$result()$warnings
+    if(length(model()$warnings) != 0){
+      log_file[, 2] <- model()$warnings
     } else log_file[, 2] <- NA_character_
     # Test PH assumption
     # returns function test_ph() with components result and error
@@ -95,7 +96,7 @@ coxmodel <- function(data, variable) {
     # nrow is 3 (variable, rcs(age,4) and sex) 
     # plus 1 (global test) (= 4)
     # ncol is 3, chisq, df and p
-    test_ph <- safely(.f = ~ cox.zph(model()$result()$result)$table,
+    test_ph <- safely(.f = ~ cox.zph(model()$result)$table,
                       otherwise = matrix(nrow = n_vars + 1, ncol = 3))
     # if error, save error
     if(!is.null(test_ph()$error)){
@@ -104,16 +105,16 @@ coxmodel <- function(data, variable) {
     # output processing ---
     # create vector with booleans (TRUE for main effect else FALSE) used to 
     # select main effects from 'model'
-    selection <- model()$result()$result$coefficients %>% names %>% startsWith(variable)
+    selection <- model()$result$coefficients %>% names %>% startsWith(variable)
     # save output ---
     # save coefficients of model and CIs in out
-    out[, 2] <- names(model()$result()$result$coefficients)[selection] %>% 
+    out[, 2] <- names(model()$result$coefficients)[selection] %>% 
       sub(variable, "", .)
-    out[, 3] <- model()$result()$result$coefficients[selection] %>% exp()
-    out[, 4:5] <- confint(model()$result()$result)[selection,] %>% exp()
+    out[, 3] <- model()$result$coefficients[selection] %>% exp()
+    out[, 4:5] <- confint(model()$result)[selection,] %>% exp()
     # save global test in 'out_ph'
     out_ph[1, 2] <- test_ph()$result[n_vars + 1, 3]
-  } else log_file[, 3] <- model()$error$message
+  } else log_file[, 3] <- model()$messages
   list(effect_estimates = out, 
        ph_test = out_ph,
        log_file = log_file)
