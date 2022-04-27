@@ -16,6 +16,8 @@ library(purrr)
 utils_dir <- here("analysis", "utils")
 source(paste0(utils_dir, "/extract_data.R")) # function extract_data()
 source(paste0(utils_dir, "/process_data.R")) # function process_data()
+# Load json config for dates of waves
+config <- fromJSON(here("analysis", "config.json"))
 
 # Load data ---
 ## Search input files by globbing

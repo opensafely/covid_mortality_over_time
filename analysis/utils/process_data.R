@@ -12,6 +12,7 @@ library(here)
 library(dplyr)
 # Function fct_case_when needed inside process_data
 source(here("analysis", "utils", "fct_case_when.R"))
+
 # Function ---
 ## Processes the extracted data in extract_data(): changes levels of factors in 
 ## data
