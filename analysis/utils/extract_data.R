@@ -11,16 +11,7 @@ library(dplyr)
 library(here)
 library(lubridate)
 library(jsonlite)
-## Load json file listing demographics and comorbidities
-config <- fromJSON(here("analysis", "config.json"))
-comorbidities_multilevel_vctr <- c("asthma",
-                                   "bp",
-                                   "diabetes_controlled",
-                                   "dialysis_kidney_transplant",
-                                   "ckd",
-                                   "organ_kidney_transplant")
-comorbidities_binary_vctr <-
-  config$comorbidities[!config$comorbidities %in% comorbidities_multilevel_vctr]
+library(readr)
 
 # Function ---
 ## Extracts data and maps columns to the correct format (integer, factor etc)
@@ -31,29 +22,47 @@ comorbidities_binary_vctr <-
 ## data.frame of the input file, with columns of the correct type
 extract_data <- function(file_name) {
   ## read all data with default col_types 
-  data_extracted <- 
-    read_csv(file_name)
-  ## select only columns needed and map to correct col type
-  data_extracted <- 
-    data_extracted %>%
-    select(patient_id,
-           # demographics 
-           age,
-           agegroup,
-           sex,
-           stp,
-           config$demographics,
-           # comorbidities
-           config$comorbidities,
-           died_ons_covid_any_date,
-           died_any_date) %>%
-    mutate(patient_id = as.integer(patient_id),
-           age = as.numeric(patient_id),
-           stp = as.factor(stp),
-           across(c(agegroup, sex, config$demographics), as.character),
-           across(all_of(comorbidities_multilevel_vctr), as.character),
-           across(all_of(comorbidities_binary_vctr), as.logical),
-           died_ons_covid_any_date = as_date(died_ons_covid_any_date),
-           died_any_date = as_date(died_any_date))
+  data_extracted <-
+    read_csv(
+      file_name,
+      col_types = cols_only(
+        patient_id = col_integer(),
+        # demographics
+        age = col_integer(),
+        agegroup = col_character(),
+        sex = col_character(),
+        stp = col_character(),
+        bmi = col_character(),
+        ethnicity = col_character(),
+        smoking_status_comb = col_character(),
+        imd = col_character(),
+        region = col_character(),
+        # comorbidities (multilevel)
+        asthma = col_character(),
+        bp = col_character(),
+        diabetes_controlled = col_character(),
+        dialysis_kidney_transplant = col_character(),
+        ckd = col_character(), 
+        organ_kidney_transplant = col_character(),
+        # comorbidities (binary)
+        hypertension = col_logical(),
+        chronic_respiratory_disease = col_logical(),
+        chronic_cardiac_disease = col_logical(),
+        cancer = col_logical(),
+        haem_cancer = col_logical(),
+        chronic_liver_disease = col_logical(),
+        stroke = col_logical(),
+        dementia = col_logical(),
+        other_neuro = col_logical(),
+        asplenia = col_logical(),
+        ra_sle_psoriasis = col_logical(),
+        immunosuppression = col_logical(),
+        learning_disability = col_logical(),
+        sev_mental_ill = col_logical(),
+        # outcomes
+        died_ons_covid_any_date = col_date(format = "%Y-%m-%d"),
+        died_any_date = col_date(format = "%Y-%m-%d")
+      )
+    )
   data_extracted
 }

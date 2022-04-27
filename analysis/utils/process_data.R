@@ -12,6 +12,7 @@ library(here)
 library(dplyr)
 # Function fct_case_when needed inside process_data
 source(here("analysis", "utils", "fct_case_when.R"))
+
 # Function ---
 ## Processes the extracted data in extract_data(): changes levels of factors in 
 ## data
@@ -81,14 +82,16 @@ process_data <- function(data_extracted, waves_dates_list) {
       region = fct_case_when(
         region == "North East" ~ "North East",
         region == "North West" ~ "North West",
-        region == "Yorkshire and the Humber" ~ "Yorkshire and the Humber",
+        region == "Yorkshire and The Humber" ~ "Yorkshire and the Humber",
         region == "East Midlands" ~ "East Midlands",
         region == "West Midlands" ~ "West Midlands",
-        region == "East of England" ~ "East of England",
+        region == "East" ~ "East of England",
         region == "London" ~ "London",
         region == "South East" ~ "South East",
+        region == "South West" ~ "South West",
         TRUE ~ NA_character_
       ),
+      
       
       # comorbidities
       asthma = fct_case_when(
