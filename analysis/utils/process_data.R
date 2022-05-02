@@ -52,12 +52,12 @@ process_data <- function(data_extracted, waves_dates_list) {
       ),
       
       ethnicity = fct_case_when(
-        ethnicity == 1 ~ "White",
-        ethnicity == 2 ~ "Mixed",
-        ethnicity == 3 ~ "South Asian",
-        ethnicity == 4 ~ "Black",
-        ethnicity == 5 ~ "Other",
-        ethnicity == 0 ~ "Unknown",
+        ethnicity == "1" ~ "White",
+        ethnicity == "2" ~ "Mixed",
+        ethnicity == "3" ~ "South Asian",
+        ethnicity == "4" ~ "Black",
+        ethnicity == "5" ~ "Other",
+        ethnicity == "0" ~ "Unknown",
         TRUE ~ NA_character_ # no missings in real data expected 
         # (all mapped into 0) but dummy data will have missings (data is joined
         # and patient ids are not necessarily the same in both cohorts)
