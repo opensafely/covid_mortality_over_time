@@ -28,7 +28,7 @@ reference_values <-
     subgroup == "bmi" ~ "Not obese",
     subgroup == "ethnicity" ~ "White - British",
     subgroup == "smoking_status_comb" ~ "Never and unknown", 
-    subgroup == "imd" ~ "1 (least)",
+    subgroup == "imd" ~ "1 (most deprived)",
     subgroup == "region" ~ "London" ,
     subgroup %in% config$comorbidities[!config$comorbidities %in% 
                                          c("asthma", 
