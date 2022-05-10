@@ -433,8 +433,8 @@ study = StudyDefinition(
             "2": """
                     ((bp_sys >= 120 AND bp_sys < 130) AND
                         (bp_dia > 0 AND bp_dia < 80)) OR
-                    ((bp_sys >= 130 AND bp_sys >= 90) AND
-                        (bp_dia >= 90))
+                    ((bp_sys >= 130) OR
+                        (bp_dia >= 80))
             """,
         },
         return_expectations={
