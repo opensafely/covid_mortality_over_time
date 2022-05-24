@@ -30,8 +30,9 @@ source(here("analysis", "utils", "dsr.R"))
 subgroups_vctr <- c("sex", config$demographics, config$comorbidities)
 subgroups_rates <- 
   map(.x = here("output", 
-                "joined",
-                paste0("measure_", subgroups_vctr,"_mortality_rate.csv")),
+                "rates",
+                "redacted",
+                paste0(subgroups_vctr,"_redacted.csv")),
       .f = ~ read_csv(file = .x))
 names(subgroups_rates) <- subgroups_vctr # used in imap and iwalk (.y)
 ## European Standard population
@@ -95,8 +96,10 @@ subgroups_rates <-
                    .groups = "drop"))
 
 # Save output ---
-output_dir <- here("output", "rates")
+ifelse(!dir.exists(here("output", "rates")), 
+       dir.create(here("output", "rates")), FALSE)
+output_dir <- here("output", "rates", "standardised")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 iwalk(.x = subgroups_rates,
       .f = ~ write_csv(x = .x,
-                       path = paste0(output_dir, "/", .y, "_monthly_std.csv")))
+                       path = paste0(output_dir, "/", .y, "_std.csv")))

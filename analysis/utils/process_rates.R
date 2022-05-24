@@ -27,7 +27,8 @@ subgroups_rates_std <-
   map(.x = subgroups_vctr,
       .f = ~ read_csv(file = here("output", 
                                   "rates",
-                                  paste0(.x,"_monthly_std.csv")),
+                                  "standardised",
+                                  paste0(.x,"_std.csv")),
                       col_types = cols("D", "f", "f", "d", "d")))
 names(subgroups_rates_std) <- subgroups_vctr
 
