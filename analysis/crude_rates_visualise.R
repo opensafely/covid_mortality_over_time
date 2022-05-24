@@ -19,10 +19,10 @@ source(here("analysis", "utils", "plot_rates.R"))
 
 # Import rates ---
 crude_rates <- 
-  read_csv(file = here("output", "rates", "crude_monthly_std.csv"),
+  read_csv(file = here("output", "rates", "standardised", "crude_std.csv"),
            col_types = cols("D", "d"))
 crude_rates_per_agegroup <-
-  read_csv(file = here("output", "rates", "crude_per_agegroup_monthly_std.csv"),
+  read_csv(file = here("output", "rates", "standardised", "crude_per_agegroup_std.csv"),
            col_types = cols("D", "f", "f", "d"))
 
 # Plot rates ---

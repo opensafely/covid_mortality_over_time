@@ -52,21 +52,29 @@ actions:
       moderately_sensitive:
         measure: output/joined/measure_*_mortality_rate.csv
 
-# Standardise crude mortality rate
-  standardise_crude_rates:
-    run: r:latest analysis/crude_rates_standardise.R
+# Redact rates
+  redact_rates:
+    run: r:latest analysis/utils/redact_rates.R
     needs: [calculate_measures]
     outputs:
       moderately_sensitive:
-        csvs: output/rates/crude_*monthly_std.csv 
+        csvs: output/rates/redacted/*_redacted.csv       
+
+# Standardise crude mortality rate
+  standardise_crude_rates:
+    run: r:latest analysis/crude_rates_standardise.R
+    needs: [redact_rates]
+    outputs:
+      moderately_sensitive:
+        csvs: output/rates/standardised/crude_*std.csv 
 
 # Standardise subgroup specific mortality rates
   standardise_subgroup_rates:
     run: r:latest analysis/subgroups_rates_standardise.R
-    needs: [calculate_measures]
+    needs: [redact_rates]
     outputs:
       moderately_sensitive:
-        csvs: output/rates/*_monthly_std.csv
+        csvs: output/rates/standardised/*_std.csv
 
 # Process subgroup specific mortality rates
   process_subgroup_rates:
