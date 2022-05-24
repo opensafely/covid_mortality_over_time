@@ -66,6 +66,7 @@ rates <-
       .f = ~ redact_file(file = .x))
 
 # Save output ---
+ifelse(!dir.exists(here("output", "rates")), dir.create(output_dir), FALSE)
 output_dir <- here("output", "rates", "redacted")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 iwalk(.x = rates,
