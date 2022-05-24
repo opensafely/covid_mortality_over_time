@@ -38,7 +38,8 @@ crude_rates_per_agegroup <-
   select(date, sex, agegroup, std_value)
 
 # Save output ---
-ifelse(!dir.exists(here("output", "rates")), dir.create(output_dir), FALSE)
+ifelse(!dir.exists(here("output", "rates")), 
+       dir.create(here("output", "rates")), FALSE)
 output_dir <- here("output", "rates", "standardised")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 write_csv(x = crude_rates, 

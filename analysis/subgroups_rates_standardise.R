@@ -96,7 +96,8 @@ subgroups_rates <-
                    .groups = "drop"))
 
 # Save output ---
-ifelse(!dir.exists(here("output", "rates")), dir.create(output_dir), FALSE)
+ifelse(!dir.exists(here("output", "rates")), 
+       dir.create(here("output", "rates")), FALSE)
 output_dir <- here("output", "rates", "standardised")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 iwalk(.x = subgroups_rates,
