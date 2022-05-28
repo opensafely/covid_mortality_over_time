@@ -92,7 +92,6 @@ process_data <- function(data_extracted, waves_dates_list) {
         TRUE ~ NA_character_
       ),
       
-      
       # comorbidities
       asthma = fct_case_when(
         asthma == "0" ~ "No asthma",
@@ -113,26 +112,21 @@ process_data <- function(data_extracted, waves_dates_list) {
         diabetes_controlled == "3" ~ "Without recent Hb1ac measure"
       ),
       
-      dialysis_kidney_transplant = fct_case_when(
-        dialysis_kidney_transplant == "0" ~ "No dialysis",
-        dialysis_kidney_transplant == "1" ~ "With previous kidney transplant",
-        dialysis_kidney_transplant == "2" ~ "Without previous kidney transplant"
-      ),
-      
-      ckd = fct_case_when(
-        ckd == "No CKD" ~ "No CKD",
-        ckd == "0" ~ "Stage 0",
-        ckd == "3a" ~ "Stage 3a",
-        ckd == "3b" ~ "Stage 3b",
-        ckd == "4" ~ "Stage 4",
-        ckd == "5" ~ "Stage 5"
+      ckd_rrt = fct_case_when(
+        ckd_rrt == "No CKD or RRT" ~ "No CKD or RRT",
+        ckd_rrt == "Stage 3a" ~ "CKD stage 3a",
+        ckd_rrt == "Stage 3b" ~ "CKD stage 3b",
+        ckd_rrt == "Stage 4" ~ "CKD stage 4",
+        ckd_rrt == "Stage 5" ~ "CKD stage 5",
+        ckd_rrt == "RRT (dialysis)" ~ "RRT (dialysis)",
+        ckd_rrt == "RRT (transplant)" ~ "RRT (transplant)"
       ),
       
       organ_kidney_transplant = fct_case_when(
         organ_kidney_transplant == "No transplant" ~ "No transplant",
         organ_kidney_transplant == "Kidney" ~ "Kidney transplant",
         organ_kidney_transplant == "Organ" ~ "Other organ transplant"
-      ), 
+      ),
       
       died_ons_covid_flag_any = case_when(
         !is.na(died_ons_covid_any_date) ~ TRUE,
@@ -158,18 +152,21 @@ process_data <- function(data_extracted, waves_dates_list) {
           difftime(
             died_ons_covid_any_date,
             waves_dates_list$start_date,
-            tz = "UTC"
+            tz = "UTC",
+            units = "days"
           ),
         status == "2" ~
           difftime(
             died_any_date,
             waves_dates_list$start_date,
-            tz = "UTC"),
+            tz = "UTC",
+            units = "days"),
         TRUE ~
           difftime(
             waves_dates_list$end_date,
             waves_dates_list$start_date,
-            tz = "UTC")
+            tz = "UTC",
+            units = "days")
       ))
   data_processed
 }
