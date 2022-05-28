@@ -128,12 +128,8 @@ kidney_transplant_codes = codelist_from_csv(
   column="CTV3ID",
 )
 
-# Recorded eGFR values
-egfr_codes = codelist_from_csv(
-    "codelists/pincer-egfr.csv",
-    system="snomed",
-    column="code",
-)
+# Creatinine codes
+creatinine_codes = codelist(["XE2q5"], system="ctv3")
 
 # Chronic liver disease diagnosis
 chronic_liver_disease_codes = codelist_from_csv(
