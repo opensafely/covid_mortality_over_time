@@ -52,10 +52,18 @@ actions:
       moderately_sensitive:
         measure: output/joined/measure_*_mortality_rate.csv
 
+# Calculate mortality rates ckd_rrt subgroup
+  calculate_measures_ckd_rrt:
+    run: r:latest analysis/measures_calc_ckd_rrt.R
+    needs: [join_cohorts]
+    outputs:
+      moderately_sensitive:
+        measure: output/joined/measure_ckd_rrt_mortality_rate.csv
+
 # Redact rates
   redact_rates:
     run: r:latest analysis/utils/redact_rates.R
-    needs: [calculate_measures]
+    needs: [calculate_measures, calculate_measures_ckd_rrt]
     outputs:
       moderately_sensitive:
         csvs: output/rates/redacted/*_redacted.csv       
@@ -82,7 +90,7 @@ actions:
     needs: [standardise_subgroup_rates, standardise_subgroup_rates]
     outputs:
       moderately_sensitive:
-        csvs: output/rates/processed/*_monthly_std.csv
+        csvs: output/rates/processed/*.csv
 
 # Calculate standardised rate ratios
   calculate_rate_ratios:
