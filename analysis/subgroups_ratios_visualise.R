@@ -44,8 +44,7 @@ sex_ratios <- read_csv(file = here("output",
 comorbidities_multilevel_vctr <- c("asthma",
                                    "bp",
                                    "diabetes_controlled",
-                                   "dialysis_kidney_transplant",
-                                   "ckd",
+                                   "ckd_rrt",
                                    "organ_kidney_transplant")
 multilevel_vctr <- c(config$demographics, comorbidities_multilevel_vctr)
 multilevel_ratios <- 
