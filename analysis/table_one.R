@@ -41,8 +41,7 @@ labels <- list(
   diabetes_controlled ~ "Diabetes",
   cancer ~ "Cancer (non haematological)",
   haem_cancer ~ "Haematological malignancy",
-  dialysis_kidney_transplant ~ "Dialysis",
-  ckd ~ "Chronic kidney disease",
+  ckd_rrt ~ "Chronic kidney disease or renal replacement therapy",
   chronic_liver_disease ~ "Chronic liver disease",
   stroke ~ "Stroke",
   dementia ~ "Dementia",
@@ -134,10 +133,8 @@ table1 <-
         label == "No asthma") &
       !(variable == "diabetes_controlled" &
           label == "No diabetes") &
-      !(variable == "dialysis_kidney_transplant" &
-          label == "No dialysis") &
-      !(variable == "ckd" &
-          label == "No CKD") &
+      !(variable == "ckd_rrt" &
+          label == "No CKD or RRT") &
       !(variable == "organ_kidney_transplant" &
           label == "No transplant")) %>%
   modify_column_hide(column = c(stat_1_2_1, stat_1_2_2, stat_1_2_3)) %>%
