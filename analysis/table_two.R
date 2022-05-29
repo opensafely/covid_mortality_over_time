@@ -24,8 +24,7 @@ subgroups_vctr <- c(config$demographics[config$demographics != "region"],
 comorbidities_multilevel_vctr <- c("asthma",
                                    "bp",
                                    "diabetes_controlled",
-                                   "dialysis_kidney_transplant",
-                                   "ckd",
+                                   "ckd_rrt",
                                    "organ_kidney_transplant")
 comorbidities_binary_vctr <-
   config$comorbidities[!config$comorbidities %in% comorbidities_multilevel_vctr]
@@ -121,8 +120,7 @@ table2 <-
       subgroup == "diabetes_controlled" ~ "Diabetes",
       subgroup == "cancer" ~ "Cancer (non haematological)",
       subgroup == "haem_cancer" ~ "Haematological malignancy",
-      subgroup == "dialysis_kidney_transplant" ~ "Dialysis",
-      subgroup == "ckd" ~ "Chronic kidney disease",
+      subgroup == "ckd_rrt" ~ "Chronic kidney disease or renal replacement therapy",
       subgroup == "chronic_liver_disease" ~ "Chronic liver disease",
       subgroup == "stroke" ~ "Stroke",
       subgroup == "dementia" ~ "Dementia",
