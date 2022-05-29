@@ -71,11 +71,11 @@ process_data <- function(data_extracted, waves_dates_list) {
       ),
       
       imd = fct_case_when(
-        imd == "1" ~ "1 (most deprived)",
-        imd == "2" ~ "2",
-        imd == "3" ~ "3",
-        imd == "4" ~ "4",
         imd == "5" ~ "5 (least deprived)",
+        imd == "4" ~ "4",
+        imd == "3" ~ "3",
+        imd == "2" ~ "2",
+        imd == "1" ~ "1 (most deprived)",
         imd == "0" ~ NA_character_
       ),
       
