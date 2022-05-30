@@ -88,7 +88,7 @@ study = StudyDefinition(
         imd > 0
         """,
         has_follow_up=patients.registered_with_one_practice_between(
-            "index_date - 1 year", "index_date"
+            "index_date - 3 months", "index_date"
         ),
         died=patients.died_from_any_cause(
             on_or_before="index_date",
