@@ -70,11 +70,11 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "smoking_status_comb")]
 subgroups_rates_std[[which(names(subgroups_rates_std) == "imd")]] <-
   subgroups_rates_std[[which(names(subgroups_rates_std) == "imd")]] %>%
   mutate(imd = fct_case_when(
-    imd == "1" ~ "1 (most deprived)",
-    imd == "2" ~ "2",
-    imd == "3" ~ "3",
-    imd == "4" ~ "4",
     imd == "5" ~ "5 (least deprived)",
+    imd == "4" ~ "4",
+    imd == "3" ~ "3",
+    imd == "2" ~ "2",
+    imd == "1" ~ "1 (most deprived)",
     imd == "0" ~ NA_character_,
     TRUE ~ NA_character_
   ))
@@ -104,23 +104,16 @@ subgroups_rates_std[[which(names(subgroups_rates_std) == "bp")]] <-
     bp == "0" ~ "Unknown",
     TRUE ~ NA_character_
   ))
-subgroups_rates_std[[which(names(subgroups_rates_std) == "dialysis_kidney_transplant")]] <-
-  subgroups_rates_std[[which(names(subgroups_rates_std) == "dialysis_kidney_transplant")]] %>%
-  mutate(dialysis_kidney_transplant = fct_case_when(
-    dialysis_kidney_transplant == "0" ~ "No dialysis",
-    dialysis_kidney_transplant == "1" ~ "With previous kidney transplant",
-    dialysis_kidney_transplant == "2" ~ "Without previous kidney transplant",
-    TRUE ~ NA_character_
-  ))
-subgroups_rates_std[[which(names(subgroups_rates_std) == "ckd")]] <-
-  subgroups_rates_std[[which(names(subgroups_rates_std) == "ckd")]] %>%
-  mutate(ckd = fct_case_when(
-    ckd == "No CKD" ~ "No CKD",
-    ckd == "0" ~ "Stage 0",
-    ckd == "3a" ~ "Stage 3a",
-    ckd == "3b" ~ "Stage 3b",
-    ckd == "4" ~ "Stage 4",
-    ckd == "5" ~ "Stage 5",
+subgroups_rates_std[[which(names(subgroups_rates_std) == "ckd_rrt")]] <-
+  subgroups_rates_std[[which(names(subgroups_rates_std) == "ckd_rrt")]] %>%
+  mutate(ckd_rrt = fct_case_when(
+    ckd_rrt == "No CKD or RRT" ~ "No CKD or RRT",
+    ckd_rrt == "Stage 3a" ~ "CKD stage 3a",
+    ckd_rrt == "Stage 3b" ~ "CKD stage 3b",
+    ckd_rrt == "Stage 4" ~ "CKD stage 4",
+    ckd_rrt == "Stage 5" ~ "CKD stage 5",
+    ckd_rrt == "RRT (dialysis)" ~ "RRT (dialysis)",
+    ckd_rrt == "RRT (transplant)" ~ "RRT (transplant)",
     TRUE ~ NA_character_
   ))
 subgroups_rates_std[[which(names(subgroups_rates_std) == "organ_kidney_transplant")]] <-
@@ -137,4 +130,4 @@ output_dir <- here("output", "rates", "processed")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 iwalk(.x = subgroups_rates_std,
       .f = ~ write_csv(x = .x,
-                       path = paste0(output_dir, "/", .y, "_monthly_std.csv")))
+                       path = paste0(output_dir, "/", .y, ".csv")))

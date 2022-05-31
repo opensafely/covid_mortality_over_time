@@ -41,8 +41,14 @@ extract_data <- function(file_name) {
         asthma = col_number(),
         bp = col_number(),
         diabetes_controlled = col_number(),
-        dialysis_kidney_transplant = col_number(),
-        ckd = col_character(), 
+        ## ckd/rrt
+        ### dialysis or kidney transplant
+        rrt_cat = col_number(),
+        ### calc of egfr
+        creatinine = col_number(), 
+        creatinine_operator = col_character(),
+        creatinine_age = col_number(),
+        ## organ or kidney transplant
         organ_kidney_transplant = col_character(),
         # comorbidities (binary)
         hypertension = col_logical(),

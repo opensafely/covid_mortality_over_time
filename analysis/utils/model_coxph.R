@@ -66,9 +66,9 @@ coxmodel <- function(data, variable) {
   # save variable for reference
   out[, 1] <- rep(variable, n_levels_variable - 1)
   # create data.frame 'out_ph' where global test for ph assumption is saved
-  out_ph <- matrix(nrow = 1, ncol = 2) %>% as.data.frame()
+  out_ph <- matrix(nrow = 1, ncol = 3) %>% as.data.frame()
   # give column names
-  colnames(out_ph) <- c("subgroup", "p")
+  colnames(out_ph) <- c("subgroup", "p_subgroup", "p_global")
   # save variable for reference
   out_ph[1, 1] <- variable
   # create data.frame 'log_file' where error and warning messages are saved
@@ -112,8 +112,10 @@ coxmodel <- function(data, variable) {
       sub(variable, "", .)
     out[, 3] <- model()$result$coefficients[selection] %>% exp()
     out[, 4:5] <- confint(model()$result)[selection,] %>% exp()
+    # save test for variable (e.g. comorb)
+    out_ph[1, 2] <- test_ph()$result[1, 3]
     # save global test in 'out_ph'
-    out_ph[1, 2] <- test_ph()$result[n_vars + 1, 3]
+    out_ph[1, 3] <- test_ph()$result[n_vars + 1, 3]
   } else log_file[, 3] <- model()$error
   list(effect_estimates = out, 
        ph_test = out_ph,

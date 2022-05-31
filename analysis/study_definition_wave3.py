@@ -35,7 +35,7 @@ from codelists import (
     other_cancer_codes,
     dialysis_codes,
     kidney_transplant_codes,
-    egfr_codes,
+    creatinine_codes,
     chronic_liver_disease_codes,
     stroke,
     dementia,
@@ -613,68 +613,54 @@ study = StudyDefinition(
         include_date_of_match=True,  # generates kidney_transplant_date
         date_format="YYYY-MM-DD",
     ),
-    # Categorise dialysis in dialysis with previous kidney transplant;
-    # dialysis without previous transplant
-    dialysis_kidney_transplant=patients.categorised_as(
+    # Categorise dialysis or kidney transplant
+    # ref for logic:
+    # https://docs.google.com/document/d/1hi_lMyuAa23u1xXLULLMdAiymiPopPZrAtQCDzYtjtE/edit
+    # 0: no rrt
+    # 1: rrt (dialysis)
+    # 2: rrt (kidney transplant)
+    rrt_cat=patients.categorised_as(
         {
             "0": "DEFAULT",
             "1": """
-                (dialysis AND kidney_transplant) AND
-                kidney_transplant_date <= dialysis_date
-            """,
-            "2": """
                 (dialysis AND NOT kidney_transplant) OR
                 ((dialysis AND kidney_transplant) AND
-                kidney_transplant_date > dialysis_date)
+                dialysis_date > kidney_transplant_date)
+            """,
+            "2": """
+                (kidney_transplant AND NOT dialysis) OR
+                ((kidney_transplant AND dialysis) AND
+                kidney_transplant_date >= dialysis_date)
             """,
         },
         return_expectations={
-                                "category": {
-                                    "ratios": {
-                                        "0": 0.8,
-                                        "1": 0.1,
-                                        "2": 0.1
-                                        }
-                                    },
-                                },
-    ),
-    # eGFR
-    # egfr_flag is needed because missing egfr values will be coded as 0, and
-    # we need to make a distinction between missing and not missing in variable
-    # 'ckd' below
-    egfr_flag=patients.with_these_clinical_events(
-        egfr_codes,  # imported from codelists.py
-        returning="binary_flag",
-        on_or_before="index_date",
-        find_last_match_in_period=True,
-        return_expectations={
-            "incidence": 0.95,
+            "category": {"ratios": {"0": 0.8, "1": 0.1, "2": 0.1}},
+            "incidence": 1.0,
         },
     ),
-    egfr=patients.with_these_clinical_events(
-        egfr_codes,  # imported from codelists.py
+    # CKD DEFINITIONS -
+    # adapted from https://github.com/opensafely/risk-factors-research
+    # Creatinine level for eGFR calculation
+    # https://github.com/ebmdatalab/tpp-sql-notebook/issues/17
+    creatinine=patients.with_these_clinical_events(
+        creatinine_codes,
+        find_last_match_in_period=True,
+        between=["index_date - 2 years", "index_date - 1 day"],
         returning="numeric_value",
-        on_or_before="index_date",
-        find_last_match_in_period=True,
         include_date_of_match=True,
-        date_format="YYYY-MM",
+        date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"latest": "index_date"},
-            "float": {"distribution": "normal", "mean": 45.0, "stddev": 20},
+            "float": {"distribution": "normal", "mean": 90, "stddev": 30},
             "incidence": 0.95,
-        },
+            },
     ),
-    # Fetch the comparator (<, >=, = etc) associated with a numeric value.
-    # Where a lab result is returned as e.g. <9.5 the numeric_value component
-    # will contain only the value 9.5 and you will need to use this function
-    # to fetch the comparator into a separate column.
-    # https://docs.opensafely.org/study-def-variables/#cohortextractor.patients.comparator_from
-    egfr_comparator=patients.comparator_from(
-        "egfr",
+    # Extract any operators associated with creatinine readings
+    creatinine_operator=patients.comparator_from(
+        "creatinine",
         return_expectations={
             "rate": "universal",
             "category": {
-                "ratios": {  # ~, =, >= , > , < , <=
+                "ratios": {
                     None: 0.10,
                     "~": 0.05,
                     "=": 0.65,
@@ -687,114 +673,13 @@ study = StudyDefinition(
             "incidence": 0.80,
         },
     ),
-    # Category 1 is of the form egfr>=a, if value is *a* but
-    # the comparator is '<', '<=' or '~' --> exclude.
-    # Category 5 is of the form egfr<b, if value is *b* but
-    # the comparator is '>', '>=', '~' or '=' --> exclude.
-    # Categories 2, 3, and 4 are of the form a <= egfr < b.
-    # We have to exclude patients who's comparator is not '=':
-    # Suppose for category 2, value is '>45' or '>=45', this value fullfils
-    # egfr>=45 BUT since second rule is <60, we're not sure it actually is <60.
-    # Restricting to those not '<', '<=' and '~' (like is done for category 1)
-    # is therefore not enough, and we need to be stricter by limiting to '='.
-    # In addition, suppose for category value is '<60' this value fullfils
-    # egfr<60 BUT since first rule is >45, we're not sure it actually is >45.
-    # Restricting to those not '>', '>=', '~' or '=' (like is done for category
-    # 5) is therefore not enough, and we need to be stricter by limiting to
-    # '='. The only comparator that can be used AND fullfils both rules,
-    # is '='.
-    egfr_category=patients.categorised_as(
-        {
-            "0": "DEFAULT",
-            "1": """
-                egfr_flag AND
-                    (egfr>=60 AND NOT
-                        (egfr_comparator = '<' OR
-                        egfr_comparator = '<=' OR
-                        egfr_comparator = '~'))
-            """,
-            "2": """
-                egfr_flag AND
-                    (egfr>=45 AND
-                    egfr<60 AND
-                    egfr_comparator = '=')
-            """,
-            "3": """
-                egfr_flag AND
-                    (egfr>=30 AND
-                    egfr<45 AND
-                    egfr_comparator = '=')
-
-            """,
-            "4": """
-                egfr_flag AND
-                    (egfr>=15 AND
-                    egfr<30 AND
-                    egfr_comparator = '=')
-            """,
-            "5": """
-                egfr_flag AND
-                    (egfr<15 AND NOT
-                        (egfr_comparator = '>' OR
-                        egfr_comparator = '>=' OR
-                        egfr_comparator = '~' OR
-                        egfr_comparator = '='))
-
-            """,
-        },
+    # Age at creatinine test
+    creatinine_age=patients.age_as_of(
+        "creatinine_date",
         return_expectations={
             "rate": "universal",
-            "category": {
-                "ratios": {
-                    "0": 0.95,
-                    "1": 0.01,
-                    "2": 0.01,
-                    "3": 0.01,
-                    "4": 0.01,
-                    "5": 0.01,
-                }
-            },
+            "int": {"distribution": "population_ages"},
         },
-    ),
-    # CKD
-    # Exclude patients on dialysis / with a kidney transplant
-    # Based on eGFR, stage 0/ 3a/ 3b/ 4 or 5
-    ckd=patients.categorised_as(
-        {
-            "No CKD": "DEFAULT",
-            "0": """
-                (NOT dialysis AND NOT kidney_transplant) AND
-                egfr_category = 1
-            """,
-            "3a": """
-                (NOT dialysis AND NOT kidney_transplant) AND
-                egfr_category = 2
-            """,
-            "3b": """
-                (NOT dialysis AND NOT kidney_transplant) AND
-                egfr_category = 3
-            """,
-            "4": """
-                (NOT dialysis AND NOT kidney_transplant) AND
-                egfr_category = 4
-            """,
-            "5": """
-                (NOT dialysis AND NOT kidney_transplant) AND
-                egfr_category = 5
-            """,
-        },
-        return_expectations={
-                                "category": {
-                                    "ratios": {
-                                        "No CKD": 0.8,
-                                        "0": 0.1,
-                                        "3a": 0.025,
-                                        "3b": 0.025,
-                                        "4": 0.025,
-                                        "5": 0.025
-                                        }
-                                    },
-                                },
     ),
     # Liver disease
     chronic_liver_disease=patients.with_these_clinical_events(
@@ -839,7 +724,7 @@ study = StudyDefinition(
                 kidney_transplant
             """,
             "Organ": """
-                other_organ_transplant
+                other_organ_transplant AND NOT kidney_transplant
             """,
         },
         return_expectations={

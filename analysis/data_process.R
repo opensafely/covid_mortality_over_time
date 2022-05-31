@@ -15,6 +15,7 @@ library(readr)
 library(purrr)
 utils_dir <- here("analysis", "utils")
 source(paste0(utils_dir, "/extract_data.R")) # function extract_data()
+source(paste0(utils_dir, "/add_kidney_vars_to_data.R")) # function add_kidney_vars_to_data()
 source(paste0(utils_dir, "/process_data.R")) # function process_data()
 # Load json config for dates of waves
 config <- fromJSON(here("analysis", "config.json"))
@@ -23,14 +24,18 @@ config <- fromJSON(here("analysis", "config.json"))
 ## Search input files by globbing
 input_files <-
   Sys.glob(here("output", "joined", "input_wave*.csv.gz"))
-## Extract data from the input_files and formats colums to correct type 
+## Extract data from the input_files and formats columns to correct type 
 ## (e.g., integer, logical etc)
 data_extracted <-
   map(.x = input_files,
       .f = ~ extract_data(file_name = .x))
+## Add Kidney columns to data (egfr and ckd_rrt)
+data_extracted_with_kidney_vars <- 
+  map(.x = data_extracted,
+      .f = ~ add_kidney_vars_to_data(data_extracted = .x))
 ## Process data_extracted by using correct levels for each column of type factor
 data_processed <- 
-  map2(.x = data_extracted,
+  map2(.x = data_extracted_with_kidney_vars,
        .y = list(config$wave1, 
                  config$wave2,
                  config$wave3),

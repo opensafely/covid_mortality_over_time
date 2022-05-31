@@ -41,7 +41,7 @@ subgroups_rates_std <-
       .f = ~ read_csv(file = here("output", 
                                   "rates",
                                   "processed",
-                                  paste0(.x,"_monthly_std.csv")),
+                                  paste0(.x,".csv")),
                       col_types = cols("D", "f", "f", "d", "d")))
 # calculate ci's
 sex_rates_std <- 
