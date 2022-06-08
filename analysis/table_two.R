@@ -116,6 +116,7 @@ table2 <-
       subgroup == "chronic_respiratory_disease" ~ "Chronic respiratory disease",
       subgroup == "asthma" ~ "Asthma",
       subgroup == "bp" ~ "Blood pressure",
+      subgroup == "bp_ht" ~ "High blood pressure or diagnosed hypertension",
       subgroup == "chronic_cardiac_disease" ~ "Chronic cardiac disease",
       subgroup == "diabetes_controlled" ~ "Diabetes",
       subgroup == "cancer" ~ "Cancer (non haematological)",

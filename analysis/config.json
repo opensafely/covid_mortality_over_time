@@ -14,6 +14,7 @@
         "chronic_respiratory_disease",
         "asthma",
         "bp",
+        "bp_ht",
         "chronic_cardiac_disease",
         "diabetes_controlled",
         "cancer",

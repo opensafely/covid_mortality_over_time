@@ -444,6 +444,7 @@ study = StudyDefinition(
                                         "2": 0.1
                                         }
                                     },
+                                "incidence": 1.0,
                                 },
         bp_sys=patients.mean_recorded_value(
             systolic_blood_pressure_codes,
@@ -467,6 +468,25 @@ study = StudyDefinition(
                 "float": {"distribution": "normal", "mean": 120, "stddev": 10},
             },
         ),
+    ),
+    # High blood pressure or hypertension
+    bp_ht=patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """
+                    (bp_sys >= 140 OR bp_dia >= 90) OR
+                        hypertension
+            """,
+        },
+        return_expectations={
+                                "category": {
+                                    "ratios": {
+                                        "0": 0.8,
+                                        "1": 0.2,
+                                        }
+                                    },
+                                "incidence": 1.0,
+                            },
     ),
     # Chronic heart disease
     chronic_cardiac_disease=patients.with_these_clinical_events(
