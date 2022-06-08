@@ -65,6 +65,10 @@ extract_data <- function(file_name) {
         immunosuppression = col_logical(),
         learning_disability = col_logical(),
         sev_mental_ill = col_logical(),
+        # vaccination dates
+        covid_vax_date_1 = col_date(format = "%Y-%m-%d"),
+        covid_vax_date_2 = col_date(format = "%Y-%m-%d"),
+        covid_vax_date_3 = col_date(format = "%Y-%m-%d"),
         # outcomes
         died_ons_covid_any_date = col_date(format = "%Y-%m-%d"),
         died_any_date = col_date(format = "%Y-%m-%d")
