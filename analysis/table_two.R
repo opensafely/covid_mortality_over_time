@@ -32,6 +32,8 @@ comorbidities_binary_vctr <-
 waves_vctr <- c("wave1", "wave2", "wave3")
 # needed to add reference values to table two
 source(here("analysis", "utils", "reference_values.R"))
+# needed to rename subgroups
+source(here("analysis", "utils", "rename_subgroups.R"))
 
 # Import data extracts of waves ---
 input_files_effect_estimates <-
@@ -104,36 +106,7 @@ table2 <-
 # Add suffix to last column
 colnames(table2)[5] <- paste0(colnames(table2)[5], ".3") 
 table2 <- 
-  table2 %>%
-  mutate(subgroup = case_when(
-      subgroup == "agegroup" ~ "Age Group",
-      subgroup == "sex" ~ "Sex",
-      subgroup == "bmi" ~ "Body Mass Index",
-      subgroup == "ethnicity" ~ "Ethnicity",
-      subgroup == "smoking_status_comb" ~ "Smoking status",
-      subgroup == "imd" ~ "IMD quintile",
-      subgroup == "hypertension" ~ "Hypertension",
-      subgroup == "chronic_respiratory_disease" ~ "Chronic respiratory disease",
-      subgroup == "asthma" ~ "Asthma",
-      subgroup == "bp" ~ "Blood pressure",
-      subgroup == "bp_ht" ~ "High blood pressure or diagnosed hypertension",
-      subgroup == "chronic_cardiac_disease" ~ "Chronic cardiac disease",
-      subgroup == "diabetes_controlled" ~ "Diabetes",
-      subgroup == "cancer" ~ "Cancer (non haematological)",
-      subgroup == "haem_cancer" ~ "Haematological malignancy",
-      subgroup == "ckd_rrt" ~ "Chronic kidney disease or renal replacement therapy",
-      subgroup == "chronic_liver_disease" ~ "Chronic liver disease",
-      subgroup == "stroke" ~ "Stroke",
-      subgroup == "dementia" ~ "Dementia",
-      subgroup == "other_neuro" ~ "Other neurological disease",
-      subgroup == "organ_kidney_transplant" ~ "Organ transplant",
-      subgroup == "asplenia" ~ "Asplenia",
-      subgroup == "ra_sle_psoriasis" ~ "Rheumatoid arthritis/ lupus/ psoriasis",
-      subgroup == "immunosuppression" ~ "Immunosuppressive condition",
-      subgroup == "learning_disability" ~ "Learning disability",
-      subgroup == "sev_mental_ill" ~ "Severe mental illness"
-    )
-  )
+  rename_subgroups(table2)
 # relocate reference value agegroup 
 # references values is first, but for agegroup it should be third since
 # reference value for agegroup is 50-59

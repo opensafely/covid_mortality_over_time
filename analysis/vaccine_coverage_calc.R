@@ -28,7 +28,7 @@ names(data_processed) <- c("wave1", "wave2", "wave3")
 
 # Functions ---
 ## 'calc_n_vax' creates a summary table for a specific subgroup with columns:
-## ssubgroup level n_vax_1 n_vax_2 n_vax_3 n cov_1 cov_2 cov_3
+## subgroup level n_vax_1 n_vax_2 n_vax_3 n cov_1 cov_2 cov_3
 ## arguments:
 ## data: extract of data (usually data_processed$wave1)
 ## subgroup: character of subgroup (e.g., "bmi")
