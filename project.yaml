@@ -211,6 +211,14 @@ actions:
       moderately_sensitive: 
         html: output/tables/table1.html
 
+# Vaccine coverage
+  calc_vax_cov:
+    run: r:latest analysis/vaccine_coverage_calc.R
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs: output/tables/wave*_vax_coverage.csv
+
 # Kaplan-Meier
   create_kaplan_meier:
     run: r:latest analysis/waves_kaplan_meier.R
