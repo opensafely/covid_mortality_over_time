@@ -89,7 +89,7 @@ study = StudyDefinition(
         (age >=18 AND age <= 110) AND
         (sex = "M" OR sex = "F") AND
         NOT stp = "" AND
-        imd > 0
+        imd >= 0
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "index_date - 3 months", "index_date"
@@ -292,16 +292,11 @@ study = StudyDefinition(
     imd=patients.categorised_as(
         {
             "0": "DEFAULT",
-            "1": """index_of_multiple_deprivation >=1 AND
-                index_of_multiple_deprivation < 32844*1/5""",
-            "2": """index_of_multiple_deprivation >= 32844*1/5 AND
-                index_of_multiple_deprivation < 32844*2/5""",
-            "3": """index_of_multiple_deprivation >= 32844*2/5 AND
-                index_of_multiple_deprivation < 32844*3/5""",
-            "4": """index_of_multiple_deprivation >= 32844*3/5 AND
-                index_of_multiple_deprivation < 32844*4/5""",
-            "5": """index_of_multiple_deprivation >= 32844*4/5 AND
-                index_of_multiple_deprivation < 32844""",
+            "1": "index_of_multiple_deprivation >= 0 AND index_of_multiple_deprivation < 32800*1/5",
+            "2": "index_of_multiple_deprivation >= 32800*1/5 AND index_of_multiple_deprivation < 32800*2/5",
+            "3": "index_of_multiple_deprivation >= 32800*2/5 AND index_of_multiple_deprivation < 32800*3/5",
+            "4": "index_of_multiple_deprivation >= 32800*3/5 AND index_of_multiple_deprivation < 32800*4/5",
+            "5": "index_of_multiple_deprivation >= 32800*4/5 AND index_of_multiple_deprivation <= 32800",
         },
         return_expectations={
             "rate": "universal",
