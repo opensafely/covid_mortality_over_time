@@ -252,3 +252,11 @@ actions:
     outputs:
       moderately_sensitive: 
         csv: output/tables/relrisks_for_viz_tidied.csv
+        
+  # Wave-specific HR plots
+  plot_relrisks:
+    run: r:latest -e 'rmarkdown::render("analysis/wave_HRs.Rmd", knit_root_dir = "/workspace", output_dir="/workspace/output/markdown")'
+    needs: [tidy_relrisks_for_viz]
+    outputs:
+      moderately_sensitive:
+        csv: output/markdown/wave_HRs.html
