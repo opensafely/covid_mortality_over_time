@@ -1,0 +1,96 @@
+---
+title: "Wave-specific mortality rate visuals"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+## Import libraries
+library('here')
+library('tidyverse')
+library('cowplot')
+
+## Import data
+relrisks <- read_csv(here("output","tables","relrisks_for_viz_tidied.csv")) %>%
+  filter(!(Characteristic == "Ethnicity" & is.na(Category)))
+```
+
+#### Wave-specific hazard ratios
+```{r, fig.width=13, fig.height=20}
+## Reformat HRs to ggplot data frame
+collated = data.frame(
+  Characteristic = rep(relrisks$Characteristic, 3),
+  Plot_category = rep(relrisks$Plot_category, 3),
+  Plot_group = rep(relrisks$Plot_group, 3),
+  HR = c(relrisks$HR.1, relrisks$HR.2, relrisks$HR.3),
+  LowerCI = c(relrisks$LowerCI.1, relrisks$LowerCI.2, relrisks$LowerCI.3),
+  UpperCI = c(relrisks$UpperCI.1, relrisks$UpperCI.2, relrisks$UpperCI.3),
+  Wave = c(rep("Wave 1", nrow(relrisks)), rep("Wave 2", nrow(relrisks)), rep("Wave 3", nrow(relrisks)))
+)
+
+## Set factor levels
+relrisks$Plot_category = factor(relrisks$Plot_category, levels = rev(unique(relrisks$Plot_category)))
+relrisks$Plot_group = factor(relrisks$Plot_group, levels = unique(relrisks$Plot_group))
+collated$Plot_category = factor(collated$Plot_category, levels = rev(unique(collated$Plot_category)))
+collated$Plot_group = factor(collated$Plot_group, levels = unique(collated$Plot_group))
+
+## Plot collated HRs
+wave_HRs = ggplot(collated, aes(y = HR, x = Plot_category, colour = Wave)) + 
+    geom_point(size = 3, alpha=0.8) +
+    geom_errorbar(aes(ymin=as.numeric(LowerCI), ymax=as.numeric(UpperCI), colour = Wave), width=0) + 
+    coord_flip() + facet_grid(Plot_group~Wave, scales = "free_y", space = "free_y") + 
+    theme_bw() + theme(strip.background = element_blank()) + 
+    geom_hline(yintercept=1, linetype="dotted") + 
+    scale_colour_manual(values = c("Wave 1" = "#7f2704", "Wave 2" = "#a63603", "Wave 3" = "#d94801")) +
+    scale_y_continuous(trans="log10") +
+    ylab("HR") + xlab("") +
+    theme(axis.title = element_text(size=12), axis.text = element_text(size=12), strip.text.x = element_text(size=12), strip.text.y = element_blank(), 
+          legend.position = "none")
+
+## Plot HR ratio
+relrisks$delta_facet = "Δ HR"
+delta_HR = ggplot(relrisks, aes(y = HR_ratio.3, x = Plot_category)) + 
+    geom_bar(stat="identity", fill="#d94801") +
+    coord_flip() + facet_grid(Plot_group~delta_facet, scales = "free_y", space = "free_y") + 
+    theme_bw() + theme(strip.background = element_blank()) + 
+    geom_hline(yintercept=1, linetype="dotted") + 
+    scale_y_continuous(trans="log10") +
+    ylab("HR ratio (3 vs 1)") + xlab("") +
+    theme(axis.title = element_text(size=12), axis.text = element_text(size=12), strip.text.x = element_text(size=12), strip.text.y = element_blank(), 
+         legend.position = "none", axis.text.y=element_blank())
+
+## Plot coverage
+relrisks$cov_facet = "2-dose\n coverage"
+coverage = ggplot(relrisks, aes(y = Coverage, x = Plot_category)) + 
+    geom_point(size = 3, alpha=0.8) +
+    geom_segment(aes(xend=Plot_category), yend=0) +
+    coord_flip() + facet_grid(Plot_group~cov_facet, scales = "free_y", space = "free_y") + 
+    theme_bw() + theme(strip.background = element_blank()) + 
+    ylab("%") + xlab("") +
+    theme(axis.title = element_text(size=12), axis.text = element_text(size=12), strip.text = element_text(size=12), 
+         legend.position = "none", axis.text.y=element_blank())
+
+## Render grid of 3 plots above
+plot_grid(wave_HRs, delta_HR, coverage, ncol=3, rel_widths=c(4,1,1), align="h", axis="tb")
+```
+<br/><br/>
+
+#### Wave-specific hazard ratios
+```{r, fig.width=4, fig.height=3}
+ggplot(relrisks, aes(x = Coverage, y = HR_ratio.3)) + 
+    geom_point(size = 2.5, alpha=0.6) +
+    theme_bw() + 
+    scale_y_continuous(trans="log10") +
+    xlab("2-dose coverage (%)") + ylab("HR ratio (3 vs 1)") +
+    theme(axis.title = element_text(size=12), axis.text = element_text(size=12), strip.text = element_text(size=12), 
+         legend.position = "none")
+```
+<br/><br/>
+
+
+#### Session info
+```{r}
+print(sessionInfo())
+```
+
