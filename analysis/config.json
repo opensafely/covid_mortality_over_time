@@ -16,6 +16,7 @@
         "ckd_rrt",
         "organ_kidney_transplant",
         "hypertension",
+        "bp_ht",
         "chronic_respiratory_disease",
         "chronic_cardiac_disease",
         "cancer",

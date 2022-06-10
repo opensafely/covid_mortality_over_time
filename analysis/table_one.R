@@ -37,6 +37,7 @@ labels <- list(
   chronic_respiratory_disease ~ "Chronic respiratory disease",
   asthma ~ "Asthma",
   bp ~ "Blood pressure",
+  bp_ht ~ "High blood pressure or diagnosed hypertension",
   chronic_cardiac_disease ~ "Chronic cardiac disease",
   diabetes_controlled ~ "Diabetes",
   cancer ~ "Cancer (non haematological)",

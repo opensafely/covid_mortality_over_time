@@ -40,6 +40,7 @@ extract_data <- function(file_name) {
         # comorbidities (multilevel)
         asthma = col_number(),
         bp = col_number(),
+        bp_ht = col_logical(),
         diabetes_controlled = col_number(),
         ## ckd/rrt
         ### dialysis or kidney transplant
