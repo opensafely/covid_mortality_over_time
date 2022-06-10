@@ -303,14 +303,15 @@ study = StudyDefinition(
             "rate": "universal",
             "category": {
                 "ratios": {
-                    "0": 0.05,
-                    "1": 0.19,
-                    "2": 0.19,
-                    "3": 0.19,
-                    "4": 0.19,
-                    "5": 0.19,
+                    "0": 0,
+                    "1": 0.2,
+                    "2": 0.2,
+                    "3": 0.2,
+                    "4": 0.2,
+                    "5": 0.2,
                 }
             },
+            "incidence": 1.0,
         },
     ),
     # stp https://github.com/ebmdatalab/tpp-sql-notebook/issues/54
@@ -583,7 +584,7 @@ study = StudyDefinition(
                                         "3": 0.02
                                         }
                                     },
-                                "incidence":1.0,
+                                "incidence": 1.0,
                                 },
     ),
     # Cancer
