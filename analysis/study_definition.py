@@ -428,6 +428,29 @@ study = StudyDefinition(
         ),
     ),
     # Blood pressure
+    bp_sys=patients.mean_recorded_value(
+        systolic_blood_pressure_codes,
+        on_most_recent_day_of_measurement=True,
+        on_or_before="index_date",
+        include_measurement_date=True,
+        include_month=True,
+        return_expectations={
+           "incidence": 0.6,
+            "float": {"distribution": "normal", "mean": 80, "stddev": 10},
+        },
+    ),
+    bp_dia=patients.mean_recorded_value(
+        diastolic_blood_pressure_codes,
+        on_most_recent_day_of_measurement=True,
+        on_or_before="index_date",
+        include_measurement_date=True,
+        include_month=True,
+        return_expectations={
+            "incidence": 0.6,
+            "float": {"distribution": "normal", "mean": 120, "stddev": 10},
+        },
+    ),
+    # blood pressure category (low, moderate/high)
     # filtering on >0 as missing values are returned as 0
     bp=patients.categorised_as(
         {
@@ -452,47 +475,13 @@ study = StudyDefinition(
                                         }
                                     },
                                 "incidence": 1.0,
-                                },
-        bp_sys=patients.mean_recorded_value(
-            systolic_blood_pressure_codes,
-            on_most_recent_day_of_measurement=True,
-            on_or_before="index_date",
-            include_measurement_date=True,
-            include_month=True,
-            return_expectations={
-                "incidence": 0.6,
-                "float": {"distribution": "normal", "mean": 80, "stddev": 10},
-            },
-        ),
-        bp_dia=patients.mean_recorded_value(
-            diastolic_blood_pressure_codes,
-            on_most_recent_day_of_measurement=True,
-            on_or_before="index_date",
-            include_measurement_date=True,
-            include_month=True,
-            return_expectations={
-                "incidence": 0.6,
-                "float": {"distribution": "normal", "mean": 120, "stddev": 10},
-            },
-        ),
+                            },
     ),
     # High blood pressure or hypertension
-    bp_ht=patients.categorised_as(
-        {
-            "0": "DEFAULT",
-            "1": """
-                    (bp_sys >= 140 OR bp_dia >= 90) OR
-                        hypertension
-            """,
-        },
+    bp_ht=patients.satisfying(
+        "bp_sys >= 140 OR bp_dia >= 90 OR hypertension",
         return_expectations={
-                                "category": {
-                                    "ratios": {
-                                        "0": 0.8,
-                                        "1": 0.2,
-                                        }
-                                    },
-                                "incidence": 1.0,
+                                "incidence": 0.3,
                             },
     ),
     # Chronic heart disease
