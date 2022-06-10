@@ -274,12 +274,12 @@ study = StudyDefinition(
                 "rate": "universal",
                 "category": {
                     "ratios": {
-                        "0": 0.05,
-                        "1": 0.19,
-                        "2": 0.19,
-                        "3": 0.19,
-                        "4": 0.19,
-                        "5": 0.19,
+                        "0": 0,
+                        "1": 0.2,
+                        "2": 0.2,
+                        "3": 0.2,
+                        "4": 0.2,
+                        "5": 0.2,
                         }
                     },
                 },
@@ -305,6 +305,7 @@ study = StudyDefinition(
                     "5": 0.19,
                 }
             },
+            "incidence": 1.0,
         },
     ),
     # stp https://github.com/ebmdatalab/tpp-sql-notebook/issues/54
@@ -398,6 +399,7 @@ study = StudyDefinition(
                                         "2": 0.1
                                         }
                                     },
+                                "incidence": 1.0,
                                 },
         recent_asthma_code=patients.with_these_clinical_events(
             asthma_codes,  # imported from codelists.py
@@ -439,7 +441,8 @@ study = StudyDefinition(
                                         "2": 0.1
                                         }
                                     },
-                                },
+                                "incidence": 1.0,
+                            },
         bp_sys=patients.mean_recorded_value(
             systolic_blood_pressure_codes,
             on_most_recent_day_of_measurement=True,
@@ -567,6 +570,7 @@ study = StudyDefinition(
                                         "3": 0.02
                                         }
                                     },
+                                "incidence": 1.0,
                                 },
     ),
     # Cancer
@@ -730,7 +734,8 @@ study = StudyDefinition(
                                         "Organ": 0.025
                                         }
                                     },
-                                },
+                                "incidence": 1.0,
+                            },
     ),
     # Asplenia (splenectomy or a spleen dysfunction, including sickle cell
     # disease)
@@ -826,7 +831,7 @@ study = StudyDefinition(
         # results to only specified cause of death
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "date": {"earliest": "index_date", "latest": end_date},
             "incidence": 0.05,
         },
     ),

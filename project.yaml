@@ -244,3 +244,11 @@ actions:
     outputs:
       moderately_sensitive: 
         html: output/tables/table2.html
+
+# Tidy relrisks (HRs) for viz
+  tidy_relrisks_for_viz:
+    run: r:latest analysis/relrisks_tidy_for_viz.R
+    needs: [model_cox_ph, calc_vax_cov]
+    outputs:
+      moderately_sensitive: 
+        csv: output/tables/relrisks_for_viz_tidied.csv

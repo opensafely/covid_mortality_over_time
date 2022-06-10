@@ -279,14 +279,15 @@ study = StudyDefinition(
                 "rate": "universal",
                 "category": {
                     "ratios": {
-                        "0": 0.05,
-                        "1": 0.19,
-                        "2": 0.19,
-                        "3": 0.19,
-                        "4": 0.19,
-                        "5": 0.19,
+                        "0": 0,
+                        "1": 0.2,
+                        "2": 0.2,
+                        "3": 0.2,
+                        "4": 0.2,
+                        "5": 0.2,
                         }
                     },
+                "incidence": 1.0
                 },
     ),
     imd=patients.categorised_as(
@@ -403,7 +404,8 @@ study = StudyDefinition(
                                         "2": 0.1
                                         }
                                     },
-                                },
+                            "incidence": 1.0,
+                            },
         recent_asthma_code=patients.with_these_clinical_events(
             asthma_codes,  # imported from codelists.py
             between=["index_date - 3 years", "index_date"],
@@ -444,7 +446,8 @@ study = StudyDefinition(
                                         "2": 0.1
                                         }
                                     },
-                                },
+                                "incidence":1.0,
+                            },
         bp_sys=patients.mean_recorded_value(
             systolic_blood_pressure_codes,
             on_most_recent_day_of_measurement=True,
@@ -572,6 +575,7 @@ study = StudyDefinition(
                                         "3": 0.02
                                         }
                                     },
+                                "incidence":1.0,
                                 },
     ),
     # Cancer
@@ -735,7 +739,8 @@ study = StudyDefinition(
                                         "Organ": 0.025
                                         }
                                     },
-                                },
+                                "incidence": 1.0,
+                            },
     ),
     # Asplenia (splenectomy or a spleen dysfunction, including sickle cell
     # disease)
