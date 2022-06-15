@@ -226,7 +226,7 @@ actions:
     outputs: 
       moderately_sensitive:
         csvs: output/tables/wave*_ir.csv
-        csvca: output/tables/ir_crude.csv
+        csv: output/tables/ir_crude.csv
 
 # Kaplan-Meier
   create_kaplan_meier:
