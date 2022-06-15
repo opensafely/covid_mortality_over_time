@@ -219,6 +219,15 @@ actions:
       moderately_sensitive:
         csvs: output/tables/wave*_vax_coverage.csv
 
+# Incidence rates (crude)
+  calc_irs:
+    run: r:latest analysis/waves_irs.R
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs: output/tables/wave*_ir.csv
+        csvca: output/tables/ir_crude.csv
+
 # Kaplan-Meier
   create_kaplan_meier:
     run: r:latest analysis/waves_kaplan_meier.R
