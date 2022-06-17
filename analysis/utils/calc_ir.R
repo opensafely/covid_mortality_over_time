@@ -15,7 +15,7 @@
 # Output:
 # data.frame with columns rate, lower and upper 
 calc_ir <- function(events, time){
-  time_per_1000_py <- time / 365.25 / 1000
+  time_per_1000_py <- time / 365250
   htest <- poisson.test(events, time_per_1000_py)
   rate <- unname(htest$estimate)
   lower <- unname(htest$conf.int[1])
