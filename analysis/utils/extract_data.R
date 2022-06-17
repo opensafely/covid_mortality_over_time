@@ -30,6 +30,7 @@ extract_data <- function(file_name) {
         # demographics
         age = col_integer(),
         agegroup = col_character(),
+        agegroup_std = col_character(),
         sex = col_character(),
         stp = col_character(),
         bmi = col_character(),
