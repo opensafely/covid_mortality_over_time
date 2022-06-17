@@ -228,6 +228,14 @@ actions:
         csvs: output/tables/wave*_ir.csv
         csv: output/tables/ir_crude.csv
 
+# Incidence rates (crude)
+  calc_irs_std:
+    run: r:latest analysis/waves_std_irs.R
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs: output/tables/wave*_ir_std.csv
+
 # Kaplan-Meier
   create_kaplan_meier:
     run: r:latest analysis/waves_kaplan_meier.R
