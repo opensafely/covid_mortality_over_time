@@ -262,6 +262,14 @@ actions:
       moderately_sensitive: 
         html: output/tables/table2.html
 
+# Tidy absrisks (IRs) for viz
+  tidy_absrisks_for_viz:
+    run: r:latest analysis/absrisks_tidy_for_viz.R
+    needs: [calc_irs, calc_irs_std, calc_vax_cov]
+    outputs:
+      moderately_sensitive: 
+        csv: output/tables/absrisks_for_viz_tidied.csv
+
 # Tidy relrisks (HRs) for viz
   tidy_relrisks_for_viz:
     run: r:latest analysis/relrisks_tidy_for_viz.R
