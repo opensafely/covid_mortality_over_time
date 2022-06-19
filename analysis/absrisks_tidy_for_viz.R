@@ -75,16 +75,20 @@ irs_std <-
                                             upper = col_double())))
 input_files_irs_crude <- Sys.glob(here("output", "tables", "wave*_ir.csv"))
 # agegroup is not age or sex standardised, and added to the irs
+# for agegroup, the redacted rate is taken, for consistency throughout the 
+# manuscript
 irs_crude <- 
   map(.x = input_files_irs_crude,
       .f = ~ read_csv(.x,
                       col_types = cols_only(subgroup = col_character(),
                                             level = col_character(),
-                                            rate = col_double(),
-                                            lower = col_double(),
-                                            upper = col_double())) %>%
+                                            rate_redacted = col_double(),
+                                            lower_redacted = col_double(),
+                                            upper_redacted = col_double())) %>%
               filter(subgroup == "agegroup") %>%
-              rename(ir = rate))
+              rename(ir = rate_redacted,
+                     lower = lower_redacted,
+                     upper = upper_redacted))
 # combine agegroup from crude file and rest
 estimates <-
   map2(.x = irs_crude,

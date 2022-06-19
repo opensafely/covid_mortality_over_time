@@ -7,6 +7,7 @@
 
 ## linda.nab@thedatalab.com - 20220615
 ## ###########################################################
+library(dplyr)
 
 # Function 'calc_ir' calculation of incidence rate per 1000 py + 95% CIs
 # Arguments:
@@ -14,13 +15,16 @@
 # time: follow up in days
 # Output:
 # data.frame with columns rate, lower and upper 
-calc_ir <- function(events, time){
+calc_ir <- function(events, time, name = ""){
   time_per_1000_py <- time / 365250
   htest <- poisson.test(events, time_per_1000_py)
   rate <- unname(htest$estimate)
   lower <- unname(htest$conf.int[1])
   upper <- unname(htest$conf.int[2])
-  out <- data.frame(rate = rate, lower = lower, upper = upper)
+  out <- data.frame(rate = rate, 
+                    lower = lower, 
+                    upper = upper)
+  colnames(out) <- paste0(colnames(out), name)
   out
 }
 
@@ -39,7 +43,11 @@ calc_ir_for_subgroup <- function(data, subgroup){
     summarise(
       events = sum(died_ons_covid_flag_any),
       time = sum(as.numeric(fu)),
-      calc_ir(events, time)
+      calc_ir(events, time),
+      events_redacted = case_when(events <= 5 ~ 0, 
+                                  TRUE ~ plyr::round_any(events, 5)),
+      time_redacted = plyr::round_any(time, 5),
+      calc_ir(events_redacted, time_redacted, "_redacted")
     ) %>%
     mutate(subgroup = !!subgroup)
   colnames(ir)[colnames(ir) == subgroup] <- "level"
@@ -47,7 +55,7 @@ calc_ir_for_subgroup <- function(data, subgroup){
   ir <- 
     ir %>%
     mutate(level = as.factor(level))
-  ir <- ir[, c(7, 1, 2, 3, 4, 5, 6)]
+  ir <- ir[, c(12, 1:11)]
   ir
 }
 

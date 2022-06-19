@@ -44,7 +44,11 @@ ir_crude <-
         summarise(
           events = sum(died_ons_covid_flag_any),
           time = sum(as.numeric(fu)),
-          calc_ir(events, time)
+          calc_ir(events, time),
+          events_redacted = case_when(events <= 5 ~ 0, 
+                                      TRUE ~ plyr::round_any(events, 5)),
+          time_redacted = plyr::round_any(time, 5),
+          calc_ir(events_redacted, time_redacted, "_redacted")
         ) %>% 
         mutate(
           wave = .y

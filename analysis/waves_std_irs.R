@@ -51,6 +51,15 @@ summarise_data_subgroup <- function(data, subgroup){
     summarise(events = sum(died_ons_covid_flag_any),
               time = sum(as.numeric(fu)),
               .groups = "keep")
+  data_summarised_subgroup <-
+    data_summarised_subgroup %>%
+    group_by_at(vars(!!subgroup)) %>%
+    # calculate number of events in each level of the subgruop
+    # --> to redact when lower than 5
+    mutate(total_events_in_level = sum(events)) %>%
+    mutate(events_redacted = case_when(total_events_in_level <= 5 ~ 0L,
+                              TRUE ~ events)) %>%
+    select(-total_events_in_level)
   data_summarised_subgroup
 }
 
@@ -68,12 +77,12 @@ subgroups_irs_wave <- function(data, esp, subgroups_vctr){
           mutate(ir_i = calc_dsr_i(
             C = 365250,
             M_total = M_total,
-            p = events / time,
+            p = events_redacted / time, # based on redacted no. of events
             M = EuropeanStandardPopulation)) %>%
           mutate(var_ir_i = calc_var_dsr_i(
             C = 365250,
             M_total = M_total,
-            p = events / time,
+            p = events_redacted / time, # based on redacted no. of events
             M = EuropeanStandardPopulation,
             N = time)))
   # add names to list
