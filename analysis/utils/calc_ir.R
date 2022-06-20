@@ -39,7 +39,7 @@ calc_ir <- function(events, time, name = ""){
 calc_ir_for_subgroup <- function(data, subgroup){
   ir <-
     data %>%
-    group_by_at(vars(!!subgroup)) %>%
+    group_by_at(all_of(subgroup)) %>%
     summarise(
       events = sum(died_ons_covid_flag_any),
       time = sum(as.numeric(fu)),
