@@ -37,6 +37,26 @@ process_data <- function(data_extracted, waves_dates_list) {
       # no missings should occur as individuals with
       # missing age are not included in the study
       
+      agegroup_std = fct_case_when(
+        agegroup_std == "15-19 years" ~ "15-19 years",
+        agegroup_std == "20-24 years" ~ "20-24 years",
+        agegroup_std == "25-29 years" ~ "25-29 years",
+        agegroup_std == "30-34 years" ~ "30-34 years",
+        agegroup_std == "35-39 years" ~ "35-39 years",
+        agegroup_std == "40-44 years" ~ "40-44 years",
+        agegroup_std == "45-49 years" ~ "45-49 years",
+        agegroup_std == "50-54 years" ~ "50-54 years",
+        agegroup_std == "55-59 years" ~ "55-59 years",
+        agegroup_std == "60-64 years" ~ "60-64 years",
+        agegroup_std == "65-69 years" ~ "65-69 years",
+        agegroup_std == "70-74 years" ~ "70-74 years",
+        agegroup_std == "75-79 years" ~ "75-79 years",
+        agegroup_std == "80-84 years" ~ "80-84 years",
+        agegroup_std == "85-89 years" ~ "85-89 years",
+        agegroup_std == "90plus years" ~ "90plus years",
+        TRUE ~ NA_character_
+      ),
+      
       sex = fct_case_when(sex == "F" ~ "Female",
                           sex == "M" ~ "Male",
                           TRUE ~ NA_character_),

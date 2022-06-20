@@ -219,6 +219,23 @@ actions:
       moderately_sensitive:
         csvs: output/tables/wave*_vax_coverage.csv
 
+# Incidence rates (crude)
+  calc_irs:
+    run: r:latest analysis/waves_irs.R
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs: output/tables/wave*_ir.csv
+        csv: output/tables/ir_crude.csv
+
+# Incidence rates (crude)
+  calc_irs_std:
+    run: r:latest analysis/waves_std_irs.R
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs: output/tables/wave*_ir_std.csv
+
 # Kaplan-Meier
   create_kaplan_meier:
     run: r:latest analysis/waves_kaplan_meier.R
@@ -244,6 +261,14 @@ actions:
     outputs:
       moderately_sensitive: 
         html: output/tables/table2.html
+
+# Tidy absrisks (IRs) for viz
+  tidy_absrisks_for_viz:
+    run: r:latest analysis/absrisks_tidy_for_viz.R
+    needs: [calc_irs, calc_irs_std, calc_vax_cov]
+    outputs:
+      moderately_sensitive: 
+        csv: output/tables/absrisks_for_viz_tidied.csv
 
 # Tidy relrisks (HRs) for viz
   tidy_relrisks_for_viz:

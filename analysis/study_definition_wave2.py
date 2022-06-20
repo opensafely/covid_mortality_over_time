@@ -213,6 +213,7 @@ study = StudyDefinition(
                     "Obese III (40+)": 0.1,
                 }
             },
+            "incidence": 1.0,
         },
     ),
     # smoking status
