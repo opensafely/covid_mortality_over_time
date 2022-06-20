@@ -8,6 +8,7 @@
 ## linda.nab@thedatalab.com - 20220615
 ## ###########################################################
 library(dplyr)
+library(tibble)
 
 # Function 'calc_ir' calculation of incidence rate per 1000 py + 95% CIs
 # Arguments:
@@ -49,12 +50,12 @@ calc_ir_for_subgroup <- function(data, subgroup){
       time_redacted = plyr::round_any(time, 5),
       calc_ir(events_redacted, time_redacted, "_redacted")
     ) %>%
-    mutate(subgroup = !!subgroup)
+    add_column(subgroup = !!subgroup, .before=1)
   colnames(ir)[colnames(ir) == subgroup] <- "level"
   # make col type of column 'level' factor (needed to bind_rows later)
   ir <- 
     ir %>%
-    add_row(level = as.factor(level), .before=1)
+    mutate(level = as.factor(level))
   ir
 }
 
