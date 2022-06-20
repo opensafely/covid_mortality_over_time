@@ -54,8 +54,7 @@ calc_ir_for_subgroup <- function(data, subgroup){
   # make col type of column 'level' factor (needed to bind_rows later)
   ir <- 
     ir %>%
-    mutate(level = as.factor(level))
-  ir <- ir[, c(12, 1:11)]
+    add_row(level = as.factor(level), .before=1)
   ir
 }
 
