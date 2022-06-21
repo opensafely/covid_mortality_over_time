@@ -18,6 +18,7 @@ library(jsonlite)
 config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
 subgroups_vctr <- c("sex", config$demographics, config$comorbidities)
+subgroups_vctr <- subgroups_vctr[-which(subgroups_vctr == "region")]
 # needed to add plot_groups
 source(here("analysis", "utils", "subgroups_and_plot_groups.R"))
 # needed to rename subgroups
@@ -72,7 +73,8 @@ irs_std <-
                                             level = col_character(),
                                             ir = col_double(),
                                             lower = col_double(),
-                                            upper = col_double())))
+                                            upper = col_double())) %>%
+                      filter(subgroup != "region"))
 input_files_irs_crude <- Sys.glob(here("output", "tables", "wave*_ir.csv"))
 # agegroup is not age or sex standardised, and added to the irs
 # for agegroup, the redacted rate is taken, for consistency throughout the 
