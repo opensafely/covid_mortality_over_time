@@ -57,6 +57,8 @@ out <- rbind(total_n,
              total_n_included) %>% as.data.frame()
 
 # Save output
+output_dir <- here("output", "tables")
+ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 output_dir <- here("output", "tables", "flowchart")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 write_csv(x = out,
