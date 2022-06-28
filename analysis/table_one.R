@@ -152,12 +152,12 @@ table1 <-
 output_dir <- here("output", "tables")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
 write_csv(table1$table_body %>%
-            select(c(var_label,
-                     label,
-                     stat_0_1_1,
-                     stat_2_2_1,
-                     stat_0_1_2,
-                     stat_2_2_2,
-                     stat_0_1_3,
-                     stat_2_2_3)), paste0(output_dir, "/table1.csv"))
+            select(variable,
+                   label,
+                   stat_0_1_1,
+                   stat_2_2_1,
+                   stat_0_1_2,
+                   stat_2_2_2,
+                   stat_0_1_3,
+                   stat_2_2_3), paste0(output_dir, "/table1.csv"))
 gtsave(table1 %>% as_gt(), paste0(output_dir, "/table1.html"))
