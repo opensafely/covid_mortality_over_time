@@ -17,6 +17,9 @@ library(gt)
 library(jsonlite)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
+demographics <- config$demographics
+comorbidities <- 
+  config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
 
 # Import data extracts of waves  ---
 input_files_processed <-
@@ -33,10 +36,8 @@ labels <- list(
   smoking_status_comb ~ "Smoking status",
   imd ~ "IMD quintile",
   region ~ "Region",
-  hypertension ~ "Hypertension",
   chronic_respiratory_disease ~ "Chronic respiratory disease",
   asthma ~ "Asthma",
-  bp ~ "Blood pressure",
   bp_ht ~ "High blood pressure or diagnosed hypertension",
   chronic_cardiac_disease ~ "Chronic cardiac disease",
   diabetes_controlled ~ "Diabetes",
@@ -68,8 +69,8 @@ data_waves_list <-
         wave,
         agegroup,
         sex,
-        config$demographics,
-        config$comorbidities,
+        all_of(demographics),
+        all_of(comorbidities),
         died_ons_covid_flag_any
       ) %>%
       filter(wave == .x) %>%
@@ -150,4 +151,13 @@ table1 <-
 # Save output --
 output_dir <- here("output", "tables")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+write_csv(table1$table_body %>%
+            select(variable,
+                   label,
+                   stat_0_1_1,
+                   stat_2_2_1,
+                   stat_0_1_2,
+                   stat_2_2_2,
+                   stat_0_1_3,
+                   stat_2_2_3), paste0(output_dir, "/table1.csv"))
 gtsave(table1 %>% as_gt(), paste0(output_dir, "/table1.html"))

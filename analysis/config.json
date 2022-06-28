@@ -4,10 +4,10 @@
     "wave3": {"start_date": "2021-05-28", "end_date": "2021-12-14"},
     "demographics" : [
         "ethnicity",
+        "region",
         "imd",
         "bmi",
-        "smoking_status_comb",
-        "region"
+        "smoking_status_comb"
     ],
     "comorbidities" : [
         "bp",

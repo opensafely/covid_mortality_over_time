@@ -21,8 +21,7 @@ subgroups_vctr <- c("agegroup", "sex", config$demographics, config$comorbidities
 subgroups_and_plot_groups <- 
   cbind.data.frame(subgroup = subgroups_vctr, plot_group = NA_character_)
 subgroups_and_plot_groups <- 
-  subgroups_and_plot_groups %>%
-  filter(subgroup != "region") %>% # region not included as cox models are 
+  subgroups_and_plot_groups %>% # region not included as cox models are 
   # stratifed by region
   mutate(plot_group = case_when(subgroup == "agegroup" ~ "Age",
                                 subgroup == "sex" ~ "Sex",
@@ -30,6 +29,7 @@ subgroups_and_plot_groups <-
                                 subgroup == "imd" ~ "IMD",
                                 subgroup == "bmi" ~ "BMI",
                                 subgroup == "smoking_status_comb" ~ "SMK",
+                                subgroup == "region" ~ "Region",
                                 subgroup == "bp" ~ "BP",
                                 subgroup == "asthma" ~ "Asthma",
                                 subgroup == "diabetes_controlled" ~ "Diabetes",

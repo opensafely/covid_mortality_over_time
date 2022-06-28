@@ -17,11 +17,13 @@ library(jsonlite)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
-subgroups_vctr <- c("sex", config$demographics, config$comorbidities)
+comorbidities <- 
+  config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
+subgroups_vctr <- c("sex", config$demographics, comorbidities)
 subgroups_vctr <- subgroups_vctr[-which(subgroups_vctr == "region")]
 # needed to add plot_groups
 source(here("analysis", "utils", "subgroups_and_plot_groups.R"))
-# needed to rename subgroups
+# needed to rename subgroups 
 source(here("analysis", "utils", "rename_subgroups.R"))
 # Function 'process_est_cov_combined'
 ## Arguments
@@ -74,7 +76,8 @@ irs_std <-
                                             ir = col_double(),
                                             lower = col_double(),
                                             upper = col_double())) %>%
-                      filter(subgroup != "region"))
+                      filter(!(subgroup %in% c("hypertension",
+                                               "bp"))))
 input_files_irs_crude <- Sys.glob(here("output", "tables", "wave*_ir.csv"))
 # agegroup is not age or sex standardised, and added to the irs
 # for agegroup, the redacted rate is taken, for consistency throughout the 
@@ -106,7 +109,8 @@ coverage <-
                       col_types = cols_only(subgroup = col_character(),
                                             level = col_character(),
                                             cov_2 = col_double())) %>%
-        filter(subgroup != "region"))
+        filter(!(subgroup %in% c("hypertension",
+                                 "bp"))))
 names(coverage) <- c("wave1", "wave2", "wave3")
 
 # Combine the estimates and vax coverage ---
