@@ -27,6 +27,7 @@ rename_subgroups <- function(table){
       subgroup == "bmi" ~ "Body Mass Index",
       subgroup == "ethnicity" ~ "Ethnicity",
       subgroup == "smoking_status_comb" ~ "Smoking status",
+      subgroup == "region" ~ "Region",
       subgroup == "imd" ~ "IMD quintile",
       subgroup == "hypertension" ~ "Hypertension",
       subgroup == "chronic_respiratory_disease" ~ "Chronic respiratory disease",

@@ -76,8 +76,7 @@ irs_std <-
                                             ir = col_double(),
                                             lower = col_double(),
                                             upper = col_double())) %>%
-                      filter(!(subgroup %in% c("region",
-                                               "hypertension",
+                      filter(!(subgroup %in% c("hypertension",
                                                "bp"))))
 input_files_irs_crude <- Sys.glob(here("output", "tables", "wave*_ir.csv"))
 # agegroup is not age or sex standardised, and added to the irs
@@ -110,8 +109,7 @@ coverage <-
                       col_types = cols_only(subgroup = col_character(),
                                             level = col_character(),
                                             cov_2 = col_double())) %>%
-        filter(!(subgroup %in% c("region",
-                                 "hypertension",
+        filter(!(subgroup %in% c("hypertension",
                                  "bp"))))
 names(coverage) <- c("wave1", "wave2", "wave3")
 
