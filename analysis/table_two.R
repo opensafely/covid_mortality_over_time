@@ -18,16 +18,15 @@ library(gt)
 config <- fromJSON(here("analysis", "config.json"))
 # create vector containing subgroups
 # each model is stratified by region so region is excluded here
-subgroups_vctr <- c(config$demographics[config$demographics != "region"], 
-                    config$comorbidities)
+comorbidities <- 
+  config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
 # multilevel comorbidities get a reference in table two
 comorbidities_multilevel_vctr <- c("asthma",
-                                   "bp",
                                    "diabetes_controlled",
                                    "ckd_rrt",
                                    "organ_kidney_transplant")
 comorbidities_binary_vctr <-
-  config$comorbidities[!config$comorbidities %in% comorbidities_multilevel_vctr]
+  comorbidities[!comorbidities %in% comorbidities_multilevel_vctr]
 # vector with waves
 waves_vctr <- c("wave1", "wave2", "wave3")
 # needed to add reference values to table two
@@ -74,6 +73,7 @@ mutate_table_two <- function(effect_estimates,
                              reference_table_two){
   effect_estimates <- 
     effect_estimates %>% 
+    filter(subgroup %in% subgroups_vctr) %>%
     mutate(HR = round(HR, 2),
            LowerCI = round(LowerCI, 2),
            UpperCI = round(UpperCI, 2)) %>%
@@ -90,9 +90,10 @@ mutate_table_two <- function(effect_estimates,
 # Mutate table with effect_estimates to one with three columns and with 
 # reference values using function 'mutate_table_two' (see output of function
 # for names of the three columns)
+subgroups_selected <- c("agegroup", "sex", config$demographics, comorbidities)
 effect_estimates_list <-
   map(.x = effect_estimates_list,
-      .f = ~ mutate_table_two(.x, subgroups_vctr, reference_table_two))
+      .f = ~ mutate_table_two(.x, subgroups_selected, reference_table_two))
 
 # Create table two ---
 # Join three waves to one table
@@ -127,5 +128,5 @@ table2$`_boxhead`$column_label <-
 # Save output --
 output_dir <- here("output", "tables")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+write_csv(table2$`_data`, paste0(output_dir, "/table2.csv"))
 gtsave(table2, paste0(output_dir, "/table2.html"))
-

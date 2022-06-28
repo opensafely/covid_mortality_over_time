@@ -17,7 +17,9 @@ library(jsonlite)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
-subgroups_vctr <- c("agegroup", "sex", config$demographics, config$comorbidities)
+comorbidities <- 
+  config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
+subgroups_vctr <- c("agegroup", "sex", config$demographics, comorbidities)
 # needed to add reference values
 source(here("analysis", "utils", "reference_values.R"))
 # needed to add plot_groups
@@ -89,7 +91,10 @@ estimates <-
                                             level = col_character(),
                                             HR = col_double(),
                                             LowerCI = col_double(),
-                                            UpperCI = col_double())))
+                                            UpperCI = col_double())) %>%
+        filter(!(subgroup %in% c("region",
+                                 "hypertension",
+                                 "bp"))))
 names(estimates) <- c("wave1", "wave2", "wave3")
 input_files_coverage <-
   Sys.glob(here("output", "tables", "wave*_vax_coverage.csv"))
@@ -99,7 +104,9 @@ coverage <-
                       col_types = cols_only(subgroup = col_character(),
                                             level = col_character(),
                                             cov_2 = col_double())) %>%
-        filter(subgroup != "region"))
+        filter(!(subgroup %in% c("region",
+                                 "hypertension",
+                                 "bp"))))
 names(coverage) <- c("wave1", "wave2", "wave3")
 
 # Combine the estimates and vax coverage ---
