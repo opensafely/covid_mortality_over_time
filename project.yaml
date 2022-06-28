@@ -125,6 +125,23 @@ actions:
         pngs: output/figures/ratios_subgroups/*.png
 
 # SECOND PART OF STUDY
+  generate_study_population_flowchart:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_flowchart
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_flowchart.csv.gz
+
+  calc_numbers_flowchart:
+    run: r:latest analysis/flowchart.R
+    needs: [generate_study_population_flowchart]
+    outputs:
+      moderately_sensitive:
+        cohort: output/tables/flowchart/wave1_flowchart.csv
+
   generate_study_population_wave1:
     run: >
       cohortextractor:latest generate_cohort 
