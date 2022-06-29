@@ -245,6 +245,15 @@ actions:
       moderately_sensitive:
         csvs: output/tables/wave*_ir.csv
         csv: output/tables/ir_crude.csv
+      
+# Create table with crude IRs
+  create_table_irs:
+    run: r:latest analysis/crude_irs_tidy.R
+    needs: [calc_irs]
+    outputs: 
+      moderately_sensitive:
+        csvs: output/tables/irs_redacted/waves_ir_crude_redacted.csv
+        csv: output/tables/irs_redacted/subgroups_ir_crude_redacted.csv
 
 # Incidence rates (crude)
   calc_irs_std:
