@@ -220,15 +220,6 @@ actions:
         txt2: output/data_properties/input_wave3_coltypes.txt
         txt3: output/data_properties/input_wave3_tabulate.txt
 
-# Create table one
-  create_table_one:
-    run: r:latest analysis/table_one.R
-    needs: [process_data]
-    outputs:
-      moderately_sensitive: 
-        html: output/tables/table1.html
-        csv: output/tables/table1.csv
-
 # Vaccine coverage
   calc_vax_cov:
     run: r:latest analysis/vaccine_coverage_calc.R
@@ -245,15 +236,14 @@ actions:
       moderately_sensitive:
         csvs: output/tables/wave*_ir.csv
         csv: output/tables/ir_crude.csv
-      
-# Create table with crude IRs
-  create_table_irs:
-    run: r:latest analysis/crude_irs_tidy.R
-    needs: [calc_irs]
+
+# Create table one
+  create_table_one:
+    run: r:latest analysis/table_one.R
+    needs: [process_data, calc_irs]
     outputs: 
       moderately_sensitive:
-        csvs: output/tables/irs_redacted/waves_ir_crude_redacted.csv
-        csv: output/tables/irs_redacted/subgroups_ir_crude_redacted.csv
+        csv: output/tables/table1.csv
 
 # Incidence rates (crude)
   calc_irs_std:

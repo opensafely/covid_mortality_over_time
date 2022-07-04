@@ -22,6 +22,7 @@ rename_subgroups <- function(table){
     table %>%
     mutate(
       subgroup = case_when(
+      subgroup == "all" ~ "All",
       subgroup == "agegroup" ~ "Age Group",
       subgroup == "sex" ~ "Sex",
       subgroup == "bmi" ~ "Body Mass Index",
