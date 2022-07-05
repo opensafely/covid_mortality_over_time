@@ -135,9 +135,28 @@ actions:
       highly_sensitive:
         cohort: output/input_flowchart.csv.gz
 
+  # Process data flowchart
+  process_data_flowchart:
+    run: r:latest analysis/data_flowchart_process.R
+    needs: [generate_study_population_flowchart]
+    outputs:
+      highly_sensitive: 
+        rds: output/processed/input_flowchart.rds
+  
+  # Skim data flowchart
+  skim_data_flowchart:
+    run: r:latest analysis/data_skim.R output/processed/input_flowchart.rds output/data_properties
+    needs: [process_data_flowchart]
+    outputs: 
+      moderately_sensitive:
+        txt1: output/data_properties/input_flowchart_skim.txt
+        txt2: output/data_properties/input_flowchart_coltypes.txt
+        txt3: output/data_properties/input_flowchart_tabulate.txt
+
+  # Numbers for flowchart
   calc_numbers_flowchart:
     run: r:latest analysis/flowchart.R
-    needs: [generate_study_population_flowchart]
+    needs: [process_data_flowchart]
     outputs:
       moderately_sensitive:
         cohort: output/tables/flowchart/wave1_flowchart.csv

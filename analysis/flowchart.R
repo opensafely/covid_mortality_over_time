@@ -11,15 +11,7 @@
 library(here)
 library(readr)
 library(dplyr)
-data <- read_csv(here("output", "input_flowchart.csv.gz"),
-                 col_types = cols_only(
-                   patient_id = col_integer(),
-                   has_follow_up = col_logical(),
-                   age = col_integer(),
-                   sex = col_character(),
-                   stp = col_character(),
-                   index_of_multiple_deprivation = col_integer()
-                 ))
+data <- readRDS(here("output", "processed", "input_flowchart.rds"))
 
 # Calc numbers
 total_n <- nrow(data)
