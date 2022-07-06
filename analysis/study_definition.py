@@ -89,7 +89,8 @@ study = StudyDefinition(
         (age >=18 AND age <= 110) AND
         (sex = "M" OR sex = "F") AND
         NOT stp = "" AND
-        index_of_multiple_deprivation >= 0
+        index_of_multiple_deprivation >= 0 AND
+        has_msoa
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "index_date - 3 months", "index_date"
@@ -269,6 +270,14 @@ study = StudyDefinition(
             "rate": "universal",
             "category": {"ratios": {"S": 0.6, "E": 0.1, "N + M": 0.3}, }
         },
+    ),
+    has_msoa=patients.satisfying(
+        "NOT (msoa = '')",
+        msoa=patients.address_as_of(
+         "index_date",
+         returning="msoa",
+        ),
+        return_expectations={"incidence": 0.2}
     ),
     # imd (index of multiple deprivation) quintile
     index_of_multiple_deprivation=patients.address_as_of(
