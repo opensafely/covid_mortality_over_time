@@ -32,14 +32,14 @@ no_demographics <-
   data %>% 
   filter(has_follow_up == TRUE) %>% 
   filter(age >= 18 & age <= 110) %>%
-  filter(stp == "" | !has_msoa) %>% nrow()
+  filter(stp == "" | index_of_multiple_deprivation < 0 | !has_msoa) %>% nrow()
 
 # included
 total_n_included <- 
   data %>% 
   filter(has_follow_up == TRUE) %>% 
   filter(age >= 18 & age <= 110) %>%
-  filter(stp != "" & has_msoa) %>% nrow()
+  filter(stp != "" & index_of_multiple_deprivation >= 0 & has_msoa) %>% nrow()
 
 # combine numbers
 out <- rbind(total_n,

@@ -17,6 +17,7 @@ data <- read_csv(here("output", "input_flowchart.csv.gz"),
                    age = col_integer(),
                    sex = col_character(),
                    stp = col_character(),
+                   index_of_multiple_deprivation = col_integer(),
                    has_msoa = col_logical()
                  ))
 
