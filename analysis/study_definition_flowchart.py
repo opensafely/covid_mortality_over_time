@@ -91,23 +91,12 @@ study = StudyDefinition(
             },
         },
     ),
-    # imd (index of multiple deprivation)
-    index_of_multiple_deprivation=patients.address_as_of(
-            date="index_date",
-            returning="index_of_multiple_deprivation",
-            round_to_nearest=100,
-            return_expectations={
-                "rate": "universal",
-                "category": {
-                    "ratios": {
-                        "0": 0.05,
-                        "1": 0.19,
-                        "2": 0.19,
-                        "3": 0.19,
-                        "4": 0.19,
-                        "5": 0.19,
-                        }
-                    },
-                },
+    has_msoa=patients.satisfying(
+        "NOT (msoa = '')",
+        msoa=patients.address_as_of(
+         "index_date",
+         returning="msoa",
+        ),
+        return_expectations={"incidence": 0.2}
     ),
 )
