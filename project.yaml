@@ -239,6 +239,14 @@ actions:
         txt2: output/data_properties/input_wave3_coltypes.txt
         txt3: output/data_properties/input_wave3_tabulate.txt
 
+# Missings in bmi, ethnicity and smoking
+  calc_missings:
+    run: r:latest analysis/calc_missings.R
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs: output/tables/missings/waves_missings.csv
+
 # Vaccine coverage
   calc_vax_cov:
     run: r:latest analysis/vaccine_coverage_calc.R

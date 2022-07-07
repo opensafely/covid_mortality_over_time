@@ -83,6 +83,14 @@ process_data <- function(data_extracted, waves_dates_list) {
         # and patient ids are not necessarily the same in both cohorts)
       ),
       
+      smoking_status = fct_case_when(
+        smoking_status == "M" ~ "Missing",
+        smoking_status == "N" ~ "Never",
+        smoking_status == "E" ~ "Former",
+        smoking_status == "S" ~ "Current",
+        TRUE ~ NA_character_
+      ),
+      
       smoking_status_comb = fct_case_when(
         smoking_status_comb == "N + M" ~ "Never and unknown",
         smoking_status_comb == "E" ~ "Former",
