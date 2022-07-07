@@ -281,19 +281,37 @@ actions:
         pngs: output/figures/kaplan_meier/wave*_*.png
 
 # COX ph models
-  model_cox_ph:
-    run: r:latest analysis/waves_model_survival.R
+  model_cox_ph_wave1:
+    run: r:latest analysis/waves_model_survival.R wave1 output/tables
     needs: [process_data]
     outputs: 
       moderately_sensitive:
-        csvs1: output/tables/wave*_effect_estimates.csv
-        csvs2: output/tables/wave*_ph_tests.csv
-        csvs3: output/tables/wave*_log_file.csv
+        csvs1: output/tables/wave1_effect_estimates.csv
+        csvs2: output/tables/wave1_ph_tests.csv
+        csvs3: output/tables/wave1_log_file.csv
+
+  model_cox_ph_wave2:
+    run: r:latest analysis/waves_model_survival.R wave2 output/tables
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs1: output/tables/wave2_effect_estimates.csv
+        csvs2: output/tables/wave2_ph_tests.csv
+        csvs3: output/tables/wave2_log_file.csv
+
+  model_cox_ph_wave3:
+    run: r:latest analysis/waves_model_survival.R wave3 output/tables
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs1: output/tables/wave3_effect_estimates.csv
+        csvs2: output/tables/wave3_ph_tests.csv
+        csvs3: output/tables/wave3_log_file.csv
 
 # Create table two
   create_table_two:
     run: r:latest analysis/table_two.R
-    needs: [model_cox_ph]
+    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3]
     outputs:
       moderately_sensitive: 
         html: output/tables/table2.html
@@ -310,7 +328,7 @@ actions:
 # Tidy relrisks (HRs) for viz
   tidy_relrisks_for_viz:
     run: r:latest analysis/relrisks_tidy_for_viz.R
-    needs: [model_cox_ph, calc_vax_cov]
+    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3, calc_vax_cov]
     outputs:
       moderately_sensitive: 
         csv: output/tables/relrisks_for_viz_tidied.csv

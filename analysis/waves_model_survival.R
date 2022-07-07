@@ -19,6 +19,7 @@ library(purrr)
 library(dplyr)
 library(jsonlite)
 library(stringr)
+library(fs)
 # load json file listing demographics, comorbidities and start dates waves
 config <- fromJSON(here("analysis", "config.json"))
 # load functions 'coxmodel_list()'
@@ -29,37 +30,33 @@ subgroups_vctr <- c(config$demographics[config$demographics != "region"],
                     config$comorbidities)
 # add agegroup and sex
 subgroups_vctr <- c("agegroup", "sex", subgroups_vctr)
-# vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3")
 
 # Import data extracts of waves ---
-input_files_processed <-
-  Sys.glob(here("output", "processed", "input_wave*.rds"))
-data_processed <- 
-  map(.x = input_files_processed,
-      .f = ~ readRDS(.x))
-names(data_processed) <- waves_vctr
+args <- commandArgs(trailingOnly=TRUE)
+if(length(args)==0){
+  # use for interactive testing
+  wave <- "wave1"
+  output_dir <- "output/tables"
+} else {
+  wave <- args[[1]]
+  output_dir <- args[[2]]
+}
+
+rds_file <- here("output", "processed", paste0("input_", wave, ".rds"))
+data_processed <- readRDS(rds_file)
 
 # Survival modeling ---
 # creates list with 2 levels, first level is 'wave1', 'wave2', 'wave3' and 
 # second level is 'effect_estimates' and 'ph_tests'
 # (second level = output of function 'coxmodel_list')
-output_cox_models <- map(.x = data_processed,
-                         .f = ~ coxmodel_list(data = .x,
-                                              variables = subgroups_vctr))
-# removes upper level --> names of list will be 'wave1.effect_estimates', 
-# 'wave1.ph_tests' etc...
-output_cox_models <- unlist(output_cox_models, recursive = FALSE)
-# replace . in new names with _ (used to save output later)
-names(output_cox_models) <- str_replace(names(output_cox_models),
-                                        "[.]",
-                                        "_")
+output_cox_models <- coxmodel_list(data = data_processed,
+                                   variables = subgroups_vctr)
 
 # Save output --
-output_dir <- here("output", "tables")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+dir_create(output_dir)
+
 # .y is equal to names of output_cox_models
 iwalk(.x = output_cox_models,
       .f = ~ write.csv(.x,
                        row.names = FALSE,
-                       paste0(output_dir, "/", .y, ".csv")))
+                       path(output_dir, paste0(wave, "_", .y, ".csv"))))
