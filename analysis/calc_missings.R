@@ -12,6 +12,7 @@ library(readr)
 library(dplyr)
 library(tibble)
 library(fs)
+library(purrr)
 
 # Load data ---
 ## Search input files by globbing
@@ -22,6 +23,7 @@ input_files <-
 data_processed <-
   map(.x = input_files,
       .f = ~ readRDS(.x))
+names(data_processed) <- c("wave1", "wave2", "wave3")
 
 # Calculate missings ---
 n_missing_smoking <- 
