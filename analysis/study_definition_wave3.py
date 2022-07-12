@@ -84,8 +84,7 @@ study = StudyDefinition(
         (age >=18 AND age <= 110) AND
         (sex = "M" OR sex = "F") AND
         NOT stp = "" AND
-        index_of_multiple_deprivation >= 0 AND
-        has_msoa
+        index_of_multiple_deprivation != -1
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "index_date - 3 months", "index_date"
