@@ -33,7 +33,7 @@ extract_data <- function(file_name) {
         agegroup_std = col_character(),
         sex = col_character(),
         stp = col_character(),
-        bmi_value = col_integer(),
+        bmi_value = col_double(),
         bmi = col_character(),
         ethnicity = col_number(),
         smoking_status = col_character(),
