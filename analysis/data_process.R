@@ -37,6 +37,7 @@ data_extracted_with_kidney_vars <-
 data_processed <- 
   map2(.x = data_extracted_with_kidney_vars,
        .y = list(config$wave1, 
+                 config$wave1,
                  config$wave2,
                  config$wave3),
        .f = ~ process_data(data_extracted = .x,
@@ -44,7 +45,7 @@ data_processed <-
 
 ## Name data.frames in list (used as file name when output is saved)
 names(data_processed) <-
-  c("wave1", "wave2", "wave3")
+  c("wave1", "wave1_imd", "wave2", "wave3")
  
 # Save output ---
 output_dir <- here("output", "processed")

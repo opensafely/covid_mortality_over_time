@@ -171,6 +171,16 @@ actions:
       highly_sensitive:
         cohort: output/input_wave1.csv.gz
 
+  generate_study_population_wave1_imd:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_wave1_imd
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_wave1_imd.csv.gz
+
   generate_study_population_wave2:
     run: >
       cohortextractor:latest generate_cohort 
@@ -198,7 +208,7 @@ actions:
         --lhs output/input_wave*.csv.gz
         --rhs output/input_ethnicity.csv.gz
         --output-dir=output/joined
-    needs: [generate_study_population_wave1, generate_study_population_wave2, generate_study_population_wave3, generate_study_population_ethnicity]
+    needs: [generate_study_population_wave1, generate_study_population_wave2, generate_study_population_wave3, generate_study_population_wave1_imd, generate_study_population_ethnicity]
     outputs:
       highly_sensitive:
         cohort: output/joined/input_wave*.csv.gz
@@ -220,6 +230,16 @@ actions:
         txt1: output/data_properties/input_wave1_skim.txt
         txt2: output/data_properties/input_wave1_coltypes.txt
         txt3: output/data_properties/input_wave1_tabulate.txt
+
+  # Skim data
+  skim_data_wave1_imd:
+    run: r:latest analysis/data_skim.R output/processed/input_wave1_imd.rds output/data_properties
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        txt1: output/data_properties/input_wave1_imd_skim.txt
+        txt2: output/data_properties/input_wave1_imd_coltypes.txt
+        txt3: output/data_properties/input_wave1_imd_tabulate.txt
 
   skim_data_wave2:
     run: r:latest analysis/data_skim.R output/processed/input_wave2.rds output/data_properties
