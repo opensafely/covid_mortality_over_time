@@ -20,31 +20,52 @@ total_n <- nrow(data)
 no_follow_up <- 
   data %>% 
   filter(has_follow_up == FALSE) %>% nrow()
+# NA in has_follow_up?
+cat("#### any NA's in has_follow_up? ####\n")
+print(any(is.na(data$has_follow_up)))
 
 # follow-up but not 18 <= age <= 110
 no_age <- 
   data %>% 
   filter(has_follow_up == TRUE) %>%
   filter(age < 18 | age > 110) %>% nrow()
+cat("\n#### any NA's in age? ####\n")
+print(any(is.na(data$age)))
 
-# follow-up and 18 <= age <= 110 but missing demographics (stp / imd)
+# follow-up & age but missing sex
+no_sex <- 
+  data %>%
+  filter(has_follow_up == TRUE) %>%
+  filter(age >= 18 & age <= 110) %>% 
+  filter(!(sex %in% c("F", "M"))) %>% nrow()
+cat("\n#### any NA's in sex? ####\n")
+print(any(is.na(data$sex)))
+
+# follow-up & age & sex but missing demographics (stp / imd)
 no_demographics <- 
-  data %>% 
-  filter(has_follow_up == TRUE) %>% 
-  filter(age >= 18 & age <= 110) %>%
-  filter(stp == "" | index_of_multiple_deprivation < 0 | !has_msoa) %>% nrow()
+  data %>%
+  filter(has_follow_up == TRUE) %>%
+  filter(age >= 18 & age <= 110) %>% 
+  filter(sex %in% c("F", "M")) %>% 
+  filter(stp == "" | index_of_multiple_deprivation == -1) %>% nrow()
+cat("\n#### any NA's in stp? ####\n")
+print(any(is.na(data$stp)))
+cat("\n#### any NA's in imd? ####\n")
+print(any(is.na(data$index_of_multiple_deprivation)))
 
 # included
 total_n_included <- 
   data %>% 
   filter(has_follow_up == TRUE) %>% 
-  filter(age >= 18 & age <= 110) %>%
-  filter(stp != "" & index_of_multiple_deprivation >= 0 & has_msoa) %>% nrow()
+  filter(age >= 18 & age <= 110) %>% 
+  filter(sex %in% c("F", "M")) %>%
+  filter(stp != "" & index_of_multiple_deprivation != -1) %>% nrow()
 
 # combine numbers
 out <- rbind(total_n,
              no_follow_up,
              no_age,
+             no_sex,
              no_demographics,
              total_n_included) %>% as.data.frame()
 
