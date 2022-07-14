@@ -24,7 +24,7 @@ calc_ir <- function(events, time, name = ""){
   var_ir <- calc_var_dsr_i(365250, 1, rate, 1, time)
   lower <- ir - qnorm(0.975) * sqrt(var_ir)
   upper <- ir + qnorm(0.975) * sqrt(var_ir)
-  out <- data.frame(rate = rate, 
+  out <- data.frame(rate = ir, 
                     lower = lower, 
                     upper = upper)
   colnames(out) <- paste0(colnames(out), name)
