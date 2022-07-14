@@ -28,13 +28,8 @@ summarise_subgroup <- function(data, subgroup){
   summary <- 
     data %>%
     group_by_at(subgroup) %>%
-    summarise(n = n(),
-              fu_median = median(fu) %>% as.numeric(),
-              fu_q1 = quantile(fu, 0.25) %>% as.numeric(),
-              fu_q3 = quantile(fu, 0.75) %>% as.numeric()) %>%
-    mutate(fu = paste0(fu_median, " [", fu_q1, "-", fu_q3, "]")) %>%
-    add_column(subgroup = subgroup, .before = 1) %>%
-    select(-c(fu_median, fu_q1, fu_q3))
+    summarise(n = n() %>% plyr::round_any(5) %>% prettyNum(big.mark = ",")) %>%
+    add_column(subgroup = subgroup, .before = 1)
   colnames(summary)[colnames(summary) == subgroup] <- "level"
   # make col type of column 'level' factor (needed to bind_rows later)
   summary <- 
@@ -47,14 +42,9 @@ summarise_subgroups <- function(data, subgroups_vctr){
   # subgroup "all" --> whole population
   summary_all <- 
     data %>%
-    summarise(n = n(),
-              fu_median = median(fu) %>% as.numeric(),
-              fu_q1 = quantile(fu, 0.25) %>% as.numeric(),
-              fu_q3 = quantile(fu, 0.75) %>% as.numeric()) %>%
-    mutate(fu = paste0(fu_median, " [", fu_q1, "-", fu_q3, "]")) %>%
+    summarise(n = n() %>% plyr::round_any(5) %>% prettyNum(big.mark = ",")) %>%
     add_column(level = "-", .before = 1) %>%
-    add_column(subgroup = "all", .before = 1) %>%
-    select(-c(fu_median, fu_q1, fu_q3))
+    add_column(subgroup = "all", .before = 1)
   # data.frame with all population subgroups in 'subgroup_vctr'
   summary_subgroups <- 
     map(.x = subgroups_vctr,
@@ -122,10 +112,16 @@ irs_waves_list <-
   map2(.x = irs_crude_subgroups,
        .y = irs_crude,
        .f = ~ rbind(.y,
-                    .x)%>%
+                    .x) %>%
         filter(!(subgroup %in% c("bp", "hypertension"))) %>%
         rename_subgroups() %>%
-        mutate(rate_redacted = round(rate_redacted, 2),
+        mutate(events_redacted = events_redacted %>% 
+                 prettyNum(big.mark = ","),
+               time_redacted = round(time_redacted / 365.25, 0) %>%
+                 prettyNum(big.mark = ",")) %>%
+        mutate(events_pys = paste0(events_redacted, " (", 
+                                   time_redacted, ")"),
+               rate_redacted = round(rate_redacted, 2),
                lower_redacted = round(lower_redacted, 2),
                upper_redacted = round(upper_redacted, 2)) %>%
         mutate(ir = 
@@ -133,7 +129,9 @@ irs_waves_list <-
                         " (", lower_redacted,
                         ";", upper_redacted,
                         ")")) %>%
-        select(-c(rate_redacted,
+        select(-c(events_redacted,
+                  time_redacted,
+                  rate_redacted,
                   lower_redacted,
                   upper_redacted)))
 names(irs_waves_list) <- c("wave1", "wave2", "wave3")
@@ -155,8 +153,8 @@ table1_wide <-
   left_join(table1$wave3,
             by = c("subgroup", "level"))
 ## add suffix '.3' to indicate wave 3 results
-colnames(table1_wide)[c(13, 14, 15, 16, 17)] <- 
-  paste0(colnames(table1_wide)[c(13, 14, 15, 16, 17)], ".3")
+colnames(table1_wide)[c(11, 12, 13, 14)] <- 
+  paste0(colnames(table1_wide)[c(11, 12, 13, 14)], ".3")
 
 # Save output --
 output_dir <- here("output", "tables")
