@@ -157,6 +157,10 @@ table1_wide <-
 colnames(table1_wide)[c(11, 12, 13, 14)] <- 
   paste0(colnames(table1_wide)[c(11, 12, 13, 14)], ".3")
 
+table1_wide <-
+  table1_wide %>%
+  filter(level != "FALSE")
+
 # Save output --
 output_dir <- here("output", "tables")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
