@@ -14,12 +14,13 @@ library(dplyr)
 data <- readRDS(here("output", "processed", "input_flowchart.rds"))
 
 # Calc numbers
-total_n <- nrow(data)
+total_n <- nrow(data) %>% plyr::round_any(5)
 
 # no follow-up of three months
 no_follow_up <- 
   data %>% 
-  filter(has_follow_up == FALSE) %>% nrow()
+  filter(has_follow_up == FALSE) %>% 
+  nrow() %>% plyr::round_any(5)
 # NA in has_follow_up?
 cat("#### any NA's in has_follow_up? ####\n")
 print(any(is.na(data$has_follow_up)))
@@ -28,7 +29,8 @@ print(any(is.na(data$has_follow_up)))
 no_age <- 
   data %>% 
   filter(has_follow_up == TRUE) %>%
-  filter(age < 18 | age > 110) %>% nrow()
+  filter(age < 18 | age > 110) %>% 
+  nrow() %>% plyr::round_any(5)
 cat("\n#### any NA's in age? ####\n")
 print(any(is.na(data$age)))
 
@@ -37,7 +39,8 @@ no_sex <-
   data %>%
   filter(has_follow_up == TRUE) %>%
   filter(age >= 18 & age <= 110) %>% 
-  filter(!(sex %in% c("F", "M"))) %>% nrow()
+  filter(!(sex %in% c("F", "M"))) %>% 
+  nrow() %>% plyr::round_any(5)
 cat("\n#### any NA's in sex? ####\n")
 print(any(is.na(data$sex)))
 
@@ -47,16 +50,8 @@ no_demographics <-
   filter(has_follow_up == TRUE) %>%
   filter(age >= 18 & age <= 110) %>% 
   filter(sex %in% c("F", "M")) %>% 
-  filter(is.na(stp) | index_of_multiple_deprivation == -1) %>% nrow()
-cat("\n#### any NA's in stp? ####\n")
-print(any(is.na(data$stp)))
-cat("\n#### how many NA's in stp after excluding follow-up, age, sex and imd? ####\n")
-print(data %>% 
-        filter(has_follow_up == TRUE) %>%
-        filter(age >= 18 & age <= 110) %>% 
-        filter(sex %in% c("F", "M")) %>% 
-        filter(index_of_multiple_deprivation != -1) %>%
-        filter(is.na(stp)) %>% nrow())
+  filter(is.na(stp) | index_of_multiple_deprivation == -1) %>% 
+  nrow() %>% plyr::round_any(5)
 cat("\n#### any NA's in imd? ####\n")
 print(any(is.na(data$index_of_multiple_deprivation)))
 
@@ -66,15 +61,17 @@ total_n_included <-
   filter(has_follow_up == TRUE) %>% 
   filter(age >= 18 & age <= 110) %>% 
   filter(sex %in% c("F", "M")) %>%
-  filter(!is.na(stp) & index_of_multiple_deprivation != -1) %>% nrow()
+  filter(!is.na(stp) & index_of_multiple_deprivation != -1) %>% 
+  nrow() %>% plyr::round_any(5)
 
 # combine numbers
-out <- rbind(total_n,
-             no_follow_up,
-             no_age,
-             no_sex,
-             no_demographics,
-             total_n_included) %>% as.data.frame()
+out <-
+  tibble(total_n,
+         no_follow_up,
+         no_age,
+         no_sex,
+         no_demographics,
+         total_n_included) 
 
 # Save output
 output_dir0 <- here("output", "tables")
