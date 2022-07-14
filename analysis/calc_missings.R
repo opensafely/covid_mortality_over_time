@@ -28,23 +28,27 @@ names(data_processed) <- c("wave1", "wave2", "wave3")
 # Calculate missings ---
 n_missing_smoking <- 
   map_dfr(.x = data_processed,
-          .f = ~ .x %>% filter(smoking_status == "Missing") %>% nrow()) %>%
+          .f = ~ .x %>% filter(smoking_status == "Missing") %>% nrow() %>%
+            plyr::round_any(5)) %>%
   add_column(variable = "smoking_status", .before = 1)
 
 n_missing_ethnicity <- 
   map_dfr(.x = data_processed,
-          .f = ~ .x %>% filter(ethnicity == "Unknown") %>% nrow()) %>%
+          .f = ~ .x %>% filter(ethnicity == "Unknown") %>% nrow() %>%
+            plyr::round_any(5)) %>%
   add_column(variable = "ethnicity", .before = 1)
 
 n_missing_bmi <-
   map_dfr(.x = data_processed,
-          .f = ~ .x %>% filter(bmi_value == 0) %>% nrow()) %>%
+          .f = ~ .x %>% filter(bmi_value == 0) %>% nrow() %>%
+            plyr::round_any(5)) %>%
   add_column(variable = "bmi", .before = 1)
 
 # add column with total number of indivivduals per wave
 total <-
   map_dfr(.x = data_processed,
-          .f = ~ .x %>% nrow()) %>%
+          .f = ~ .x %>% nrow() %>%
+            plyr::round_any(5)) %>%
   add_column(variable = "total", .before = 1)
 
 missings <- 
