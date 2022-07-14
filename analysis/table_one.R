@@ -23,12 +23,13 @@ comorbidities <-
   config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
 subgroups_vctr <- c("agegroup", "sex", demographics, comorbidities)
 ## functions
-# calculate number of people in a subgroup, median fu and iqr
+# calculate number of people in a subgroup
 summarise_subgroup <- function(data, subgroup){
   summary <- 
     data %>%
     group_by_at(subgroup) %>%
-    summarise(n = n() %>% plyr::round_any(5) %>% prettyNum(big.mark = ",")) %>%
+    summarise(n = n() %>% plyr::round_any(5) %>% prettyNum(big.mark = ","),
+              .groups = "keep") %>%
     add_column(subgroup = subgroup, .before = 1)
   colnames(summary)[colnames(summary) == subgroup] <- "level"
   # make col type of column 'level' factor (needed to bind_rows later)
@@ -37,7 +38,7 @@ summarise_subgroup <- function(data, subgroup){
     mutate(level = as.factor(level))
   summary
 }
-# calculate number of people in each population subgroup, median fu and iqr
+# calculate number of people in each population subgroup
 summarise_subgroups <- function(data, subgroups_vctr){
   # subgroup "all" --> whole population
   summary_all <- 
@@ -88,7 +89,7 @@ irs_crude_subgroups <-
                                        upper_redacted = col_double()))))
 
 # Summarise data to create table 1 ---
-# n_fu_summary is a list of waves, with number of people (n) and fu [IQR] for 
+# n_fu_summary is a list of waves, with number of people (n) for 
 # 'all' and each population subgroup
 n_fu_summary <- 
   map(.x = data_processed,
@@ -117,7 +118,7 @@ irs_waves_list <-
         rename_subgroups() %>%
         mutate(events_redacted = events_redacted %>% 
                  prettyNum(big.mark = ","),
-               time_redacted = round(time_redacted / 365.25, 0) %>%
+               time_redacted = round(time_redacted / 365250, 1) %>%
                  prettyNum(big.mark = ",")) %>%
         mutate(events_pys = paste0(events_redacted, " (", 
                                    time_redacted, ")"),
@@ -136,7 +137,7 @@ irs_waves_list <-
                   upper_redacted)))
 names(irs_waves_list) <- c("wave1", "wave2", "wave3")
 
-# join number of individuals + summary of fu time and the incidence rates
+# join number of individuals and the incidence rates
 table1 <- 
   map2(.x = irs_waves_list,
        .y = n_fu_summary,
