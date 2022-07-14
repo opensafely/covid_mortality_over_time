@@ -47,7 +47,7 @@ no_demographics <-
   filter(has_follow_up == TRUE) %>%
   filter(age >= 18 & age <= 110) %>% 
   filter(sex %in% c("F", "M")) %>% 
-  filter(stp == "" | index_of_multiple_deprivation == -1) %>% nrow()
+  filter(is.na(stp) | index_of_multiple_deprivation == -1) %>% nrow()
 cat("\n#### any NA's in stp? ####\n")
 print(any(is.na(data$stp)))
 cat("\n#### how many NA's in stp after excluding follow-up, age, sex and imd? ####\n")
@@ -66,7 +66,7 @@ total_n_included <-
   filter(has_follow_up == TRUE) %>% 
   filter(age >= 18 & age <= 110) %>% 
   filter(sex %in% c("F", "M")) %>%
-  filter(stp != "" & index_of_multiple_deprivation != -1) %>% nrow()
+  filter(!is.na(stp) & index_of_multiple_deprivation != -1) %>% nrow()
 
 # combine numbers
 out <- rbind(total_n,
