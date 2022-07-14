@@ -40,7 +40,7 @@ names(data_processed) <- waves_vctr
 # (1 crude ir per wave in one data.frame)
 ir_crude <- 
   imap(.x = data_processed,
-      .f = ~ .x %>%
+       .f = ~ .x %>%
         summarise(
           events = sum(died_ons_covid_flag_any),
           time = sum(as.numeric(fu)),

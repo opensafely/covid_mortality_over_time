@@ -9,6 +9,8 @@
 ## ###########################################################
 library(dplyr)
 library(tibble)
+library(here)
+source(here("analysis", "utils", "dsr.R"))
 
 # Function 'calc_ir' calculation of incidence rate per 1000 py + 95% CIs
 # Arguments:
@@ -17,11 +19,11 @@ library(tibble)
 # Output:
 # data.frame with columns rate, lower and upper 
 calc_ir <- function(events, time, name = ""){
-  time_per_1000_py <- time / 365250
-  htest <- poisson.test(events, time_per_1000_py)
-  rate <- unname(htest$estimate)
-  lower <- unname(htest$conf.int[1])
-  upper <- unname(htest$conf.int[2])
+  rate <- events / time
+  ir <- calc_dsr_i(365250, 1, rate, 1)
+  var_ir <- calc_var_dsr_i(365250, 1, rate, 1, time)
+  lower <- ir - qnorm(0.975) * sqrt(var_ir)
+  upper <- ir + qnorm(0.975) * sqrt(var_ir)
   out <- data.frame(rate = rate, 
                     lower = lower, 
                     upper = upper)
