@@ -280,6 +280,14 @@ actions:
       moderately_sensitive:
         csvs: output/tables/wave*_ir_std.csv
 
+# Create table A1 (table with IRs)
+  create_table_A1:
+    run: r:latest analysis/table_A1.R
+    needs: [calc_irs, calc_irs_std]
+    outputs: 
+      moderately_sensitive:
+        csv: output/tables/table_A1.csv
+
 # Kaplan-Meier
   create_kaplan_meier:
     run: r:latest analysis/waves_kaplan_meier.R
