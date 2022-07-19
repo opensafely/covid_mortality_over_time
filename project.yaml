@@ -134,32 +134,70 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input_flowchart.csv.gz
+  
+  generate_study_population_flowchart2:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_flowchart2
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_flowchart2.csv.gz
+
+  generate_study_population_flowchart3:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_flowchart3
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_flowchart3.csv.gz
 
   # Process data flowchart
   process_data_flowchart:
     run: r:latest analysis/data_flowchart_process.R
-    needs: [generate_study_population_flowchart]
+    needs: [generate_study_population_flowchart, generate_study_population_flowchart2, generate_study_population_flowchart3]
     outputs:
       highly_sensitive: 
-        rds: output/processed/input_flowchart.rds
+        rds1: output/processed/input_flowchart_wave1.rds
+        rds2: output/processed/input_flowchart_wave2.rds
+        rds3: output/processed/input_flowchart_wave3.rds
   
   # Skim data flowchart
   skim_data_flowchart:
-    run: r:latest analysis/data_skim.R output/processed/input_flowchart.rds output/data_properties
+    run: r:latest analysis/data_skim.R output/processed/input_flowchart_wave1.rds output/data_properties
     needs: [process_data_flowchart]
     outputs: 
       moderately_sensitive:
-        txt1: output/data_properties/input_flowchart_skim.txt
-        txt2: output/data_properties/input_flowchart_coltypes.txt
-        txt3: output/data_properties/input_flowchart_tabulate.txt
+        txt1: output/data_properties/input_flowchart_wave1_skim.txt
+        txt2: output/data_properties/input_flowchart_wave1_coltypes.txt
+        txt3: output/data_properties/input_flowchart_wave1_tabulate.txt
 
   # Numbers for flowchart
-  calc_numbers_flowchart:
-    run: r:latest analysis/flowchart.R
+  calc_numbers_flowchart_wave1:
+    run: r:latest analysis/flowchart.R wave1 output/tables/flowchart
     needs: [process_data_flowchart]
     outputs:
       moderately_sensitive:
         cohort: output/tables/flowchart/wave1_flowchart.csv
+
+  # Numbers for flowchart
+  calc_numbers_flowchart_wave2:
+    run: r:latest analysis/flowchart.R wave2 output/tables/flowchart
+    needs: [process_data_flowchart]
+    outputs:
+      moderately_sensitive:
+        cohort: output/tables/flowchart/wave2_flowchart.csv
+
+  # Numbers for flowchart
+  calc_numbers_flowchart_wave3:
+    run: r:latest analysis/flowchart.R wave3 output/tables/flowchart
+    needs: [process_data_flowchart]
+    outputs:
+      moderately_sensitive:
+        cohort: output/tables/flowchart/wave3_flowchart.csv
 
   generate_study_population_wave1:
     run: >

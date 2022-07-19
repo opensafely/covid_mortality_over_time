@@ -10,20 +10,30 @@
 library(here)
 library(readr)
 library(dplyr)
-data <- read_csv(here("output", "input_flowchart.csv.gz"),
-                 col_types = cols_only(
-                   patient_id = col_integer(),
-                   has_follow_up = col_logical(),
-                   age = col_integer(),
-                   sex = col_character(),
-                   stp = col_character(),
-                   index_of_multiple_deprivation = col_integer(),
-                   has_msoa = col_logical()
-                 ))
+library(purrr)
+library(fs)
+input_files <-
+  Sys.glob(here("output", "input_flowchart*.csv.gz"))
+
+data <- 
+  map(.x = input_files,
+      .f = ~ read_csv(.x, 
+               col_types = cols_only(
+                 patient_id = col_integer(),
+                 has_follow_up = col_logical(),
+                 age = col_integer(),
+                 sex = col_character(),
+                 stp = col_character(),
+                 index_of_multiple_deprivation = col_integer(),
+                 has_msoa = col_logical())))
+names(data) <- c("wave1", "wave2", "wave3")
 
 # Save output ---
 output_dir <- here("output", "processed")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
-saveRDS(object = data,
-        file = paste0(output_dir, "/input_flowchart.rds"),
-        compress = TRUE)
+dir_create(output_dir)
+iwalk(.x = data,
+      .f = ~ saveRDS(object = .x,
+                     file = path(output_dir, paste0("input_flowchart_", 
+                                                   .y, 
+                                                   ".rds")),
+                     compress = TRUE))

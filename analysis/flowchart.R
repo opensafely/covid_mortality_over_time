@@ -11,7 +11,20 @@
 library(here)
 library(readr)
 library(dplyr)
-data <- readRDS(here("output", "processed", "input_flowchart.rds"))
+library(fs)
+args <- commandArgs(trailingOnly=TRUE)
+if(length(args)==0){
+  # use for interactive testing
+  wave <- "wave1"
+  rds_file <- here("output", "processed", "input_flowchart_wave1.rds")
+  output_dir <- here("output", "tables", "flowchart")
+} else {
+  wave <- args[[1]]
+  rds_file <- here("output", "processed",
+                   paste0("input_flowchart_", wave, ".rds"))
+  output_dir <- args[[2]]
+}
+data <- readRDS(rds_file)
 
 # Calc numbers
 total_n <- nrow(data) %>% plyr::round_any(5)
@@ -75,8 +88,7 @@ out <-
 
 # Save output
 output_dir0 <- here("output", "tables")
-ifelse(!dir.exists(output_dir0), dir.create(output_dir0), FALSE)
-output_dir <- here("output", "tables", "flowchart")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+dir_create(output_dir0)
+dir_create(output_dir)
 write_csv(x = out,
-          path = paste0(output_dir, "/", "wave1_flowchart.csv"))
+          path = path(output_dir, paste0(wave, "_flowchart.csv")))
