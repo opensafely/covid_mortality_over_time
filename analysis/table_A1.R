@@ -86,6 +86,10 @@ table_est <-
 ## add suffix '.3' to indicate wave 3 results
 colnames(table_est)[which(colnames(table_est) == "ir_ci")] <-
   paste0("ir_ci", ".3")
+## change order of Age Group and All
+table_est <-
+  table_est %>%
+  slice(7, 1:6, 8:nrow(table_est))
 
 # Save output --
 ## saved as '/output/tables/table_A1.csv

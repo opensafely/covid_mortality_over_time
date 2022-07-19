@@ -119,10 +119,51 @@ subgroups_irs_all_waves <-
   map(.x = data_processed,
       .f = ~ subgroups_irs_wave(.x, esp, subgroups_vctr))
 
+# std irs overall population
+overall_irs_i <-
+  map(.x = data_processed,
+      .f = ~ .x %>%
+        group_by(agegroup_std, sex) %>%
+        summarise(events = sum(died_ons_covid_flag_any),
+                  time = sum(as.numeric(fu)),
+                  .groups = "keep") %>%
+        left_join(esp, by = c("agegroup_std" = "AgeGroup", "sex" = "Sex")) %>%
+        mutate(ir_i = calc_dsr_i(
+          C = 365250,
+          M_total = M_total,
+          p = events / time, # based on redacted no. of events
+          M = EuropeanStandardPopulation)) %>%
+        mutate(var_ir_i = calc_var_dsr_i(
+          C = 365250,
+          M_total = M_total,
+          p = events / time, # based on redacted no. of events
+          M = EuropeanStandardPopulation,
+          N = time)))
+
+overall_irs <- 
+  map(.x = overall_irs_i,
+      .f = ~ tibble(
+        subgroup = "all",
+        level = "-" %>% as.factor(),
+        ir = sum(.x$ir_i),
+        var_ir = sum(.x$var_ir_i)
+      ) %>%
+        mutate(lower = ir - qnorm(0.975) * sqrt(var_ir),
+               upper = ir + qnorm(0.975) * sqrt(var_ir)))
+
+# Combine overall and subgroup irs_std ---
+irs_std_wave1 <- rbind(overall_irs$wave1, subgroups_irs_all_waves$wave1)
+irs_std_wave2 <- rbind(overall_irs$wave2, subgroups_irs_all_waves$wave2)
+irs_std_wave3 <- rbind(overall_irs$wave3, subgroups_irs_all_waves$wave3)
+irs_std <- list(irs_std_wave1,
+                irs_std_wave2,
+                irs_std_wave3)
+names(irs_std) <- waves_vctr
+
 # Save output ---
 ## saved as '/output/tables/wave*_ir_std.csv
 output_dir <- here("output", "tables")
 ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
-iwalk(.x = subgroups_irs_all_waves,
+iwalk(.x = irs_std,
       .f = ~ write_csv(x = .x,
                        path = paste0(output_dir, "/", .y, "_ir_std.csv")))
