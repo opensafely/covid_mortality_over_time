@@ -28,7 +28,7 @@ summarise_subgroup <- function(data, subgroup){
   summary <- 
     data %>%
     group_by_at(subgroup) %>%
-    summarise(n = n() %>% plyr::round_any(5) %>% prettyNum(big.mark = ","),
+    summarise(n = n(),
               .groups = "keep") %>%
     add_column(subgroup = subgroup, .before = 1)
   colnames(summary)[colnames(summary) == subgroup] <- "level"
@@ -43,14 +43,18 @@ summarise_subgroups <- function(data, subgroups_vctr){
   # subgroup "all" --> whole population
   summary_all <- 
     data %>%
-    summarise(n = n() %>% plyr::round_any(5) %>% prettyNum(big.mark = ",")) %>%
+    summarise(n = n()) %>%
     add_column(level = "-", .before = 1) %>%
     add_column(subgroup = "all", .before = 1)
   # data.frame with all population subgroups in 'subgroup_vctr'
   summary_subgroups <- 
     map(.x = subgroups_vctr,
         .f = ~ summarise_subgroup(data = data, subgroup = .x)) %>%
-    bind_rows()
+    bind_rows() %>%
+    mutate(perc = (n / summary_all$n) %>% round(1),
+           n = n %>% plyr::round_any(5) %>% prettyNum(big.mark = ","),
+           n = paste0(n, " (", perc, "%)")) %>%
+    select(-perc)
   # bind info of whole pop + subgroup specific info
   rbind(summary_all,
         summary_subgroups)
