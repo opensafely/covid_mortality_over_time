@@ -56,7 +56,9 @@ summarise_subgroups <- function(data, subgroups_vctr){
            n = paste0(n, " (", perc, "%)")) %>%
     select(-perc)
   # bind info of whole pop + subgroup specific info
-  rbind(summary_all,
+  rbind(summary_all %>% mutate(n = n %>% 
+                                 plyr::round_any(5) %>% 
+                                 prettyNum(big.mark = ",")),
         summary_subgroups)
 }
 
