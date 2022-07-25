@@ -51,7 +51,7 @@ summarise_subgroups <- function(data, subgroups_vctr){
     map(.x = subgroups_vctr,
         .f = ~ summarise_subgroup(data = data, subgroup = .x)) %>%
     bind_rows() %>%
-    mutate(perc = (n / summary_all$n) %>% round(1),
+    mutate(perc = ((n / summary_all$n) * 100) %>% round(1),
            n = n %>% plyr::round_any(5) %>% prettyNum(big.mark = ","),
            n = paste0(n, " (", perc, "%)")) %>%
     select(-perc)
