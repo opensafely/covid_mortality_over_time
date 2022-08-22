@@ -2,6 +2,8 @@
     "wave1": {"start_date": "2020-03-23", "end_date": "2020-05-30"},
     "wave2": {"start_date": "2020-09-07", "end_date": "2021-04-24"},
     "wave3": {"start_date": "2021-05-28", "end_date": "2021-12-14"},
+    "wave4": {"start_date": "2021-12-15", "end_date": "2022-02-10"},
+    "wave5": {"start_date": "2022-02-10", "end_date": "2022-05-10"},
     "demographics" : [
         "ethnicity",
         "region",
