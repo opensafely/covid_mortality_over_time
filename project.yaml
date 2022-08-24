@@ -155,15 +155,37 @@ actions:
       highly_sensitive:
         cohort: output/input_flowchart3.csv.gz
 
+  generate_study_population_flowchart4:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_flowchart4
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_flowchart4.csv.gz
+        
+  generate_study_population_flowchart5:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_flowchart5
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_flowchart5.csv.gz
+
   # Process data flowchart
   process_data_flowchart:
     run: r:latest analysis/data_flowchart_process.R
-    needs: [generate_study_population_flowchart, generate_study_population_flowchart2, generate_study_population_flowchart3]
+    needs: [generate_study_population_flowchart, generate_study_population_flowchart2, generate_study_population_flowchart3, generate_study_population_flowchart4, generate_study_population_flowchart5]
     outputs:
       highly_sensitive: 
         rds1: output/processed/input_flowchart_wave1.rds
         rds2: output/processed/input_flowchart_wave2.rds
         rds3: output/processed/input_flowchart_wave3.rds
+        rds4: output/processed/input_flowchart_wave4.rds
+        rds5: output/processed/input_flowchart_wave5.rds
   
   # Skim data flowchart
   skim_data_flowchart:
@@ -198,6 +220,22 @@ actions:
     outputs:
       moderately_sensitive:
         cohort: output/tables/flowchart/wave3_flowchart.csv
+
+  # Numbers for flowchart
+  calc_numbers_flowchart_wave4:
+    run: r:latest analysis/flowchart.R wave4 output/tables/flowchart
+    needs: [process_data_flowchart]
+    outputs:
+      moderately_sensitive:
+        cohort: output/tables/flowchart/wave4_flowchart.csv
+        
+  # Numbers for flowchart
+  calc_numbers_flowchart_wave5:
+    run: r:latest analysis/flowchart.R wave5 output/tables/flowchart
+    needs: [process_data_flowchart]
+    outputs:
+      moderately_sensitive:
+        cohort: output/tables/flowchart/wave5_flowchart.csv
 
   generate_study_population_wave1:
     run: >
