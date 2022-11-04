@@ -266,6 +266,26 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input_wave3.csv.gz
+  
+  generate_study_population_wave4:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_wave4
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_wave4.csv.gz
+
+  generate_study_population_wave5:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_wave5
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_wave5.csv.gz
 
 # Join data
   join_cohorts_waves:
@@ -274,7 +294,7 @@ actions:
         --lhs output/input_wave*.csv.gz
         --rhs output/input_ethnicity.csv.gz
         --output-dir=output/joined
-    needs: [generate_study_population_wave1, generate_study_population_wave2, generate_study_population_wave3, generate_study_population_ethnicity]
+    needs: [generate_study_population_wave1, generate_study_population_wave2, generate_study_population_wave3, generate_study_population_wave4, generate_study_population_wave5, generate_study_population_ethnicity]
     outputs:
       highly_sensitive:
         cohort: output/joined/input_wave*.csv.gz
