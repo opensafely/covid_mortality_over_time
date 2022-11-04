@@ -26,7 +26,7 @@ data <-
                  stp = col_character(),
                  index_of_multiple_deprivation = col_integer(),
                  has_msoa = col_logical())))
-names(data) <- c("wave1", "wave2", "wave3")
+names(data) <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Save output ---
 output_dir <- here("output", "processed")

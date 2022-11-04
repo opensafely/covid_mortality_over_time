@@ -24,7 +24,7 @@ subgroups_vctr <- c("sex",
                     config$demographics,
                     config$comorbidities)
 # vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3")
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Import data extracts of waves ---
 input_files_processed <-
@@ -155,15 +155,19 @@ overall_irs <-
 irs_std_wave1 <- rbind(overall_irs$wave1, subgroups_irs_all_waves$wave1)
 irs_std_wave2 <- rbind(overall_irs$wave2, subgroups_irs_all_waves$wave2)
 irs_std_wave3 <- rbind(overall_irs$wave3, subgroups_irs_all_waves$wave3)
+irs_std_wave4 <- rbind(overall_irs$wave2, subgroups_irs_all_waves$wave4)
+irs_std_wave5 <- rbind(overall_irs$wave3, subgroups_irs_all_waves$wave5)
 irs_std <- list(irs_std_wave1,
                 irs_std_wave2,
-                irs_std_wave3)
+                irs_std_wave3,
+                irs_std_wave4,
+                irs_std_wave5)
 names(irs_std) <- waves_vctr
 
 # Save output ---
 ## saved as '/output/tables/wave*_ir_std.csv
 output_dir <- here("output", "tables")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+fs::dir_create(output_dir)
 iwalk(.x = irs_std,
       .f = ~ write_csv(x = .x,
                        path = paste0(output_dir, "/", .y, "_ir_std.csv")))

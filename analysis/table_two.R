@@ -28,7 +28,7 @@ comorbidities_multilevel_vctr <- c("asthma",
 comorbidities_binary_vctr <-
   comorbidities[!comorbidities %in% comorbidities_multilevel_vctr]
 # vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3")
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 # needed to add reference values to table two
 source(here("analysis", "utils", "reference_values.R"))
 # needed to rename subgroups
@@ -103,9 +103,14 @@ table2 <-
             by = c("subgroup", "level"),
             suffix = c(".1", ".2")) %>%
   left_join(effect_estimates_list$wave3,
+            by = c("subgroup", "level")) %>%
+  left_join(effect_estimates_list$wave4,
+            by = c("subgroup", "level"),
+            suffix = c(".3", ".4")) %>%
+  left_join(effect_estimates_list$wave5,
             by = c("subgroup", "level"))
 # Add suffix to last column
-colnames(table2)[5] <- paste0(colnames(table2)[5], ".3") 
+colnames(table2)[5] <- paste0(colnames(table2)[7], ".5") 
 table2 <- 
   rename_subgroups(table2)
 # relocate reference value agegroup 
@@ -120,13 +125,15 @@ table2$`_boxhead`$column_label <-
     "Category",
     "Wave 1",
     "Wave 2",
-    "Wave 3")
+    "Wave 3",
+    "Wave 4",
+    "Wave 5")
 # does not work on server
 # tab_spanner(label = "COVID-19 Death HR (95% CI) (adjusted for age and sex)",
 #             columns = c(HR_95CI.1, HR_95CI.2, HR_95CI.3))
 
 # Save output --
 output_dir <- here("output", "tables")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+fs::dir_create(output_dir)
 write_csv(table2$`_data`, paste0(output_dir, "/table2.csv"))
 gtsave(table2, paste0(output_dir, "/table2.html"))

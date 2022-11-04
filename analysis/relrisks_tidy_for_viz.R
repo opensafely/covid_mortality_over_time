@@ -20,6 +20,8 @@ config <- fromJSON(here("analysis", "config.json"))
 comorbidities <- 
   config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
 subgroups_vctr <- c("agegroup", "sex", config$demographics, comorbidities)
+# vector with waves
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 # needed to add reference values
 source(here("analysis", "utils", "reference_values.R"))
 # needed to add plot_groups
@@ -95,7 +97,7 @@ estimates <-
         filter(!(subgroup %in% c("region",
                                  "hypertension",
                                  "bp"))))
-names(estimates) <- c("wave1", "wave2", "wave3")
+names(estimates) <- waves_vctr
 input_files_coverage <-
   Sys.glob(here("output", "tables", "wave*_vax_coverage.csv"))
 coverage <- 
@@ -107,7 +109,7 @@ coverage <-
         filter(!(subgroup %in% c("region",
                                  "hypertension",
                                  "bp"))))
-names(coverage) <- c("wave1", "wave2", "wave3")
+names(coverage) <- waves_vctr
 
 # Combine the estimates and vax coverage ---
 est_cov_combined <- 
@@ -130,10 +132,16 @@ table_est_cov <-
             by = c("subgroup", "level", "plot_category", "plot_group"),
             suffix = c(".1", ".2")) %>%
   left_join(est_cov_processed$wave3,
+            by = c("subgroup", "level", "plot_category", "plot_group")) %>%
+  left_join(est_cov_processed$wave4,
+            by = c("subgroup", "level", "plot_category", "plot_group"),
+            suffix = c(".3", ".4")) %>%
+  left_join(est_cov_processed$wave5,
             by = c("subgroup", "level", "plot_category", "plot_group"))
-## add suffix '.3' to indicate wave 3 results
-colnames(table_est_cov)[c(13, 14, 15, 16)] <- 
-  paste0(colnames(table_est_cov)[c(13, 14, 15, 16)], ".3")
+## add suffix '.5' to indicate wave 5 results
+col_ids <- {colnames(table_est_cov) %>% length() - 3}:{colnames(table_est_cov) %>% length()}
+colnames(table_est_cov)[col_ids] <- 
+  paste0(colnames(table_est_cov)[col_ids], ".5")
 ## select columns needed + calculate ratio of HR
 table_est_cov <- 
   table_est_cov %>%
@@ -142,14 +150,18 @@ table_est_cov <-
          Category = level,
          Plot_category = plot_category,
          Plot_group = plot_group,
-         Coverage = cov_2.3) %>%
+         Coverage_wave3 = cov_2.3,
+         Coverage_wave4 = cov_2.4,
+         Coverage_wave5 = cov_2.5) %>%
   mutate(HR_ratio.2 = HR.2 / HR.1,
-         HR_ratio.3 = HR.3 / HR.1)
+         HR_ratio.3 = HR.3 / HR.1,
+         HR_ratio.4 = HR.4 / HR.1,
+         HR_ratio.5 = HR.5 / HR.1)
 
 # Save output --
 ## saved as '/output/tables/wave*_vax_coverage.csv
 output_dir <- here("output", "tables")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+fs::dir_create(output_dir)
 write_csv(table_est_cov,
           path = paste0(output_dir,
                         "/relrisks_for_viz_tidied.csv"))

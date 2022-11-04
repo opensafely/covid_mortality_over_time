@@ -29,7 +29,7 @@ import json
 with open('analysis/config.json', 'r') as f:
     config = json.load(f)
 
-wave1 = config["wave3"]
+wave1 = config["wave5"]
 start_date = wave1["start_date"]
 end_date = wave1["end_date"]
 

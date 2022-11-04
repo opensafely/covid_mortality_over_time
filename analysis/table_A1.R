@@ -26,6 +26,8 @@ subgroups_vctr <- subgroups_vctr[-which(subgroups_vctr == "region")]
 source(here("analysis", "utils", "subgroups_and_plot_groups.R"))
 # needed to rename subgroups 
 source(here("analysis", "utils", "rename_subgroups.R"))
+# vector with waves
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Import data extracts of waves  ---
 # standardised IRs
@@ -74,7 +76,7 @@ estimates <-
   map2(.x = irs_crude,
        .y = irs_std,
        .f = ~ bind_rows(.x, .y))
-names(estimates) <- c("wave1", "wave2", "wave3")
+names(estimates) <- waves_vctr
 ## Make one wide table from list of processed tables
 table_est <-
   estimates$wave1 %>%
@@ -82,10 +84,15 @@ table_est <-
             by = c("subgroup", "level"),
             suffix = c(".1", ".2")) %>%
   left_join(estimates$wave3,
+            by = c("subgroup", "level")) %>%
+  left_join(estimates$wave4,
+            by = c("subgroup", "level"),
+            suffix = c(".3", ".4")) %>%
+  left_join(estimates$wave5,
             by = c("subgroup", "level"))
 ## add suffix '.3' to indicate wave 3 results
 colnames(table_est)[which(colnames(table_est) == "ir_ci")] <-
-  paste0("ir_ci", ".3")
+  paste0("ir_ci", ".5")
 ## change order of Age Group and All
 table_est <-
   table_est %>%

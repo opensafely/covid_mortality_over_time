@@ -21,6 +21,8 @@ comorbidities <-
   config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
 subgroups_vctr <- c("sex", config$demographics, comorbidities)
 subgroups_vctr <- subgroups_vctr[-which(subgroups_vctr == "region")]
+# vector with waves
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 # needed to add plot_groups
 source(here("analysis", "utils", "subgroups_and_plot_groups.R"))
 # needed to rename subgroups 
@@ -99,7 +101,7 @@ estimates <-
   map2(.x = irs_crude,
        .y = irs_std,
        .f = ~ bind_rows(.x, .y))
-names(estimates) <- c("wave1", "wave2", "wave3")
+names(estimates) <- waves_vctr
 # vax coverage data
 input_files_coverage <-
   Sys.glob(here("output", "tables", "wave*_vax_coverage.csv"))
@@ -111,7 +113,7 @@ coverage <-
                                             cov_2 = col_double())) %>%
         filter(!(subgroup %in% c("hypertension",
                                  "bp"))))
-names(coverage) <- c("wave1", "wave2", "wave3")
+names(coverage) <- waves_vctr
 
 # Combine the estimates and vax coverage ---
 est_cov_combined <- 
@@ -133,10 +135,16 @@ table_est_cov <-
             by = c("subgroup", "level", "plot_category", "plot_group"),
             suffix = c(".1", ".2")) %>%
   left_join(est_cov_processed$wave3,
+            by = c("subgroup", "level", "plot_category", "plot_group")) %>%
+  left_join(est_cov_processed$wave2,
+            by = c("subgroup", "level", "plot_category", "plot_group"),
+            suffix = c(".3", ".4")) %>%
+  left_join(est_cov_processed$wave3,
             by = c("subgroup", "level", "plot_category", "plot_group"))
-## add suffix '.3' to indicate wave 3 results
-colnames(table_est_cov)[c(13, 14, 15, 16)] <- 
-  paste0(colnames(table_est_cov)[c(13, 14, 15, 16)], ".3")
+## add suffix '.5' to indicate wave 5 results
+col_ids <- {colnames(table_est_cov) %>% length() - 3}:{colnames(table_est_cov) %>% length()}
+colnames(table_est_cov)[col_ids] <- 
+  paste0(colnames(table_est_cov)[col_ids], ".5")
 ## select columns needed + calculate ratio of IR
 table_est_cov <- 
   table_est_cov %>%
@@ -145,9 +153,13 @@ table_est_cov <-
          Category = level,
          Plot_category = plot_category,
          Plot_group = plot_group,
-         Coverage = cov_2.3) %>%
+         Coverage_wave3 = cov_2.3,
+         Coverage_wave4 = cov_2.4,
+         Coverage_wave5 = cov_2.5) %>%
   mutate(IR_ratio.2 = IR.2 / IR.1,
-         IR_ratio.3 = IR.3 / IR.1)
+         IR_ratio.3 = IR.3 / IR.1,
+         IR_ratio.4 = IR.4 / IR.1,
+         IR_ratio.5 = IR.5 / IR.1)
 
 # Save output --
 ## saved as '/output/tables/wave*_vax_coverage.csv

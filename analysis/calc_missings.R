@@ -23,7 +23,7 @@ input_files <-
 data_processed <-
   map(.x = input_files,
       .f = ~ readRDS(.x))
-names(data_processed) <- c("wave1", "wave2", "wave3")
+names(data_processed) <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Calculate missings ---
 n_missing_smoking <- 
@@ -59,7 +59,9 @@ missings <-
   # calc percentage of missings
   mutate(wave1_perc = (wave1 / wave1[variable == "total"]) %>% round(2),
          wave2_perc = (wave2 / wave2[variable == "total"]) %>% round(2),
-         wave3_perc = (wave3 / wave3[variable == "total"]) %>% round(2))
+         wave3_perc = (wave3 / wave3[variable == "total"]) %>% round(2),
+         wave4_perc = (wave4 / wave4[variable == "total"]) %>% round(2),
+         wave5_perc = (wave5 / wave5[variable == "total"]) %>% round(2))
 
 # Save output ---
 output_dir0 <- here("output", "tables")
