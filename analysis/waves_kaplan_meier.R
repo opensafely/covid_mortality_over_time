@@ -24,7 +24,7 @@ subgroups_vctr <- c(config$demographics, config$comorbidities)
 # source functions 'km_fit' and 'km_plot' 
 source(here("analysis", "utils", "plot_kaplan_meier.R"))
 # vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3")
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Import data extracts of waves  ---
 input_files_processed <-
@@ -59,12 +59,10 @@ plots_waves_list <- unlist(plots_waves_list, recursive = FALSE)
 
 # Save output --
 output_dir <- here("output", "figures", "kaplan_meier")
-ifelse(!dir.exists(here("output", "figures")), 
-       dir.create(here("output", "figures")), 
-       FALSE) # create ./output/figures if not already there
-ifelse(!dir.exists(output_dir), 
-       dir.create(output_dir), 
-       FALSE)
+# create ./output/figures if not already there
+fs::dir_create(here("output", "figures"))
+fs::dir_create(output_dir)
+
 # change names of list of plots to the ones that will be used to save the file 
 # --> i.e., filename = 'wave1.Female' = 'wave1_F'
 names(plots_waves_list) <- 

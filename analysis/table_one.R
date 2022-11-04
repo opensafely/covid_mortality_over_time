@@ -22,6 +22,8 @@ demographics <- config$demographics
 comorbidities <- 
   config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
 subgroups_vctr <- c("agegroup", "sex", demographics, comorbidities)
+# vector with waves
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 ## functions
 # calculate number of people in a subgroup
 summarise_subgroup <- function(data, subgroup){
@@ -69,7 +71,7 @@ input_files_processed <-
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
-names(data_processed) <- c("wave1", "wave2", "wave3")
+names(data_processed) <- waves_vctr
 # Import incidence rates of waves  ---
 input_file_irs_crude <- here("output", "tables", "ir_crude.csv")
 # restrict to redacted figures
@@ -111,7 +113,7 @@ irs_crude <-
   add_column(level = "-", .before = 1) %>%
   add_column(subgroup = "all", .before = 1) %>%
   split(row(.)[,1])
-names(irs_crude) <- c("wave1", "wave2", "wave3")
+names(irs_crude) <- waves_vctr
 
 # irs_waves_list is a list of waves, combining irs_crude and irs_crude_subgroups
 # and combining rate and ci into one column
@@ -141,7 +143,7 @@ irs_waves_list <-
                   rate_redacted,
                   lower_redacted,
                   upper_redacted)))
-names(irs_waves_list) <- c("wave1", "wave2", "wave3")
+names(irs_waves_list) <- waves_vctr
 
 # join number of individuals and the incidence rates
 table1 <- 
@@ -158,10 +160,15 @@ table1_wide <-
             by = c("subgroup", "level"),
             suffix = c(".1", ".2")) %>%
   left_join(table1$wave3,
+            by = c("subgroup", "level")) %>%
+  left_join(table1$wave4,
+            by = c("subgroup", "level"),
+            suffix = c(".3", ".4")) %>%
+  left_join(table1$wave5,
             by = c("subgroup", "level"))
 ## add suffix '.3' to indicate wave 3 results
-colnames(table1_wide)[c(11, 12, 13, 14)] <- 
-  paste0(colnames(table1_wide)[c(11, 12, 13, 14)], ".3")
+colnames(table1_wide)[c(15:17)] <- 
+  paste0(colnames(table1_wide)[c(15:17)], ".5")
 
 table1_wide <-
   table1_wide %>%

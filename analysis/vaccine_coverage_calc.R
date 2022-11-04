@@ -17,6 +17,8 @@ library(jsonlite)
 config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
 subgroups_vctr <- c("agegroup", "sex", config$demographics, config$comorbidities)
+# vector with waves
+waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Import data extracts of waves  ---
 input_files_processed <-
@@ -24,7 +26,7 @@ input_files_processed <-
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
-names(data_processed) <- c("wave1", "wave2", "wave3")
+names(data_processed) <- waves_vctr
 
 # Functions ---
 ## 'calc_n_vax' creates a summary table for a specific subgroup with columns:
@@ -93,7 +95,7 @@ vax_coverage_waves <-
 # Save output --
 ## saved as '/output/tables/wave*_vax_coverage.csv
 output_dir <- here("output", "tables")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+fs::dir_create(output_dir)
 iwalk(.x = vax_coverage_waves,
       .f = ~ write_csv(x = .x,
                        path = paste0(output_dir, "/", .y, "_vax_coverage.csv")))

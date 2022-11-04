@@ -38,17 +38,19 @@ data_processed <-
   map2(.x = data_extracted_with_kidney_vars,
        .y = list(config$wave1, 
                  config$wave2,
-                 config$wave3),
+                 config$wave3,
+                 config$wave4,
+                 config$wave5),
        .f = ~ process_data(data_extracted = .x,
                            waves_dates_list = .y))
 
 ## Name data.frames in list (used as file name when output is saved)
 names(data_processed) <-
-  c("wave1", "wave2", "wave3")
+  c("wave1", "wave2", "wave3", "wave4", "wave5")
  
 # Save output ---
 output_dir <- here("output", "processed")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+fs::dir_create(output_dir)
 iwalk(.x = data_processed,
      .f = ~ saveRDS(object = .x,
                     file = paste0(output_dir, "/input_", .y, ".rds"),

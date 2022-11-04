@@ -335,6 +335,24 @@ actions:
         txt2: output/data_properties/input_wave3_coltypes.txt
         txt3: output/data_properties/input_wave3_tabulate.txt
 
+  skim_data_wave4:
+    run: r:latest analysis/data_skim.R output/processed/input_wave4.rds output/data_properties
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        txt1: output/data_properties/input_wave4_skim.txt
+        txt2: output/data_properties/input_wave4_coltypes.txt
+        txt3: output/data_properties/input_wave4_tabulate.txt
+  
+  skim_data_wave5:
+    run: r:latest analysis/data_skim.R output/processed/input_wave5.rds output/data_properties
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        txt1: output/data_properties/input_wave5_skim.txt
+        txt2: output/data_properties/input_wave5_coltypes.txt
+        txt3: output/data_properties/input_wave5_tabulate.txt
+
 # Missings in bmi, ethnicity and smoking
   calc_missings:
     run: r:latest analysis/calc_missings.R
@@ -420,10 +438,28 @@ actions:
         csvs2: output/tables/wave3_ph_tests.csv
         csvs3: output/tables/wave3_log_file.csv
 
+  model_cox_ph_wave4:
+    run: r:latest analysis/waves_model_survival.R wave4 output/tables
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs1: output/tables/wave4_effect_estimates.csv
+        csvs2: output/tables/wave4_ph_tests.csv
+        csvs3: output/tables/wave4_log_file.csv
+
+  model_cox_ph_wave5:
+    run: r:latest analysis/waves_model_survival.R wave5 output/tables
+    needs: [process_data]
+    outputs: 
+      moderately_sensitive:
+        csvs1: output/tables/wave5_effect_estimates.csv
+        csvs2: output/tables/wave5_ph_tests.csv
+        csvs3: output/tables/wave5_log_file.csv
+
 # Create table two
   create_table_two:
     run: r:latest analysis/table_two.R
-    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3]
+    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3, model_cox_ph_wave4, model_cox_ph_wave5]
     outputs:
       moderately_sensitive: 
         html: output/tables/table2.html
@@ -440,7 +476,7 @@ actions:
 # Tidy relrisks (HRs) for viz
   tidy_relrisks_for_viz:
     run: r:latest analysis/relrisks_tidy_for_viz.R
-    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3, calc_vax_cov]
+    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3, model_cox_ph_wave4, model_cox_ph_wave5, calc_vax_cov]
     outputs:
       moderately_sensitive: 
         csv: output/tables/relrisks_for_viz_tidied.csv
