@@ -287,6 +287,16 @@ actions:
       highly_sensitive:
         cohort: output/input_wave5.csv.gz
 
+  generate_study_population_2022:
+    run: >
+      cohortextractor:latest generate_cohort 
+        --study-definition study_definition_2022
+        --skip-existing 
+        --output-format=csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_2022.csv.gz
+
 # Join data
   join_cohorts_waves:
     run: >
