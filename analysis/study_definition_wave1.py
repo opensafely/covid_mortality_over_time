@@ -29,9 +29,9 @@ import json
 with open('analysis/config.json', 'r') as f:
     config = json.load(f)
 
-wave1 = config["wave1"]
-start_date = wave1["start_date"]
-end_date = wave1["end_date"]
+wave = config["wave1"]
+start_date = wave["start_date"]
+end_date = wave["end_date"]
 
 # DEFINE STUDY POPULATION ----
 # Define study population and variables
