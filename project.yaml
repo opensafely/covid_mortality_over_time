@@ -296,6 +296,14 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input_2022.csv.gz
+        
+  count_n_deaths:
+    run: r:latest analysis/count_n_deaths.R
+    needs: [generate_study_population_2022]
+    outputs:
+      moderately_sensitive:
+        csv1: output/data_properties/n_covid_deaths_2022.csv
+        csv2: output/data_properties/n_any_deaths_2022.csv
 
 # Join data
   join_cohorts_waves:
