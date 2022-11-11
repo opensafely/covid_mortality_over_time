@@ -11,6 +11,10 @@ library(here)
 library(lubridate)
 library(readr)
 
+# output dir
+fs::dir_create(here("output", "data_properties"))
+
+# count number
 data_2022 <-
   read_csv(here("output", "input_2022.csv.gz"),
            col_types = cols_only(
