@@ -8,6 +8,10 @@ from cohortextractor import (
 import codelists
 
 demographic_variables = dict(
+    # follow up
+    has_follow_up=patients.registered_with_one_practice_between(
+            "index_date - 3 months", "index_date"
+    ),
 
     # age
     age=patients.age_as_of(
@@ -274,7 +278,7 @@ demographic_variables = dict(
     ),
     # Rurality
     rural_urban=patients.address_as_of(
-      "index_data",
+      "index_date",
       returning="rural_urban_classification",
       return_expectations={
         "rate": "universal",
