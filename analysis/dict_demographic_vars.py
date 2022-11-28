@@ -272,4 +272,14 @@ demographic_variables = dict(
             },
         },
     ),
+    # Rurality
+    rural_urban=patients.address_as_of(
+      "index_data",
+      returning="rural_urban_classification",
+      return_expectations={
+        "rate": "universal",
+        "category": {"ratios": {1: 0.125, 2: 0.125, 3: 0.125, 4: 0.125, 5: 0.125, 6: 0.125, 7: 0.125, 8: 0.125}},
+        "incidence": 1,
+        },
+    ),
 )
