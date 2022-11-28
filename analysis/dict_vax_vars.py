@@ -45,4 +45,40 @@ vaccination_variables = dict(
             "incidence": 0.5,
         },
     ),
+    # Date of fourth COVID vaccination (primary or booster) -
+    covid_vax_date_4=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_3 + 1 day", "index_date"],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.5,
+        },
+    ),
+    # Date of fifth COVID vaccination (primary or booster) -
+    covid_vax_date_5=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_4 + 1 day", "index_date"],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.5,
+        },
+    ),
+    # Date of sixth COVID vaccination (primary or booster) -
+    covid_vax_date_6=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_5 + 1 day", "index_date"],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.5,
+        },
+    ),
 )

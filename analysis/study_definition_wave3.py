@@ -51,16 +51,12 @@ study = StudyDefinition(
     # missings in sex can be sex = U or sex = I (so filter on M and F)
     population=patients.satisfying(
         """
-        has_follow_up AND
         NOT died AND
         (age >=18 AND age <= 110) AND
         (sex = "M" OR sex = "F") AND
         NOT stp = "" AND
         index_of_multiple_deprivation != -1
         """,
-        has_follow_up=patients.registered_with_one_practice_between(
-            "index_date - 3 months", "index_date"
-        ),
         died=patients.died_from_any_cause(
             on_or_before="index_date",
             returning="binary_flag",
