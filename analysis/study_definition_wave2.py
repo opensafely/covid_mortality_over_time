@@ -96,4 +96,19 @@ study = StudyDefinition(
             "incidence": 0.01,
         },
     ),
+    # Is there an associated positive test in the 8 weeks before
+    # covid associated death?
+    covid_test_positive_date=patients.with_test_result_in_sgss(
+        pathogen="SARS-CoV-2",
+        test_result="positive",
+        find_first_match_in_period=False,
+        restrict_to_earliest_specimen_date=False,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        on_or_after="died_ons_covid_any_date - 57 days",
+        return_expectations={
+            "date": {"earliest": "index_date", "latest": end_date},
+            "incidence": 0.01
+        },
+    ),
 )
