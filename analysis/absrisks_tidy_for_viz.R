@@ -136,10 +136,10 @@ table_est_cov <-
             suffix = c(".1", ".2")) %>%
   left_join(est_cov_processed$wave3,
             by = c("subgroup", "level", "plot_category", "plot_group")) %>%
-  left_join(est_cov_processed$wave2,
+  left_join(est_cov_processed$wave4,
             by = c("subgroup", "level", "plot_category", "plot_group"),
             suffix = c(".3", ".4")) %>%
-  left_join(est_cov_processed$wave3,
+  left_join(est_cov_processed$wave5,
             by = c("subgroup", "level", "plot_category", "plot_group"))
 ## add suffix '.5' to indicate wave 5 results
 col_ids <- {colnames(table_est_cov) %>% length() - 3}:{colnames(table_est_cov) %>% length()}
