@@ -19,8 +19,6 @@ from dict_demographic_vars import demographic_variables
 
 from dict_comorbidity_vars import comorbidity_variables
 
-from dict_vax_vars import vaccination_variables
-
 import codelists
 
 # Import config variables (start_date and end_date of wave1)
@@ -69,9 +67,6 @@ study = StudyDefinition(
     # COMORBIDITIES
     **comorbidity_variables,
 
-    # VACCINATION
-    **vaccination_variables,
-
     # OUTCOMES (not in dict because end_date is used)
     # Patients with ONS-registered death
     died_ons_covid_any_date=patients.with_these_codes_on_death_certificate(
@@ -109,6 +104,84 @@ study = StudyDefinition(
         return_expectations={
             "date": {"earliest": "index_date", "latest": end_date},
             "incidence": 0.01
+        },
+    ),
+    # Date of first COVID vaccination - source nhs-covid-vaccination-coverage
+    covid_vax_date_1=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["2020-12-01", end_date],  # any dose recorded after 01/12/2020
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.8,
+        },
+    ),
+    # Date of second COVID vaccination - source nhs-covid-vaccination-coverage
+    covid_vax_date_2=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_1 + 1 day", end_date],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.6,
+        },
+    ),
+    # Date of third COVID vaccination (primary or booster) -
+    # modified from nhs-covid-vaccination-coverage
+    # 01 Sep 2021: 3rd dose (primary) at interval of >=8w recommended for
+    # immunosuppressed
+    # 14 Sep 2021: 3rd dose (booster) reommended for JCVI groups 1-9 at >=6m
+    # 15 Nov 2021: 3rd dose (booster) recommended for 40–49y at >=6m
+    # 29 Nov 2021: 3rd dose (booster) recommended for 18–39y at >=3m
+    covid_vax_date_3=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_2 + 1 day", end_date],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.5,
+        },
+    ),
+    # Date of fourth COVID vaccination (primary or booster) -
+    covid_vax_date_4=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_3 + 1 day", end_date],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.5,
+        },
+    ),
+    # Date of fifth COVID vaccination (primary or booster) -
+    covid_vax_date_5=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_4 + 1 day", end_date],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.5,
+        },
+    ),
+    # Date of sixth COVID vaccination (primary or booster) -
+    covid_vax_date_6=patients.with_tpp_vaccination_record(
+        target_disease_matches="SARS-2 CORONAVIRUS",
+        between=["covid_vax_date_5 + 1 day", end_date],  # from day after previous dose
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-12-01", "latest": "index_date"},
+            "incidence": 0.5,
         },
     ),
 )
