@@ -12,6 +12,7 @@ library(here)
 library(dplyr)
 # Function fct_case_when needed inside process_data
 source(here("analysis", "utils", "fct_case_when.R"))
+source(here("analysis", "utils", "calc_fu_vax_dose.R"))
 
 # Function ---
 ## Processes the extracted data in extract_data(): changes levels of factors in 
@@ -169,32 +170,88 @@ process_data <- function(data_extracted, waves_dates_list) {
         (is.na(died_ons_covid_any_date) &
            !is.na(died_any_date)) ~ "2",
         TRUE ~ "0"
-      )
-    ) %>%
-    # add variable 'fu', follow up time for status == 1 and status == 0 and
-    # fu is end_date - start_date of wave if no event occured (administrative
-    # censoring)
-    mutate(
+      ),
+      # start date wave
+      start_date_wave = waves_dates_list$start_date %>% as.Date(),
+      # add variable 'fu', follow up time for status == 1 and status == 0 and
+      # fu is end_date - start_date of wave if no event occured (administrative
+      # censoring)
       fu = case_when(
-        status == "1" ~
-          difftime(
-            died_ons_covid_any_date,
-            waves_dates_list$start_date,
-            tz = "UTC",
-            units = "days"
-          ),
-        status == "2" ~
-          difftime(
-            died_any_date,
-            waves_dates_list$start_date,
-            tz = "UTC",
-            units = "days"),
-        TRUE ~
-          difftime(
-            waves_dates_list$end_date,
-            waves_dates_list$start_date,
-            tz = "UTC",
-            units = "days")
-      ))
+          status == "1" ~
+            difftime(
+              died_ons_covid_any_date,
+              start_date_wave,
+              tz = "UTC",
+              units = "days") %>% as.numeric(),
+          status == "2" ~
+            difftime(
+              died_any_date,
+              start_date_wave,
+              tz = "UTC",
+              units = "days") %>% as.numeric(),
+          TRUE ~
+            difftime(
+              waves_dates_list$end_date,
+              start_date_wave,
+              tz = "UTC",
+              units = "days") %>% as.numeric()
+      ),
+      # add time lag
+      start_vax_dose_1 = covid_vax_date_1 + days(14),
+      start_vax_dose_2 = covid_vax_date_2 + days(14),
+      start_vax_dose_3 = covid_vax_date_3 + days(14),
+      start_vax_dose_4 = covid_vax_date_4 + days(14),
+      start_vax_dose_5 = covid_vax_date_5 + days(14),
+      start_vax_dose_6 = covid_vax_date_6 + days(14)
+    ) %>%
+    rowwise() %>%
+    mutate(
+      # follow-up of dose in this wave?
+      ind_fu_vax_1 = case_when(
+        !is.na(start_vax_dose_1) ~
+          between(start_vax_dose_1, start_date_wave, start_date_wave + days(fu)),
+        TRUE ~ FALSE),
+      ind_fu_vax_2 = case_when(
+        !is.na(start_vax_dose_2) ~
+          between(start_vax_dose_2, start_date_wave, start_date_wave + days(fu)),
+        TRUE ~ FALSE),
+      ind_fu_vax_3 = case_when(
+        !is.na(start_vax_dose_3) ~
+          between(start_vax_dose_3, start_date_wave, start_date_wave + days(fu)),
+        TRUE ~ FALSE),
+      ind_fu_vax_4 = case_when(
+        !is.na(start_vax_dose_4) ~
+          between(start_vax_dose_4, start_date_wave, start_date_wave + days(fu)),
+        TRUE ~ FALSE),
+      ind_fu_vax_5 = case_when(
+        !is.na(start_vax_dose_5) ~
+          between(start_vax_dose_5, start_date_wave, start_date_wave + days(fu)),
+        TRUE ~ FALSE),
+      ind_fu_vax_6 = case_when(
+        !is.na(start_vax_dose_6) ~
+          between(start_vax_dose_6, start_date_wave, start_date_wave + days(fu)),
+        TRUE ~ FALSE),
+      # vax status start and end
+      vax_status_start_1 = ifelse(!is.na(start_vax_dose_1) & start_vax_dose_1 <= start_date_wave, 1, 0),
+      vax_status_start_2 = ifelse(!is.na(start_vax_dose_2) & start_vax_dose_2 <= start_date_wave, 1, 0),
+      vax_status_start_3 = ifelse(!is.na(start_vax_dose_3) & start_vax_dose_3 <= start_date_wave, 1, 0),
+      vax_status_start_4 = ifelse(!is.na(start_vax_dose_4) & start_vax_dose_4 <= start_date_wave, 1, 0),
+      vax_status_start_5 = ifelse(!is.na(start_vax_dose_5) & start_vax_dose_5 <= start_date_wave, 1, 0),
+      vax_status_start_6 = ifelse(!is.na(start_vax_dose_6) & start_vax_dose_6 <= start_date_wave, 1, 0),
+      vax_status_end_1 = ifelse(!is.na(start_vax_dose_1) & start_vax_dose_1 <= died_any_date, 1, 0),
+      vax_status_end_2 = ifelse(!is.na(start_vax_dose_2) & start_vax_dose_2 <= died_any_date, 1, 0),
+      vax_status_end_3 = ifelse(!is.na(start_vax_dose_3) & start_vax_dose_3 <= died_any_date, 1, 0),
+      vax_status_end_4 = ifelse(!is.na(start_vax_dose_4) & start_vax_dose_4 <= died_any_date, 1, 0),
+      vax_status_end_5 = ifelse(!is.na(start_vax_dose_5) & start_vax_dose_5 <= died_any_date, 1, 0),
+      vax_status_end_6 = ifelse(!is.na(start_vax_dose_6) & start_vax_dose_6 <= died_any_date, 1, 0)
+      ) %>%
+    calc_fu_vax_dose() %>%
+    ungroup() %>%
+    mutate(
+      doses_no_start =
+        rowSums(select(., starts_with("vax_status_start_"))),
+      doses_no_end =
+        rowSums(select(., starts_with("vax_status_end_")))
+      )
   data_processed
 }

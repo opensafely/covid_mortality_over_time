@@ -52,6 +52,6 @@ names(data_processed) <-
 output_dir <- here("output", "processed")
 fs::dir_create(output_dir)
 iwalk(.x = data_processed,
-     .f = ~ saveRDS(object = .x,
-                    file = paste0(output_dir, "/input_", .y, ".rds"),
-                    compress = TRUE))
+      .f = ~ saveRDS(object = .x,
+                     file = paste0(output_dir, "/input_", .y, ".rds"),
+                     compress = TRUE))
