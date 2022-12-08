@@ -73,9 +73,13 @@ extract_data <- function(file_name) {
         covid_vax_date_1 = col_date(format = "%Y-%m-%d"),
         covid_vax_date_2 = col_date(format = "%Y-%m-%d"),
         covid_vax_date_3 = col_date(format = "%Y-%m-%d"),
+        covid_vax_date_4 = col_date(format = "%Y-%m-%d"),
+        covid_vax_date_5 = col_date(format = "%Y-%m-%d"),
+        covid_vax_date_6 = col_date(format = "%Y-%m-%d"),
         # outcomes
         died_ons_covid_any_date = col_date(format = "%Y-%m-%d"),
-        died_any_date = col_date(format = "%Y-%m-%d")
+        died_any_date = col_date(format = "%Y-%m-%d"),
+        covid_test_positive_date = col_date(format = "%Y-%m-%d")
       )
     )
   data_extracted
