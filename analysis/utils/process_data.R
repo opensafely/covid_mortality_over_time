@@ -202,7 +202,16 @@ process_data <- function(data_extracted, waves_dates_list) {
       start_vax_dose_3 = covid_vax_date_3 + days(14),
       start_vax_dose_4 = covid_vax_date_4 + days(14),
       start_vax_dose_5 = covid_vax_date_5 + days(14),
-      start_vax_dose_6 = covid_vax_date_6 + days(14)
+      start_vax_dose_6 = covid_vax_date_6 + days(14),
+      
+      # marker of impaired vaccine response
+      imp_vax = case_when(
+        ckd_rrt != "No CKD or RRT" |
+          organ_kidney_transplant != "No transplant" |
+          haem_cancer == TRUE |
+          immunosuppression == FALSE ~ TRUE,
+        TRUE ~ FALSE
+      )
     ) %>%
     rowwise() %>%
     mutate(
@@ -249,9 +258,9 @@ process_data <- function(data_extracted, waves_dates_list) {
     ungroup() %>%
     mutate(
       doses_no_start =
-        rowSums(select(., starts_with("vax_status_start_"))),
+        rowSums(select(., starts_with("vax_status_start_"))) %>% factor(levels = c("0", "1", "2", "3", "4", "5", "6")),
       doses_no_end =
-        rowSums(select(., starts_with("vax_status_end_")))
+        rowSums(select(., starts_with("vax_status_end_"))) %>% factor(levels = c("0", "1", "2", "3", "4", "5", "6")),
       )
   data_processed
 }
