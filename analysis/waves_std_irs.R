@@ -22,13 +22,14 @@ source(here("analysis", "utils", "dsr.R"))
 # create vector containing subgroups
 subgroups_vctr <- c("sex",
                     config$demographics,
-                    config$comorbidities)
-# vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
+                    config$comorbidities,
+                    "imp_vax")
 
 # Import data extracts of waves ---
 input_files_processed <-
   Sys.glob(here("output", "processed", "input_wave*.rds"))
+# vector with waves
+waves_vctr <- str_extract(input_files_processed, "wave[:digit:]")
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
@@ -152,17 +153,10 @@ overall_irs <-
                upper = ir + qnorm(0.975) * sqrt(var_ir)))
 
 # Combine overall and subgroup irs_std ---
-irs_std_wave1 <- rbind(overall_irs$wave1, subgroups_irs_all_waves$wave1)
-irs_std_wave2 <- rbind(overall_irs$wave2, subgroups_irs_all_waves$wave2)
-irs_std_wave3 <- rbind(overall_irs$wave3, subgroups_irs_all_waves$wave3)
-irs_std_wave4 <- rbind(overall_irs$wave2, subgroups_irs_all_waves$wave4)
-irs_std_wave5 <- rbind(overall_irs$wave3, subgroups_irs_all_waves$wave5)
-irs_std <- list(irs_std_wave1,
-                irs_std_wave2,
-                irs_std_wave3,
-                irs_std_wave4,
-                irs_std_wave5)
-names(irs_std) <- waves_vctr
+irs_std <-
+  map2(.x = overall_irs,
+       .y = subgroups_irs_all_waves,
+       .f = ~ rbind(.x, .y))
 
 # Save output ---
 ## saved as '/output/tables/wave*_ir_std.csv
