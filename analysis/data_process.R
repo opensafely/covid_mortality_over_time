@@ -13,6 +13,7 @@ library(here)
 library(dplyr)
 library(readr)
 library(purrr)
+library(stringr)
 utils_dir <- here("analysis", "utils")
 source(paste0(utils_dir, "/extract_data.R")) # function extract_data()
 source(paste0(utils_dir, "/add_kidney_vars_to_data.R")) # function add_kidney_vars_to_data()
@@ -25,7 +26,7 @@ config <- fromJSON(here("analysis", "config.json"))
 input_files <-
   Sys.glob(here("output", "joined", "input_wave*.csv.gz"))
 # vector with waves
-waves_vctr <- str_extract(input_files_processed, "wave[:digit:]")
+waves_vctr <- str_extract(input_files, "wave[:digit:]")
 ## Extract data from the input_files and formats columns to correct type 
 ## (e.g., integer, logical etc)
 data_extracted <-
