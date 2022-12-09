@@ -15,6 +15,7 @@ library(purrr)
 library(dplyr)
 library(jsonlite)
 library(fs)
+library(stringr)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
