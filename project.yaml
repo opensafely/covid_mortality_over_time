@@ -453,8 +453,7 @@ actions:
     run: r:latest analysis/table_two.R
     needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3, model_cox_ph_wave4, model_cox_ph_wave5]
     outputs:
-      moderately_sensitive: 
-        html: output/tables/table2.html
+      moderately_sensitive:
         csv: output/tables/table2.csv
 
 # Tidy absrisks (IRs) for viz

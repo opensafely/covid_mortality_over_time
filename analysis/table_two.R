@@ -14,12 +14,14 @@ library(purrr)
 library(dplyr)
 library(jsonlite)
 library(gt)
+library(stringr)
 # load json file listing demographics, comorbidities and start dates waves
 config <- fromJSON(here("analysis", "config.json"))
 # create vector containing subgroups
 # each model is stratified by region so region is excluded here
 comorbidities <- 
-  config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
+  c(config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))],
+    "imp_vax")
 # multilevel comorbidities get a reference in table two
 comorbidities_multilevel_vctr <- c("asthma",
                                    "diabetes_controlled",
@@ -27,8 +29,6 @@ comorbidities_multilevel_vctr <- c("asthma",
                                    "organ_kidney_transplant")
 comorbidities_binary_vctr <-
   comorbidities[!comorbidities %in% comorbidities_multilevel_vctr]
-# vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 # needed to add reference values to table two
 source(here("analysis", "utils", "reference_values.R"))
 # needed to rename subgroups
@@ -37,6 +37,8 @@ source(here("analysis", "utils", "rename_subgroups.R"))
 # Import data extracts of waves ---
 input_files_effect_estimates <-
   Sys.glob(here("output", "tables", "wave*_effect_estimates.csv"))
+# vector with waves
+waves_vctr <- str_extract(input_files_effect_estimates, "wave[:digit:]")
 effect_estimates_list <- 
   map(.x = input_files_effect_estimates,
       .f = ~ read_csv(.x))
@@ -70,7 +72,8 @@ colnames(reference_table_two) <- c("subgroup", "level", "HR_95CI")
 # 'COVID-19 Death HR (95% CI)'
 mutate_table_two <- function(effect_estimates, 
                              subgroups_vctr,
-                             reference_table_two){
+                             reference_table_two,
+                             suffix){
   effect_estimates <- 
     effect_estimates %>% 
     filter(subgroup %in% subgroups_vctr) %>%
@@ -84,6 +87,8 @@ mutate_table_two <- function(effect_estimates,
   effect_estimates <-
     effect_estimates[
       match(effect_estimates$subgroup, subgroups_vctr) %>% order(), ] 
+  colnames(effect_estimates)[which(colnames(effect_estimates) == "HR_95CI")] <-
+    paste0("HR_95CI.", suffix)
   effect_estimates
 }
 
@@ -92,48 +97,22 @@ mutate_table_two <- function(effect_estimates,
 # for names of the three columns)
 subgroups_selected <- c("agegroup", "sex", config$demographics, comorbidities)
 effect_estimates_list <-
-  map(.x = effect_estimates_list,
-      .f = ~ mutate_table_two(.x, subgroups_selected, reference_table_two))
+  imap(.x = effect_estimates_list,
+       .f = ~ mutate_table_two(.x, subgroups_selected, reference_table_two, .y))
 
 # Create table two ---
 # Join three waves to one table
-table2 <-
-  effect_estimates_list$wave1 %>%
-  left_join(effect_estimates_list$wave2,
-            by = c("subgroup", "level"),
-            suffix = c(".1", ".2")) %>%
-  left_join(effect_estimates_list$wave3,
-            by = c("subgroup", "level")) %>%
-  left_join(effect_estimates_list$wave4,
-            by = c("subgroup", "level"),
-            suffix = c(".3", ".4")) %>%
-  left_join(effect_estimates_list$wave5,
-            by = c("subgroup", "level"))
-# Add suffix to last column
-colnames(table2)[5] <- paste0(colnames(table2)[7], ".5") 
+table2 <- 
+  plyr::join_all(effect_estimates_list,
+                 by = c("subgroup", "level"))
 table2 <- 
   rename_subgroups(table2)
 # relocate reference value agegroup 
 # references values is first, but for agegroup it should be third since
 # reference value for agegroup is 50-59
 table2 <- table2[c(2, 3, 1, 4:nrow(table2)),]
-# modify table (rename columns and add spanner) 
-table2 <-
-  table2 %>% gt()
-table2$`_boxhead`$column_label <-
-  c("Characteristic",
-    "Category",
-    "Wave 1",
-    "Wave 2",
-    "Wave 3",
-    "Wave 4",
-    "Wave 5")
-# does not work on server
-# tab_spanner(label = "COVID-19 Death HR (95% CI) (adjusted for age and sex)",
-#             columns = c(HR_95CI.1, HR_95CI.2, HR_95CI.3))
 
 # Save output --
 output_dir <- here("output", "tables")
 fs::dir_create(output_dir)
-write_csv(table2$`_data`, paste0(output_dir, "/table2.csv"))
-gtsave(table2, paste0(output_dir, "/table2.html"))
+write_csv(table2, paste0(output_dir, "/table2.csv"))
