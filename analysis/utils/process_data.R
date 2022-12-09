@@ -247,12 +247,12 @@ process_data <- function(data_extracted, waves_dates_list) {
       vax_status_start_4 = ifelse(!is.na(start_vax_dose_4) & start_vax_dose_4 <= start_date_wave, 1, 0),
       vax_status_start_5 = ifelse(!is.na(start_vax_dose_5) & start_vax_dose_5 <= start_date_wave, 1, 0),
       vax_status_start_6 = ifelse(!is.na(start_vax_dose_6) & start_vax_dose_6 <= start_date_wave, 1, 0),
-      vax_status_end_1 = ifelse(!is.na(start_vax_dose_1) & start_vax_dose_1 <= died_any_date, 1, 0),
-      vax_status_end_2 = ifelse(!is.na(start_vax_dose_2) & start_vax_dose_2 <= died_any_date, 1, 0),
-      vax_status_end_3 = ifelse(!is.na(start_vax_dose_3) & start_vax_dose_3 <= died_any_date, 1, 0),
-      vax_status_end_4 = ifelse(!is.na(start_vax_dose_4) & start_vax_dose_4 <= died_any_date, 1, 0),
-      vax_status_end_5 = ifelse(!is.na(start_vax_dose_5) & start_vax_dose_5 <= died_any_date, 1, 0),
-      vax_status_end_6 = ifelse(!is.na(start_vax_dose_6) & start_vax_dose_6 <= died_any_date, 1, 0)
+      vax_status_end_1 = ifelse(!is.na(start_vax_dose_1) & start_vax_dose_1 <= start_date_wave + fu, 1, 0),
+      vax_status_end_2 = ifelse(!is.na(start_vax_dose_2) & start_vax_dose_2 <= start_date_wave + fu, 1, 0),
+      vax_status_end_3 = ifelse(!is.na(start_vax_dose_3) & start_vax_dose_3 <= start_date_wave + fu, 1, 0),
+      vax_status_end_4 = ifelse(!is.na(start_vax_dose_4) & start_vax_dose_4 <= start_date_wave + fu, 1, 0),
+      vax_status_end_5 = ifelse(!is.na(start_vax_dose_5) & start_vax_dose_5 <= start_date_wave + fu, 1, 0),
+      vax_status_end_6 = ifelse(!is.na(start_vax_dose_6) & start_vax_dose_6 <= start_date_wave + fu, 1, 0)
       ) %>%
     calc_fu_vax_dose() %>%
     ungroup() %>%
