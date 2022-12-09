@@ -361,14 +361,6 @@ actions:
       moderately_sensitive:
         csvs: output/tables/missings/waves_missings.csv
 
-# Vaccine coverage
-  calc_vax_cov:
-    run: r:latest analysis/vaccine_coverage_calc.R
-    needs: [process_data]
-    outputs: 
-      moderately_sensitive:
-        csvs: output/tables/wave*_vax_coverage.csv
-
 # Incidence rates (crude)
   calc_irs:
     run: r:latest analysis/waves_irs.R
@@ -468,7 +460,7 @@ actions:
 # Tidy absrisks (IRs) for viz
   tidy_absrisks_for_viz:
     run: r:latest analysis/absrisks_tidy_for_viz.R
-    needs: [calc_irs, calc_irs_std, calc_vax_cov]
+    needs: [calc_irs, calc_irs_std]
     outputs:
       moderately_sensitive: 
         csv: output/tables/absrisks_for_viz_tidied.csv
@@ -476,11 +468,20 @@ actions:
 # Tidy relrisks (HRs) for viz
   tidy_relrisks_for_viz:
     run: r:latest analysis/relrisks_tidy_for_viz.R
-    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3, model_cox_ph_wave4, model_cox_ph_wave5, calc_vax_cov]
+    needs: [model_cox_ph_wave1, model_cox_ph_wave2, model_cox_ph_wave3, model_cox_ph_wave4, model_cox_ph_wave5]
     outputs:
       moderately_sensitive: 
         csv: output/tables/relrisks_for_viz_tidied.csv
-        
+
+# Vaccine data
+  vax_doses_start_end:
+    run: r:latest analysis/waves_vax_coverage.R
+    needs: [process_data]
+    outputs:
+      moderately_sensitive: 
+        csv1: output/tables/vax/start_doses_waves.csv
+        csv2: output/tables/vax/end_doses_waves.csv
+
 # Wave-specific HR plots
 #  plot_relrisks:
 #    run: r:latest -e 'rmarkdown::render("analysis/wave_HRs.Rmd", knit_root_dir = "/workspace", output_dir="/workspace/output/markdown")'
