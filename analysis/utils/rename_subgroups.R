@@ -49,7 +49,8 @@ rename_subgroups <- function(table){
       subgroup == "ra_sle_psoriasis" ~ "Rheumatoid arthritis/ lupus/ psoriasis",
       subgroup == "immunosuppression" ~ "Immunosuppressive condition",
       subgroup == "learning_disability" ~ "Learning disability",
-      subgroup == "sev_mental_ill" ~ "Severe mental illness"
+      subgroup == "sev_mental_ill" ~ "Severe mental illness",
+      subgroup == "imp_vax" ~ "Impaired vaccine response"
     )
     )
 }
