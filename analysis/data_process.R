@@ -24,6 +24,8 @@ config <- fromJSON(here("analysis", "config.json"))
 ## Search input files by globbing
 input_files <-
   Sys.glob(here("output", "joined", "input_wave*.csv.gz"))
+# vector with waves
+waves_vctr <- str_extract(input_files_processed, "wave[:digit:]")
 ## Extract data from the input_files and formats columns to correct type 
 ## (e.g., integer, logical etc)
 data_extracted <-
@@ -45,8 +47,7 @@ data_processed <-
                            waves_dates_list = .y))
 
 ## Name data.frames in list (used as file name when output is saved)
-names(data_processed) <-
-  c("wave1", "wave2", "wave3", "wave4", "wave5")
+names(data_processed) <- waves_vctr
  
 # Save output ---
 output_dir <- here("output", "processed")
