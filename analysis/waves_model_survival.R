@@ -29,7 +29,7 @@ source(here("analysis", "utils", "model_coxph.R"))
 subgroups_vctr <- c(config$demographics[config$demographics != "region"], 
                     config$comorbidities)
 # add agegroup and sex
-subgroups_vctr <- c("agegroup", "sex", subgroups_vctr)
+subgroups_vctr <- c("agegroup", "sex", subgroups_vctr, "imp_vax")
 
 # Import data extracts of waves ---
 args <- commandArgs(trailingOnly=TRUE)

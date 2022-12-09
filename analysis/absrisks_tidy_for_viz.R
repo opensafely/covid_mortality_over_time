@@ -19,7 +19,7 @@ config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
 comorbidities <- 
   config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
-subgroups_vctr <- c("sex", config$demographics, comorbidities)
+subgroups_vctr <- c("sex", config$demographics, comorbidities, "imp_vax")
 subgroups_vctr <- subgroups_vctr[-which(subgroups_vctr == "region")]
 # needed to add plot_groups
 source(here("analysis", "utils", "subgroups_and_plot_groups.R"))
@@ -80,7 +80,7 @@ irs_std <-
                                             lower = col_double(),
                                             upper = col_double())) %>%
                       filter(!(subgroup %in% c("hypertension",
-                                               "bp"))))
+                                               "bp", "all"))))
 input_files_irs_crude <- Sys.glob(here("output", "tables", "wave*_ir.csv"))
 # names of ir_crude
 waves_vctr_irs_crude <- str_extract(input_files_irs_crude, "wave[:digit:]")
