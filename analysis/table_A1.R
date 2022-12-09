@@ -20,19 +20,19 @@ config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
 comorbidities <- 
   config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
-subgroups_vctr <- c("sex", config$demographics, comorbidities)
+subgroups_vctr <- c("sex", config$demographics, comorbidities, "imp_vax")
 subgroups_vctr <- subgroups_vctr[-which(subgroups_vctr == "region")]
 # needed to add plot_groups
 source(here("analysis", "utils", "subgroups_and_plot_groups.R"))
 # needed to rename subgroups 
 source(here("analysis", "utils", "rename_subgroups.R"))
-# vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Import data extracts of waves  ---
 # standardised IRs
 input_files_irs_std <- 
   Sys.glob(here("output", "tables", "wave*_ir_std.csv"))
+# vector with waves
+waves_vctr <- str_extract(input_files_irs_std, "wave[:digit:]")
 irs_std <- 
   map(.x = input_files_irs_std,
       .f = ~ read_csv(.x,
@@ -40,37 +40,56 @@ irs_std <-
                                             level = col_character(),
                                             ir = col_double(),
                                             lower = col_double(),
-                                            upper = col_double())) %>%
-        filter(!(subgroup %in% c("hypertension",
-                                 "bp"))) %>%
-        rename_subgroups() %>%
-        mutate(ir = round(ir, 2),
-               lower = round(lower, 2), 
-               upper = round(upper, 2)) %>%
-        mutate(ir_ci = paste0(ir, " (", lower, ";", upper, ")")) %>%
-        select(subgroup, level, ir_ci))
+                                            upper = col_double())))
+names(irs_std) <- waves_vctr
+irs_std <- 
+  imap(.x = irs_std,
+       .f = ~ {out <- 
+         .x %>%
+         filter(!(subgroup %in% c("hypertension",
+                                  "bp"))) %>%
+         rename_subgroups() %>%
+         mutate(ir = round(ir, 2),
+                lower = round(lower, 2), 
+                upper = round(upper, 2)) %>%
+         mutate(ir_ci = paste0(ir, " (", lower, ";", upper, ")")) %>%
+         select(subgroup, level, ir_ci)
+       colnames(out)[which(colnames(out) == "ir_ci")] <-
+                       paste0("ir_ci.", .y)
+       out}
+      )
+# crude irs
 input_files_irs_crude <- Sys.glob(here("output", "tables", "wave*_ir.csv"))
-# agegroup is not age or sex standardised, and added to the irs
-# for agegroup, the redacted rate is taken, for consistency throughout the 
-# manuscript
-irs_crude <- 
+irs_crude <-
   map(.x = input_files_irs_crude,
       .f = ~ read_csv(.x,
                       col_types = cols_only(subgroup = col_character(),
                                             level = col_character(),
                                             rate_redacted = col_double(),
                                             lower_redacted = col_double(),
-                                            upper_redacted = col_double())) %>%
-        filter(subgroup == "agegroup") %>%
-        rename_subgroups() %>%
-        rename(ir = rate_redacted,
-               lower = lower_redacted,
-               upper = upper_redacted) %>%
-        mutate(ir = round(ir, 2),
-               lower = round(lower, 2), 
-               upper = round(upper, 2)) %>%
-        mutate(ir_ci = paste0(ir, " (", lower, ";", upper, ")")) %>%
-        select(subgroup, level, ir_ci))
+                                            upper_redacted = col_double())))
+names(irs_crude) <- waves_vctr
+# agegroup is not age or sex standardised, and added to the irs
+# for agegroup, the redacted rate is taken, for consistency throughout the 
+# manuscript
+irs_crude <- 
+  imap(.x = irs_crude,
+       .f = ~ {out <- 
+         .x %>%
+         filter(subgroup == "agegroup") %>%
+         rename_subgroups() %>%
+         rename(ir = rate_redacted,
+                lower = lower_redacted,
+                upper = upper_redacted) %>%
+         mutate(ir = round(ir, 2),
+                lower = round(lower, 2), 
+                upper = round(upper, 2)) %>%
+         mutate(ir_ci = paste0(ir, " (", lower, ";", upper, ")")) %>%
+         select(subgroup, level, ir_ci)
+       colnames(out)[which(colnames(out) == "ir_ci")] <-
+         paste0("ir_ci.", .y)
+       out}
+       )
 # combine agegroup from crude file and rest
 estimates <-
   map2(.x = irs_crude,
@@ -79,20 +98,9 @@ estimates <-
 names(estimates) <- waves_vctr
 ## Make one wide table from list of processed tables
 table_est <-
-  estimates$wave1 %>%
-  left_join(estimates$wave2,
-            by = c("subgroup", "level"),
-            suffix = c(".1", ".2")) %>%
-  left_join(estimates$wave3,
-            by = c("subgroup", "level")) %>%
-  left_join(estimates$wave4,
-            by = c("subgroup", "level"),
-            suffix = c(".3", ".4")) %>%
-  left_join(estimates$wave5,
-            by = c("subgroup", "level"))
-## add suffix '.3' to indicate wave 3 results
-colnames(table_est)[which(colnames(table_est) == "ir_ci")] <-
-  paste0("ir_ci", ".5")
+  plyr::join_all(estimates,
+                 by = c("subgroup", "level"))
+
 ## change order of Age Group and All
 table_est <-
   table_est %>%
