@@ -57,15 +57,27 @@ no_sex <-
 cat("\n#### any NA's in sex? ####\n")
 print(any(is.na(data$sex)))
 
-# follow-up & age & sex but missing demographics (stp / imd)
-no_demographics <- 
+# follow-up & age & sex but missing stp
+no_stp <- 
   data %>%
   filter(has_follow_up == TRUE) %>%
   filter(age >= 18 & age <= 110) %>% 
   filter(sex %in% c("F", "M")) %>% 
-  filter(is.na(stp) | index_of_multiple_deprivation == -1) %>% 
+  filter(is.na(stp)) %>% 
   nrow() %>% plyr::round_any(5)
-cat("\n#### any NA's in imd? ####\n")
+cat("\n#### any NA's in stp? ####\n")
+print(any(is.na(data$stp)))
+
+# follow-up & age & sex & stp but missing imd
+no_imd <- 
+  data %>%
+  filter(has_follow_up == TRUE) %>%
+  filter(age >= 18 & age <= 110) %>% 
+  filter(sex %in% c("F", "M")) %>% 
+  filter(!is.na(stp)) %>% 
+  filter(index_of_multiple_deprivation == -1) %>%
+  nrow() %>% plyr::round_any(5)
+cat("\n#### any NA's in index_of_multiple_deprivation? ####\n")
 print(any(is.na(data$index_of_multiple_deprivation)))
 
 # included
@@ -83,7 +95,8 @@ out <-
          no_follow_up,
          no_age,
          no_sex,
-         no_demographics,
+         no_stp,
+         no_imd,
          total_n_included) 
 
 # Save output

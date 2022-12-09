@@ -24,8 +24,7 @@ data <-
                  age = col_integer(),
                  sex = col_character(),
                  stp = col_character(),
-                 index_of_multiple_deprivation = col_integer(),
-                 has_msoa = col_logical())))
+                 index_of_multiple_deprivation = col_integer())))
 names(data) <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Save output ---
