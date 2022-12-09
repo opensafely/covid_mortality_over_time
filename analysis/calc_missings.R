@@ -13,17 +13,20 @@ library(dplyr)
 library(tibble)
 library(fs)
 library(purrr)
+library(stringr)
 
 # Load data ---
 ## Search input files by globbing
 input_files <-
   Sys.glob(here("output", "processed", "input_wave*.rds"))
+input_files <- input_files[str_detect(input_files, "input_wave[^_]+\\.rds")]
+waves_vctr <- str_extract(input_files, "wave[:digit:]")
 ## Extract data from the input_files and formats columns to correct type 
 ## (e.g., integer, logical etc)
 data_processed <-
   map(.x = input_files,
       .f = ~ readRDS(.x))
-names(data_processed) <- c("wave1", "wave2", "wave3", "wave4", "wave5")
+names(data_processed) <- waves_vctr
 
 # Calculate missings ---
 n_missing_smoking <- 
