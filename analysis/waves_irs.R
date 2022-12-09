@@ -23,13 +23,14 @@ source(here("analysis", "utils", "calc_ir.R"))
 # create vector containing subgroups
 subgroups_vctr <- c("agegroup", "sex",
                     config$demographics,
-                    config$comorbidities)
-# vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
+                    config$comorbidities,
+                    "imp_vax")
 
 # Import data extracts of waves ---
 input_files_processed <-
   Sys.glob(here("output", "processed", "input_wave*.rds"))
+# vector with waves
+waves_vctr <- str_extract(input_files_processed, "wave[:digit:]")
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
