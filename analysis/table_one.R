@@ -14,6 +14,7 @@ library(readr)
 library(purrr)
 library(jsonlite)
 library(tibble)
+library(stringr)
 # needed to rename subgroups
 source(here("analysis", "utils", "rename_subgroups.R"))
 ## Load json file listing demographics and comorbidities
@@ -21,9 +22,8 @@ config <- fromJSON(here("analysis", "config.json"))
 demographics <- config$demographics
 comorbidities <- 
   config$comorbidities[-which(config$comorbidities %in% c("hypertension", "bp"))]
-subgroups_vctr <- c("agegroup", "sex", demographics, comorbidities)
-# vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
+subgroups_vctr <- c("agegroup", "sex", demographics, comorbidities, "imp_vax")
+
 ## functions
 # calculate number of people in a subgroup
 summarise_subgroup <- function(data, subgroup){
@@ -41,7 +41,7 @@ summarise_subgroup <- function(data, subgroup){
   summary
 }
 # calculate number of people in each population subgroup
-summarise_subgroups <- function(data, subgroups_vctr){
+summarise_subgroups <- function(data, subgroups_vctr, suffix){
   # subgroup "all" --> whole population
   summary_all <- 
     data %>%
@@ -58,16 +58,22 @@ summarise_subgroups <- function(data, subgroups_vctr){
            n = paste0(n, " (", perc, "%)")) %>%
     select(-perc)
   # bind info of whole pop + subgroup specific info
-  rbind(summary_all %>% mutate(n = n %>% 
+  out <-
+    rbind(summary_all %>% mutate(n = n %>% 
                                  plyr::round_any(5) %>% 
                                  prettyNum(big.mark = ",")),
-        summary_subgroups)
+          summary_subgroups)
+  colnames(out)[which(colnames(out) == c("n"))] <-
+    paste0("n.", suffix)
+  out
 }
 
 # Load data ---
 # Import data extracts of waves  ---
 input_files_processed <-
   Sys.glob(here("output", "processed", "input_wave*.rds"))
+# vector with waves
+waves_vctr <- str_extract(input_files_processed, "wave[:digit:]")
 data_processed <- 
   map(.x = input_files_processed,
       .f = ~ readRDS(.x))
@@ -95,13 +101,15 @@ irs_crude_subgroups <-
                                        rate_redacted = col_double(),
                                        lower_redacted = col_double(),
                                        upper_redacted = col_double()))))
+names(irs_crude_subgroups) <- waves_vctr
 
 # Summarise data to create table 1 ---
 # n_fu_summary is a list of waves, with number of people (n) for 
 # 'all' and each population subgroup
 n_fu_summary <- 
-  map(.x = data_processed,
-      .f = ~ summarise_subgroups(data = .x, subgroups_vctr = subgroups_vctr) %>%
+  imap(.x = data_processed,
+       .f = ~ summarise_subgroups(data = .x, subgroups_vctr = subgroups_vctr,
+                                  suffix = .y) %>%
         rename_subgroups())
 
 # irs_crude is a list of waves, with events / time / rate and cis for the
@@ -117,33 +125,39 @@ names(irs_crude) <- waves_vctr
 
 # irs_waves_list is a list of waves, combining irs_crude and irs_crude_subgroups
 # and combining rate and ci into one column
-irs_waves_list <- 
+irs_waves_list <-
   map2(.x = irs_crude_subgroups,
        .y = irs_crude,
-       .f = ~ rbind(.y,
-                    .x) %>%
-        filter(!(subgroup %in% c("bp", "hypertension"))) %>%
-        rename_subgroups() %>%
-        mutate(events_redacted = events_redacted %>% 
-                 prettyNum(big.mark = ","),
-               time_redacted = round(time_redacted / 365250, 1) %>%
-                 prettyNum(big.mark = ",")) %>%
-        mutate(events_pys = paste0(events_redacted, " (", 
-                                   time_redacted, ")"),
-               rate_redacted = round(rate_redacted, 2),
-               lower_redacted = round(lower_redacted, 2),
-               upper_redacted = round(upper_redacted, 2)) %>%
-        mutate(ir = 
-                 paste0(rate_redacted,
-                        " (", lower_redacted,
-                        ";", upper_redacted,
-                        ")")) %>%
-        select(-c(events_redacted,
-                  time_redacted,
-                  rate_redacted,
-                  lower_redacted,
-                  upper_redacted)))
-names(irs_waves_list) <- waves_vctr
+       .f = ~ rbind(.y, .x))
+
+irs_waves_list <- 
+  imap(.x = irs_waves_list,
+       .f = ~ {out <-
+         .x %>%
+         filter(!(subgroup %in% c("bp", "hypertension"))) %>%
+         rename_subgroups() %>%
+         mutate(events_redacted = events_redacted %>% 
+                  prettyNum(big.mark = ","),
+                time_redacted = round(time_redacted / 365250, 1) %>%
+                  prettyNum(big.mark = ",")) %>%
+         mutate(events_pys = paste0(events_redacted, " (", 
+                                    time_redacted, ")"),
+                rate_redacted = round(rate_redacted, 2),
+                lower_redacted = round(lower_redacted, 2),
+                upper_redacted = round(upper_redacted, 2)) %>%
+         mutate(ir = 
+                  paste0(rate_redacted,
+                         " (", lower_redacted,
+                         ";", upper_redacted,
+                         ")")) %>%
+         select(-c(events_redacted,
+                   time_redacted,
+                   rate_redacted,
+                   lower_redacted,
+                   upper_redacted))
+         colnames(out)[which(colnames(out) == c("events_pys", "ir"))] <-
+           paste0(c("events_pys.", "ir."), .y)
+         out})
 
 # join number of individuals and the incidence rates
 table1 <- 
@@ -155,20 +169,7 @@ table1 <-
 
 # reformat to wide format
 table1_wide <-
-  table1$wave1 %>%
-  left_join(table1$wave2,
-            by = c("subgroup", "level"),
-            suffix = c(".1", ".2")) %>%
-  left_join(table1$wave3,
-            by = c("subgroup", "level")) %>%
-  left_join(table1$wave4,
-            by = c("subgroup", "level"),
-            suffix = c(".3", ".4")) %>%
-  left_join(table1$wave5,
-            by = c("subgroup", "level"))
-## add suffix '.3' to indicate wave 3 results
-colnames(table1_wide)[c(15:17)] <- 
-  paste0(colnames(table1_wide)[c(15:17)], ".5")
+  plyr::join_all(table1, by = c("subgroup", "level"))
 
 table1_wide <-
   table1_wide %>%
@@ -176,7 +177,7 @@ table1_wide <-
 
 # Save output --
 output_dir <- here("output", "tables")
-ifelse(!dir.exists(output_dir), dir.create(output_dir), FALSE)
+fs::dir_create(output_dir)
 write_csv(table1_wide,
           path = paste0(output_dir,
                         "/table1.csv"))
