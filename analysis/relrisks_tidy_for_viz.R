@@ -2,7 +2,6 @@
 
 ##  This script:
 ## - Imports the HRs
-## - Imports vaccination covarage data
 ## - Combines these results in one table (used for data viz)
 
 ## linda.nab@thedatalab.com - 20220608
@@ -14,6 +13,7 @@ library(readr)
 library(purrr)
 library(dplyr)
 library(jsonlite)
+library(stringr)
 ## Load json file listing demographics and comorbidities
 config <- fromJSON(here("analysis", "config.json"))
 ## Create vector containing the demographics and comorbidities
@@ -28,36 +28,37 @@ source(here("analysis", "utils", "reference_values.R"))
 source(here("analysis", "utils", "subgroups_and_plot_groups.R"))
 # needed to rename subgroups
 source(here("analysis", "utils", "rename_subgroups.R"))
-# Function 'process_est_cov_combined'
+# Function 'process_estimates'
 ## Arguments
-## est_cov_combined_wave: a data.frame with HR estimates and CIs and vax 
-## coverage combined for a specific wave (e.g., est_cov_combined$wave1)
+## estimates_wave: a data.frame with HR estimates and CIs
 ## reference_values: a data.frame with the reference value for each subgroup
 ## see (/analysis/utils/reference_values.R)
 ## subgroups_and_plot_groups: a data.frame mapping subgroups in config.yaml
 ## to 'plot_group' (aggregating subgroups)
 ## see (/analysis/utils/subgroups_and_plot_groups.R)
+## suffix: suffix added to colnames HR, LowerCI and UpperCI
 ## Output
-## Processed est_cov_combined_wave data.frame, with columns:
-## subgroup, level, plot_category, plot_group, HR, LowerCI, UpperCI, cov_2
-process_est_cov_combined <- function(est_cov_combined_wave, 
-                                     reference_values,
-                                     subgroups_and_plot_groups){
-  est_cov_combined_wave <-
-    est_cov_combined_wave %>%
+## Processed estimates_wave data.frame, with columns:
+## subgroup, level, plot_category, plot_group, HR, LowerCI, UpperCI
+process_estimates <- function(estimates_wave, 
+                              reference_values,
+                              subgroups_and_plot_groups,
+                              suffix){
+  estimates_wave <-
+    estimates_wave %>%
     left_join(subgroups_and_plot_groups,
               by = "subgroup")
-  est_cov_combined_wave <-
-    est_cov_combined_wave[
-      match(est_cov_combined_wave$subgroup, subgroups_vctr) %>% order(), ] 
+  estimates_wave <-
+    estimates_wave[
+      match(estimates_wave$subgroup, subgroups_vctr) %>% order(), ] 
   # relocate reference value agegroup 
   # references values is first, but for agegroup it should be third since
   # reference value for agegroup is 50-59
-  est_cov_combined_wave <- 
-    est_cov_combined_wave[c(2, 3, 1, 4:nrow(est_cov_combined_wave)),]
+  estimates_wave <- 
+    estimates_wave[c(2, 3, 1, 4:nrow(estimates_wave)),]
   
-  est_cov_combined_wave <- 
-    est_cov_combined_wave %>% 
+  estimates_wave <- 
+    estimates_wave %>% 
     left_join(reference_values, by = c("subgroup")) %>%
     # in this table Female is reference, not F
     mutate(reference = case_when(reference == "F" ~ "Female",
@@ -79,13 +80,18 @@ process_est_cov_combined <- function(est_cov_combined_wave,
                                TRUE ~ round(UpperCI, 2))
     ) %>%
     select(subgroup, level, plot_category, plot_group,
-           HR, LowerCI, UpperCI, cov_2)
-  est_cov_combined_wave
+           HR, LowerCI, UpperCI)
+  colnames(estimates_wave)[which(colnames(estimates_wave) %in%
+                                      c("HR", "LowerCI", "UpperCI"))] <-
+    c(paste0(c("HR.", "LowerCI.", "UpperCI."), suffix))
+  estimates_wave
 }
 
 # Import data extracts of waves  ---
 input_files_estimates <-
   Sys.glob(here("output", "tables", "wave*_effect_estimates.csv"))
+# names of hrs
+waves_vctr <- str_extract(input_files_estimates, "wave[:digit:]")
 estimates <- 
   map(.x = input_files_estimates,
       .f = ~ read_csv(.x,
@@ -98,70 +104,36 @@ estimates <-
                                  "hypertension",
                                  "bp"))))
 names(estimates) <- waves_vctr
-input_files_coverage <-
-  Sys.glob(here("output", "tables", "wave*_vax_coverage.csv"))
-coverage <- 
-  map(.x = input_files_coverage,
-      .f = ~ read_csv(.x,
-                      col_types = cols_only(subgroup = col_character(),
-                                            level = col_character(),
-                                            cov_2 = col_double())) %>%
-        filter(!(subgroup %in% c("region",
-                                 "hypertension",
-                                 "bp"))))
-names(coverage) <- waves_vctr
-
-# Combine the estimates and vax coverage ---
-est_cov_combined <- 
-  map2(.x = estimates,
-       .y = coverage,
-       .f = ~ .y %>% 
-         full_join(.x, by = c("subgroup", "level")))
 
 # Process the combined estimates and vax coverage ---
 ## uses function 'process_est_cov_combined' defined above
-est_cov_processed <-
-  map(.x = est_cov_combined,
-      .f = ~ process_est_cov_combined(.x, 
-                                      reference_values, 
-                                      subgroups_and_plot_groups))
+est_processed <-
+  imap(.x = estimates,
+       .f = ~ process_estimates(.x, 
+                                reference_values, 
+                                subgroups_and_plot_groups,
+                                suffix = .y))
 ## Make one wide table from list of processed tables
-table_est_cov <-
-  est_cov_processed$wave1 %>%
-  left_join(est_cov_processed$wave2,
-            by = c("subgroup", "level", "plot_category", "plot_group"),
-            suffix = c(".1", ".2")) %>%
-  left_join(est_cov_processed$wave3,
-            by = c("subgroup", "level", "plot_category", "plot_group")) %>%
-  left_join(est_cov_processed$wave4,
-            by = c("subgroup", "level", "plot_category", "plot_group"),
-            suffix = c(".3", ".4")) %>%
-  left_join(est_cov_processed$wave5,
-            by = c("subgroup", "level", "plot_category", "plot_group"))
-## add suffix '.5' to indicate wave 5 results
-col_ids <- {colnames(table_est_cov) %>% length() - 3}:{colnames(table_est_cov) %>% length()}
-colnames(table_est_cov)[col_ids] <- 
-  paste0(colnames(table_est_cov)[col_ids], ".5")
+table_est <-
+  plyr::join_all(est_processed,
+                 by = c("subgroup", "level", "plot_category", "plot_group"))
+
 ## select columns needed + calculate ratio of HR
-table_est_cov <- 
-  table_est_cov %>%
-  select(-c(cov_2.1, cov_2.2)) %>%
+table_est <- 
+  table_est %>%
   rename(Characteristic = subgroup,
          Category = level,
          Plot_category = plot_category,
-         Plot_group = plot_group,
-         Coverage_wave3 = cov_2.3,
-         Coverage_wave4 = cov_2.4,
-         Coverage_wave5 = cov_2.5) %>%
-  mutate(HR_ratio.2 = HR.2 / HR.1,
-         HR_ratio.3 = HR.3 / HR.1,
-         HR_ratio.4 = HR.4 / HR.1,
-         HR_ratio.5 = HR.5 / HR.1)
+         Plot_group = plot_group) %>%
+  mutate(HR_ratio.wave2 = HR.wave2 / HR.wave1,
+         HR_ratio.wave3 = HR.wave3 / HR.wave1,
+         HR_ratio.wave4 = HR.wave4 / HR.wave1,
+         HR_ratio.wave5 = HR.wave5 / HR.wave1)
 
 # Save output --
 ## saved as '/output/tables/wave*_vax_coverage.csv
 output_dir <- here("output", "tables")
 fs::dir_create(output_dir)
-write_csv(table_est_cov,
+write_csv(table_est,
           path = paste0(output_dir,
                         "/relrisks_for_viz_tidied.csv"))
