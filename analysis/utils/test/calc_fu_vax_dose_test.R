@@ -13,8 +13,8 @@ data <-
     covid_vax_date_4 = covid_vax_date_3 + days(42),
     covid_vax_date_5 = covid_vax_date_4 + days(42),
     covid_vax_date_6 = covid_vax_date_5 + days(42),
-    died_any_date = ymd("20200901") + days(30),
-    fu = 30) %>%
+    died_any_date = ymd("20200901") + days(200),
+    fu = 200) %>%
   mutate(
     start_vax_dose_1 = covid_vax_date_1 + days(14),
     start_vax_dose_2 = covid_vax_date_2 + days(14),
@@ -44,6 +44,7 @@ data <-
     vax_status_end_6 = ifelse(start_vax_dose_6 <= died_any_date, 1, 0)) %>%
   mutate(doses_no_start = rowSums(select(., starts_with("vax_status_start_"))),
          doses_no_end = rowSums(select(., starts_with("vax_status_end_"))))
-data %>%
+data <- 
+  data %>%
   calc_fu_vax_dose() 
 data %>% View()

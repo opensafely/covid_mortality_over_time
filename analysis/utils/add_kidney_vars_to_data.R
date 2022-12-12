@@ -19,13 +19,10 @@ source(here("analysis", "utils", "kidney_functions.R"))
 ## data_extracted with 2 extra columns: 'egfr' and 'ckd_rrt'
 add_kidney_vars_to_data <- function(data_extracted){
   data_extracted <- 
-    data_extracted %>% 
-    rowwise() %>%
-    mutate(egfr = calc_egfr(creatinine, 
-                            creatinine_operator,
-                            creatinine_age,
-                            sex), 
-           ckd_rrt = categorise_ckd_rrt(egfr,
-                                        rrt_cat)) %>%
-    ungroup()
+    data_extracted %>%
+    mutate(SCR_adj = creatinine / 88.4) %>% # divide by 88.4 (to convert umol/l to mg/dl))
+    add_min_creatinine() %>%
+    add_max_creatinine() %>%
+    add_egfr() %>%
+    categorise_ckd_rrt()
 }

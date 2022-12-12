@@ -300,17 +300,45 @@ actions:
         cohort: output/joined/input_wave*.csv.gz
 
 # Process data
-  process_data:
-    run: r:latest analysis/data_process.R
+  process_data_wave1:
+    run: r:latest analysis/data_process.R wave1
     needs: [join_cohorts_waves]
     outputs:
       highly_sensitive: 
-        rds: output/processed/input_wave*.rds
+        rds: output/processed/input_wave1.rds
+
+  process_data_wave2:
+    run: r:latest analysis/data_process.R wave2
+    needs: [join_cohorts_waves]
+    outputs:
+      highly_sensitive: 
+        rds: output/processed/input_wave2.rds
+
+  process_data_wave3:
+    run: r:latest analysis/data_process.R wave3
+    needs: [join_cohorts_waves]
+    outputs:
+      highly_sensitive: 
+        rds: output/processed/input_wave3.rds
+
+  process_data_wave4:
+    run: r:latest analysis/data_process.R wave4
+    needs: [join_cohorts_waves]
+    outputs:
+      highly_sensitive: 
+        rds: output/processed/input_wave4.rds
+
+  process_data_wave5:
+    run: r:latest analysis/data_process.R wave5
+    needs: [join_cohorts_waves]
+    outputs:
+      highly_sensitive: 
+        rds: output/processed/input_wave5.rds
 
 # Skim data
   skim_data_wave1:
     run: r:latest analysis/data_skim.R output/processed/input_wave1.rds output/data_properties
-    needs: [process_data]
+    needs: [process_data_wave1]
     outputs: 
       moderately_sensitive:
         txt1: output/data_properties/input_wave1_skim.txt
@@ -319,7 +347,7 @@ actions:
 
   skim_data_wave2:
     run: r:latest analysis/data_skim.R output/processed/input_wave2.rds output/data_properties
-    needs: [process_data]
+    needs: [process_data_wave2]
     outputs: 
       moderately_sensitive:
         txt1: output/data_properties/input_wave2_skim.txt
@@ -328,7 +356,7 @@ actions:
 
   skim_data_wave3:
     run: r:latest analysis/data_skim.R output/processed/input_wave3.rds output/data_properties
-    needs: [process_data]
+    needs: [process_data_wave3]
     outputs: 
       moderately_sensitive:
         txt1: output/data_properties/input_wave3_skim.txt
@@ -337,7 +365,7 @@ actions:
 
   skim_data_wave4:
     run: r:latest analysis/data_skim.R output/processed/input_wave4.rds output/data_properties
-    needs: [process_data]
+    needs: [process_data_wave4]
     outputs: 
       moderately_sensitive:
         txt1: output/data_properties/input_wave4_skim.txt
@@ -346,7 +374,7 @@ actions:
   
   skim_data_wave5:
     run: r:latest analysis/data_skim.R output/processed/input_wave5.rds output/data_properties
-    needs: [process_data]
+    needs: [process_data_wave5]
     outputs: 
       moderately_sensitive:
         txt1: output/data_properties/input_wave5_skim.txt
@@ -356,7 +384,7 @@ actions:
 # Missings in bmi, ethnicity and smoking
   calc_missings:
     run: r:latest analysis/calc_missings.R
-    needs: [process_data]
+    needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5]
     outputs: 
       moderately_sensitive:
         csvs: output/tables/missings/waves_missings.csv
@@ -364,7 +392,7 @@ actions:
 # Incidence rates (crude)
   calc_irs:
     run: r:latest analysis/waves_irs.R
-    needs: [process_data]
+    needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5]
     outputs: 
       moderately_sensitive:
         csvs: output/tables/wave*_ir.csv
@@ -373,7 +401,7 @@ actions:
 # Create table one
   create_table_one:
     run: r:latest analysis/table_one.R
-    needs: [process_data, calc_irs]
+    needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5, calc_irs]
     outputs: 
       moderately_sensitive:
         csv: output/tables/table1.csv
@@ -381,7 +409,7 @@ actions:
 # Incidence rates (crude)
   calc_irs_std:
     run: r:latest analysis/waves_std_irs.R
-    needs: [process_data]
+    needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5]
     outputs: 
       moderately_sensitive:
         csvs: output/tables/wave*_ir_std.csv
@@ -397,7 +425,7 @@ actions:
 # Kaplan-Meier
   create_kaplan_meier:
     run: r:latest analysis/waves_kaplan_meier.R
-    needs: [process_data]
+    needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5]
     outputs:
       moderately_sensitive:
         pngs: output/figures/kaplan_meier/wave*_*.png
@@ -405,7 +433,7 @@ actions:
 # COX ph models
   model_cox_ph_wave1:
     run: r:latest analysis/waves_model_survival.R wave1 output/tables
-    needs: [process_data]
+    needs: [process_data_wave1]
     outputs: 
       moderately_sensitive:
         csvs1: output/tables/wave1_effect_estimates.csv
@@ -414,7 +442,7 @@ actions:
 
   model_cox_ph_wave2:
     run: r:latest analysis/waves_model_survival.R wave2 output/tables
-    needs: [process_data]
+    needs: [process_data_wave2]
     outputs: 
       moderately_sensitive:
         csvs1: output/tables/wave2_effect_estimates.csv
@@ -423,7 +451,7 @@ actions:
 
   model_cox_ph_wave3:
     run: r:latest analysis/waves_model_survival.R wave3 output/tables
-    needs: [process_data]
+    needs: [process_data_wave3]
     outputs: 
       moderately_sensitive:
         csvs1: output/tables/wave3_effect_estimates.csv
@@ -432,7 +460,7 @@ actions:
 
   model_cox_ph_wave4:
     run: r:latest analysis/waves_model_survival.R wave4 output/tables
-    needs: [process_data]
+    needs: [process_data_wave4]
     outputs: 
       moderately_sensitive:
         csvs1: output/tables/wave4_effect_estimates.csv
@@ -441,7 +469,7 @@ actions:
 
   model_cox_ph_wave5:
     run: r:latest analysis/waves_model_survival.R wave5 output/tables
-    needs: [process_data]
+    needs: [process_data_wave5]
     outputs: 
       moderately_sensitive:
         csvs1: output/tables/wave5_effect_estimates.csv
@@ -475,7 +503,7 @@ actions:
 # Vaccine data
   vax_doses_start_end:
     run: r:latest analysis/waves_vax_coverage.R
-    needs: [process_data]
+    needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5]
     outputs:
       moderately_sensitive: 
         csv1: output/tables/vax/start_doses_waves.csv

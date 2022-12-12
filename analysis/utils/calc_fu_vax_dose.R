@@ -6,7 +6,7 @@ source(here("analysis", "utils", "fct_case_when.R"))
 
 # function that adds follow-up to data
 # arguments:
-# - data: extracted data needs to be in rowwise format!!
+# - data: extracted data
 # output:
 # - data.frame with variables fu_vax_* added
 calc_fu_vax_dose <- function(data){

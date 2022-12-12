@@ -27,8 +27,10 @@ test_data1 <-
 ## use calc_egfr to add column 'egfr'
 test_data1 <- 
   test_data1 %>%
-  rowwise() %>%
-  mutate(egfr = calc_egfr(creatinine, creatinine_operator, creatinine_age, sex))
+  mutate(SCR_adj = creatinine / 88.4) %>% # divide by 88.4 (to convert umol/l to mg/dl))
+  add_min_creatinine() %>%
+  add_max_creatinine() %>%
+  add_egfr()
 
 ## egfr should only be not NA if
 ## creatine in not NA, 20 <= creatinine <= 3000, creatine_operator is NA or "=",
@@ -37,7 +39,7 @@ test_data1 <-
 ## see https://docs.google.com/document/d/1hi_lMyuAa23u1xXLULLMdAiymiPopPZrAtQCDzYtjtE/edit
 ## for logic (step 0)
 (with(test_data1, which(!is.na(creatinine) & 
-                         between(creatinine, 20, 3000) & 
+                         between_vectorised(creatinine, 20, 3000) & 
                          (is.na(creatinine_operator) | creatinine_operator == "=") &
                          !is.na(creatinine_age))) ==
 with(test_data1, which(!is.na(egfr)))) %>% all()
@@ -72,9 +74,7 @@ test_data2 <-
 ## use 'categorise_ckd_rrt()' to add column ckd_rrt
 test_data2 <- 
   test_data2 %>%
-  rowwise() %>%
-  mutate(ckd_rrt = categorise_ckd_rrt(egfr,
-                                      rrt_cat))
+  categorise_ckd_rrt()
 
 ## check if categories created by 'categorise_ckd_rrt()' are as wanted
 (test_data2$ckd_rrt_ref == test_data2$ckd_rrt) %>% all()       
