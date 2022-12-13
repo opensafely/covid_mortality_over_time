@@ -86,7 +86,8 @@ total_n_included <-
   filter(has_follow_up == TRUE) %>% 
   filter(age >= 18 & age <= 110) %>% 
   filter(sex %in% c("F", "M")) %>%
-  filter(!is.na(stp) & index_of_multiple_deprivation != -1) %>% 
+  filter(!is.na(stp)) %>%
+  filter(index_of_multiple_deprivation != -1) %>% 
   nrow() %>% plyr::round_any(5)
 
 # combine numbers
