@@ -27,6 +27,7 @@ extract_data <- function(file_name) {
       file_name,
       col_types = cols_only(
         patient_id = col_integer(),
+        has_follow_up = col_logical(),
         # demographics
         age = col_integer(),
         agegroup = col_character(),
@@ -81,6 +82,7 @@ extract_data <- function(file_name) {
         died_any_date = col_date(format = "%Y-%m-%d"),
         covid_test_positive_date = col_date(format = "%Y-%m-%d")
       )
-    )
+    ) %>%
+    filter(has_follow_up == TRUE)
   data_extracted
 }
