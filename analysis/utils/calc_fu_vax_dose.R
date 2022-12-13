@@ -14,25 +14,53 @@ calc_fu_vax_dose <- function(data){
     data %>%
     mutate(
       fu_vax_0 = case_when(!any(ind_fu_vax_1, ind_fu_vax_2, ind_fu_vax_3, ind_fu_vax_4, ind_fu_vax_5, ind_fu_vax_6) ~ fu,
-                           ind_fu_vax_1 == TRUE ~ difftime(start_vax_dose_1, start_date_wave, "days") %>% as.numeric(),
+                           ind_fu_vax_1 == TRUE ~ 
+                             difftime(start_vax_dose_1,
+                                      start_date_wave,
+                                      tz = "UTC",
+                                      units = "days") %>% as.numeric(),
                            TRUE ~ 0),
       fu_vax_1 = case_when(ind_fu_vax_1 == FALSE ~ 0,
                            ind_fu_vax_2 == FALSE ~ fu - fu_vax_0,
-                           TRUE ~ difftime(start_vax_dose_2, start_vax_dose_1, "days") %>% as.numeric()),
+                           TRUE ~
+                             difftime(start_vax_dose_2,
+                                      start_vax_dose_1,
+                                      tz = "UTC",
+                                      units = "days") %>% as.numeric()),
       fu_vax_2 = case_when(ind_fu_vax_2 == FALSE ~ 0,
                            ind_fu_vax_3 == FALSE ~ fu - fu_vax_1 - fu_vax_0,
-                           TRUE ~ difftime(start_vax_dose_3, start_vax_dose_2, "days") %>% as.numeric()),
+                           TRUE ~ 
+                             difftime(start_vax_dose_3,
+                                      start_vax_dose_2,
+                                      tz = "UTC",
+                                      units = "days") %>% as.numeric()),
       fu_vax_3 = case_when(ind_fu_vax_3 == FALSE ~ 0,
                            ind_fu_vax_4 == FALSE ~ fu - fu_vax_2 - fu_vax_1 - fu_vax_0,
-                           TRUE ~ difftime(start_vax_dose_4, start_vax_dose_3, "days") %>% as.numeric()),
+                           TRUE ~ 
+                             difftime(start_vax_dose_4,
+                                      start_vax_dose_3,
+                                      tz = "UTC",
+                                      units = "days") %>% as.numeric()),
       fu_vax_4 = case_when(ind_fu_vax_4 == FALSE ~ 0,
                            ind_fu_vax_5 == FALSE ~ fu - fu_vax_3 - fu_vax_2 - fu_vax_1 - fu_vax_0,
-                           TRUE ~ difftime(start_vax_dose_5, start_vax_dose_4, "days") %>% as.numeric()),
+                           TRUE ~ 
+                             difftime(start_vax_dose_5,
+                                      start_vax_dose_4,
+                                      tz = "UTC",
+                                      units = "days") %>% as.numeric()),
       fu_vax_5 = case_when(ind_fu_vax_5 == FALSE ~ 0,
                            ind_fu_vax_6 == FALSE ~ fu - fu_vax_4 - fu_vax_3 - fu_vax_2 - fu_vax_1 - fu_vax_0,
-                           TRUE ~ difftime(start_vax_dose_6, start_vax_dose_5, "days") %>% as.numeric()),
+                           TRUE ~ 
+                             difftime(start_vax_dose_6,
+                                      start_vax_dose_5,
+                                      tz = "UTC",
+                                      units = "days") %>% as.numeric()),
       fu_vax_6 = case_when(ind_fu_vax_6 == FALSE ~ 0,
-                           TRUE ~ difftime(start_date_wave + fu, start_vax_dose_6, "days") %>% as.numeric())
+                           TRUE ~ 
+                             difftime(start_date_wave + fu,
+                                      start_vax_dose_6,
+                                      tz = "UTC",
+                                      units = "days") %>% as.numeric())
     )
 }
 
