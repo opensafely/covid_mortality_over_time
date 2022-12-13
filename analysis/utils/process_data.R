@@ -173,7 +173,7 @@ process_data <- function(data_extracted, waves_dates_list) {
         TRUE ~ "0"
       ),
       # start date wave
-      start_date_wave = waves_dates_list$start_date %>% as.Date(),
+      start_date_wave = waves_dates_list$start_date %>% as.Date(format = "%Y-%m-%d"),
       # add variable 'fu', follow up time for status == 1 and status == 0 and
       # fu is end_date - start_date of wave if no event occured (administrative
       # censoring)
@@ -205,14 +205,14 @@ process_data <- function(data_extracted, waves_dates_list) {
       start_vax_dose_5 = covid_vax_date_5 + days(14),
       start_vax_dose_6 = covid_vax_date_6 + days(14),
       
+      ckd_rrt_cat = 
+        if_else(ckd_rrt == "No CKD or RRT", FALSE, TRUE),
+      organ_kidney_transplant_cat = 
+        if_else(organ_kidney_transplant == "No transplant", FALSE, TRUE),
+      
       # marker of impaired vaccine response
-      imp_vax = case_when(
-        ckd_rrt != "No CKD or RRT" |
-          organ_kidney_transplant != "No transplant" |
-          haem_cancer == TRUE |
-          immunosuppression == FALSE ~ TRUE,
-        TRUE ~ FALSE
-      )
+      imp_vax = if_else(ckd_rrt_cat | organ_kidney_transplant_cat |
+                          haem_cancer | immunosuppression, TRUE, FALSE)
     ) %>%
     mutate(
       # follow-up of dose in this wave?

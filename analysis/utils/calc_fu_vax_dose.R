@@ -32,7 +32,7 @@ calc_fu_vax_dose <- function(data){
                            ind_fu_vax_6 == FALSE ~ fu - fu_vax_4 - fu_vax_3 - fu_vax_2 - fu_vax_1 - fu_vax_0,
                            TRUE ~ difftime(start_vax_dose_6, start_vax_dose_5, "days") %>% as.numeric()),
       fu_vax_6 = case_when(ind_fu_vax_6 == FALSE ~ 0,
-                           TRUE ~ difftime(died_any_date, start_vax_dose_6, "days") %>% as.numeric())
+                           TRUE ~ difftime(start_date_wave + fu, start_vax_dose_6, "days") %>% as.numeric())
     )
 }
 
