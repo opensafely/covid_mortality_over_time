@@ -91,8 +91,9 @@ categorise_ckd_rrt <- function(data){
       rrt_cat == "2" ~ "RRT (transplant)",
       (is.na(egfr) & rrt_cat == "0") ~ "No CKD or RRT",
       (egfr >= 0 & egfr < 15) ~ "Stage 5",
-      (egfr >= 15 & egfr < 30) ~ "Stage 3b",
-      (egfr >= 45 & egfr < 60) ~"Stage 3a",
+      (egfr >= 15 & egfr < 30) ~ "Stage 4",
+      (egfr >= 30 & egfr < 45) ~ "Stage 3b",
+      (egfr >= 45 & egfr < 60) ~ "Stage 3a",
       (egfr >= 60) ~ "No CKD or RRT")
     )
 }
