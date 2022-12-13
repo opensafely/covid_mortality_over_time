@@ -59,8 +59,7 @@ summarise_data_subgroup <- function(data, subgroup){
     # --> to redact when lower than 5
     mutate(total_events_in_level = sum(events)) %>%
     mutate(events_redacted = case_when(total_events_in_level <= 5 ~ 0L,
-                              TRUE ~ events)) %>%
-    select(-total_events_in_level)
+                              TRUE ~ events))
   data_summarised_subgroup
 }
 
@@ -98,6 +97,7 @@ subgroups_irs_wave <- function(data, esp, subgroups_vctr){
          .f = ~ group_by_at(.x, vars(!!.y)) %>%
            summarise(ir = sum(ir_i, na.rm = TRUE),
                      var_ir = sum(var_ir_i, na.rm = TRUE),
+                     total_events_in_level = unique(total_events_in_level),
                      .groups = "keep") %>%
            mutate(lower = ir - qnorm(0.975) * sqrt(var_ir),
                   upper = ir + qnorm(0.975) * sqrt(var_ir),
@@ -112,7 +112,7 @@ subgroups_irs_wave <- function(data, esp, subgroups_vctr){
   # rearrange columns to:
   # subgroup level ir var_ir lower upper
   subgroups_irs <- 
-    subgroups_irs[c(6, 1, 2, 3, 4, 5)] 
+    subgroups_irs[c(7, 1, 2, 3, 5, 6, 4)] 
   subgroups_irs
 }
 
@@ -147,10 +147,12 @@ overall_irs <-
         subgroup = "all",
         level = "-" %>% as.factor(),
         ir = sum(.x$ir_i),
-        var_ir = sum(.x$var_ir_i)
+        var_ir = sum(.x$var_ir_i),
+        total_events_in_level = sum(.x$events)
       ) %>%
         mutate(lower = ir - qnorm(0.975) * sqrt(var_ir),
-               upper = ir + qnorm(0.975) * sqrt(var_ir)))
+               upper = ir + qnorm(0.975) * sqrt(var_ir),
+               .after = var_ir))
 
 # Combine overall and subgroup irs_std ---
 irs_std <-

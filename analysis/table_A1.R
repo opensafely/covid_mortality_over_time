@@ -41,7 +41,8 @@ irs_std <-
                                             level = col_character(),
                                             ir = col_double(),
                                             lower = col_double(),
-                                            upper = col_double())))
+                                            upper = col_double(),
+                                            total_events_in_level = col_double())))
 names(irs_std) <- waves_vctr
 irs_std <- 
   imap(.x = irs_std,
@@ -53,7 +54,9 @@ irs_std <-
          mutate(ir = round(ir, 2),
                 lower = round(lower, 2), 
                 upper = round(upper, 2)) %>%
-         mutate(ir_ci = paste0(ir, " (", lower, ";", upper, ")")) %>%
+         mutate(ir_ci = if_else(total_events_in_level > 5,
+           paste0(ir, " (", lower, ";", upper, ")"),
+           "[REDACTED]")) %>%
          select(subgroup, level, ir_ci)
        colnames(out)[which(colnames(out) == "ir_ci")] <-
                        paste0("ir_ci.", .y)
@@ -66,6 +69,7 @@ irs_crude <-
       .f = ~ read_csv(.x,
                       col_types = cols_only(subgroup = col_character(),
                                             level = col_character(),
+                                            events = col_double(),
                                             rate_redacted = col_double(),
                                             lower_redacted = col_double(),
                                             upper_redacted = col_double())))
@@ -85,7 +89,9 @@ irs_crude <-
          mutate(ir = round(ir, 2),
                 lower = round(lower, 2), 
                 upper = round(upper, 2)) %>%
-         mutate(ir_ci = paste0(ir, " (", lower, ";", upper, ")")) %>%
+         mutate(ir_ci = if_else(events > 5,
+                  paste0(ir, " (", lower, ";", upper, ")"),
+                  "[REDACTED]")) %>%
          select(subgroup, level, ir_ci)
        colnames(out)[which(colnames(out) == "ir_ci")] <-
          paste0("ir_ci.", .y)
