@@ -83,7 +83,8 @@ input_file_irs_crude <- here("output", "tables", "ir_crude.csv")
 # restrict to redacted figures
 irs_crude <- read_csv(input_file_irs_crude,
                       col_types = 
-                        cols_only(events_redacted = col_double(),
+                        cols_only(events = col_double(),
+                                  events_redacted = col_double(),
                                   time_redacted = col_double(),
                                   rate_redacted = col_double(),
                                   lower_redacted = col_double(),
@@ -92,15 +93,16 @@ input_files_irs_waves <-
   Sys.glob(here("output", "tables", "wave*_ir.csv"))
 irs_crude_subgroups <- 
   map(.x = input_files_irs_waves,
-      .f = ~ rbind(read_csv(file = .x,
+      .f = ~ read_csv(file = .x,
                              col_types = 
                              cols_only(subgroup = col_character(),
                                        level = col_character(),
+                                       events = col_double(),
                                        events_redacted = col_double(),
                                        time_redacted = col_double(),
                                        rate_redacted = col_double(),
                                        lower_redacted = col_double(),
-                                       upper_redacted = col_double()))))
+                                       upper_redacted = col_double())))
 names(irs_crude_subgroups) <- waves_vctr
 
 # Summarise data to create table 1 ---
@@ -140,17 +142,20 @@ irs_waves_list <-
                   prettyNum(big.mark = ","),
                 time_redacted = round(time_redacted / 365250, 1) %>%
                   prettyNum(big.mark = ",")) %>%
-         mutate(events_pys = paste0(events_redacted, " (", 
-                                    time_redacted, ")"),
+         mutate(events_pys = if_else(events > 5,
+                                     paste0(events_redacted, " (", time_redacted, ")"),
+                                     "[REDACTED]"),
                 rate_redacted = round(rate_redacted, 2),
                 lower_redacted = round(lower_redacted, 2),
                 upper_redacted = round(upper_redacted, 2)) %>%
-         mutate(ir = 
+         mutate(ir = if_else(events > 5,
                   paste0(rate_redacted,
                          " (", lower_redacted,
                          ";", upper_redacted,
-                         ")")) %>%
-         select(-c(events_redacted,
+                         ")"),
+                   "[REDACTED]")) %>%
+         select(-c(events,
+                   events_redacted,
                    time_redacted,
                    rate_redacted,
                    lower_redacted,

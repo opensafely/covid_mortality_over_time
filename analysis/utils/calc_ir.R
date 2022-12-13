@@ -49,7 +49,9 @@ calc_ir_for_subgroup <- function(data, subgroup){
       calc_ir(events, time),
       events_redacted = case_when(events <= 5 ~ 0, 
                                   TRUE ~ plyr::round_any(events, 5)),
-      time_redacted = plyr::round_any(time, 5),
+      time_redacted = if_else(events > 5, 
+                              plyr::round_any(time, 5),
+                              0),
       calc_ir(events_redacted, time_redacted, "_redacted")
     ) %>%
     add_column(subgroup = !!subgroup, .before=1)
