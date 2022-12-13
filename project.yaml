@@ -509,6 +509,14 @@ actions:
         csv1: output/tables/vax/start_doses_waves.csv
         csv2: output/tables/vax/end_doses_waves.csv
 
+# Test
+  fu_vax_detect_issue:
+    run: r:latest analysis/utils/test/fu_vax_detect_issue.R wave3
+    needs: [process_data_wave3]
+    outputs:
+      moderately_sensitive: 
+        csv: output/data_properties/detect_issues/fu_neg.csv
+
 # Wave-specific HR plots
 #  plot_relrisks:
 #    run: r:latest -e 'rmarkdown::render("analysis/wave_HRs.Rmd", knit_root_dir = "/workspace", output_dir="/workspace/output/markdown")'
