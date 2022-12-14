@@ -13,14 +13,14 @@ library(readr)
 library(purrr)
 library(dplyr)
 library(jsonlite)
+library(stringr)
 # load json file listing demographics, comorbidities and start dates waves
 config <- fromJSON(here("analysis", "config.json"))
-# vector with waves
-waves_vctr <- c("wave1", "wave2", "wave3", "wave4", "wave5")
 
 # Import data extracts of waves ---
 input_files_waves <-
   Sys.glob(here("output", "joined", "input_wave*.csv.gz"))
+waves_vctr <- str_extract(input_files_waves, "wave[:digit:]")
 waves_list <- 
   map(.x = input_files_waves,
       .f = ~ read_csv(.x))
