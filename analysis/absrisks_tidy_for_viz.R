@@ -60,10 +60,10 @@ process_est_combined <- function(est_combined_wave,
            LowerCI = round(lower, 2),
            UpperCI = round(upper, 2)) %>%
     select(subgroup, level, plot_category, plot_group,
-           IR, LowerCI, UpperCI)
+           IR, LowerCI, UpperCI, total_events_in_level)
   colnames(est_combined_wave)[which(colnames(est_combined_wave) %in%
-                                c("IR", "LowerCI", "UpperCI"))] <-
-    c(paste0(c("IR.", "LowerCI.", "UpperCI."), suffix))
+                                c("IR", "LowerCI", "UpperCI", "total_events_in_level"))] <-
+    c(paste0(c("IR.", "LowerCI.", "UpperCI.", "total_events_in_level."), suffix))
   est_combined_wave
 }
 
@@ -78,7 +78,8 @@ irs_std <-
                                             level = col_character(),
                                             ir = col_double(),
                                             lower = col_double(),
-                                            upper = col_double())) %>%
+                                            upper = col_double(),
+                                            total_events_in_level = col_double())) %>%
                       filter(!(subgroup %in% c("hypertension",
                                                "bp", "all"))))
 input_files_irs_crude <- Sys.glob(here("output", "tables", "wave*_ir.csv"))
@@ -92,13 +93,15 @@ irs_crude <-
       .f = ~ read_csv(.x,
                       col_types = cols_only(subgroup = col_character(),
                                             level = col_character(),
+                                            events = col_double(),
                                             rate_redacted = col_double(),
                                             lower_redacted = col_double(),
                                             upper_redacted = col_double())) %>%
               filter(subgroup == "agegroup") %>%
               rename(ir = rate_redacted,
                      lower = lower_redacted,
-                     upper = upper_redacted))
+                     upper = upper_redacted,
+                     total_events_in_level = events))
 # combine agegroup from crude file and rest
 estimates <-
   map2(.x = irs_crude,
@@ -127,7 +130,88 @@ table_est <-
   mutate(IR_ratio.wave2 = IR.wave2 / IR.wave1,
          IR_ratio.wave3 = IR.wave3 / IR.wave1,
          IR_ratio.wave4 = IR.wave4 / IR.wave1,
-         IR_ratio.wave5 = IR.wave5 / IR.wave1)
+         IR_ratio.wave5 = IR.wave5 / IR.wave1) %>%
+  mutate(IR.wave1 = 
+           if_else(total_events_in_level.wave1 <= 5,
+                   "[REDACTED]",
+                   IR.wave1 %>% as.character()),
+         LowerCI.wave1 =
+           if_else(total_events_in_level.wave1 <= 5,
+                   "[REDACTED]",
+                   LowerCI.wave1 %>% as.character()),
+         UpperCI.wave1 = 
+           if_else(total_events_in_level.wave1 <= 5,
+                   "[REDACTED]",
+                   UpperCI.wave1 %>% as.character()),
+         IR.wave2 = 
+           if_else(total_events_in_level.wave2 <= 5,
+                   "[REDACTED]",
+                   IR.wave2 %>% as.character()),
+         LowerCI.wave2 =
+           if_else(total_events_in_level.wave2 <= 5,
+                   "[REDACTED]",
+                   LowerCI.wave2 %>% as.character()),
+         UpperCI.wave2 = 
+           if_else(total_events_in_level.wave2 <= 5,
+                   "[REDACTED]",
+                   UpperCI.wave2 %>% as.character()),
+         IR.wave3 = 
+           if_else(total_events_in_level.wave3 <= 5,
+                   "[REDACTED]",
+                   IR.wave3 %>% as.character()),
+         LowerCI.wave3 =
+           if_else(total_events_in_level.wave3 <= 5,
+                   "[REDACTED]",
+                   LowerCI.wave3 %>% as.character()),
+         UpperCI.wave3 = 
+           if_else(total_events_in_level.wave3 <= 5,
+                   "[REDACTED]",
+                   UpperCI.wave3 %>% as.character()),
+         IR.wave4 = 
+           if_else(total_events_in_level.wave4 <= 5,
+                   "[REDACTED]",
+                   IR.wave4 %>% as.character()),
+         LowerCI.wave4 =
+           if_else(total_events_in_level.wave4 <= 5,
+                   "[REDACTED]",
+                   LowerCI.wave4 %>% as.character()),
+         UpperCI.wave4 = 
+           if_else(total_events_in_level.wave4 <= 5,
+                   "[REDACTED]",
+                   UpperCI.wave4 %>% as.character()),
+         IR.wave5 = 
+           if_else(total_events_in_level.wave5 <= 5,
+                   "[REDACTED]",
+                   IR.wave5 %>% as.character()),
+         LowerCI.wave5 =
+           if_else(total_events_in_level.wave5 <= 5,
+                   "[REDACTED]",
+                   LowerCI.wave5 %>% as.character()),
+         UpperCI.wave5 = 
+           if_else(total_events_in_level.wave5 <= 5,
+                   "[REDACTED]",
+                   UpperCI.wave5 %>% as.character()),
+         IR_ratio.wave2 = 
+           if_else(total_events_in_level.wave1 <= 5 |
+                     total_events_in_level.wave2 <= 5,
+                   "[REDACTED]",
+                   IR_ratio.wave2 %>% as.character()),
+         IR_ratio.wave3 = 
+           if_else(total_events_in_level.wave1 <= 5 |
+                     total_events_in_level.wave3 <= 5,
+                   "[REDACTED]",
+                   IR_ratio.wave3 %>% as.character()),
+         IR_ratio.wave4 = 
+           if_else(total_events_in_level.wave1 <= 5 |
+                     total_events_in_level.wave4 <= 5,
+                   "[REDACTED]",
+                   IR_ratio.wave4 %>% as.character()),
+         IR_ratio.wave5 = 
+           if_else(total_events_in_level.wave1 <= 5 |
+                     total_events_in_level.wave5 <= 5,
+                   "[REDACTED]",
+                   IR_ratio.wave5 %>% as.character())) %>%
+  select(-starts_with("total_events_in_level"))
 
 # Save output --
 ## saved as '/output/tables/wave*_vax_coverage.csv
