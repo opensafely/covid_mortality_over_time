@@ -26,18 +26,29 @@ waves_list <-
       .f = ~ read_csv(.x))
 names(waves_list) <- waves_vctr
 
+waves_list$wave1 %>%
+  transmute(pos_test = !is.na(covid_test_positive_date),
+         covid_death = !is.na(died_ons_covid_any_date)) %>%
+  filter(covid_death == TRUE) %>%
+  summarise(n_pos_test = sum(pos_test == TRUE),
+            n_no_pos_test = sum(pos_test == FALSE)) %>%
+  print()
+
 # Make table ---
 pos_test_in_covid_deaths <- function(data_wave, wave){
   data_wave %>%
-    mutate(pos_test = !is.na(covid_test_positive_date),
-           covid_death = !is.na(died_ons_covid_any_date)) %>%
+    transmute(pos_test = !is.na(covid_test_positive_date),
+              covid_death = !is.na(died_ons_covid_any_date)) %>%
     filter(covid_death == TRUE) %>%
-    group_by(pos_test, .drop = FALSE) %>%
-    tally() %>%
-    mutate(n = case_when(n <= 5 ~ NA_real_,
-                         TRUE ~ plyr::round_any(n, 5)),
+    summarise(n_pos_test = sum(pos_test == TRUE),
+              n_no_pos_test = sum(pos_test == FALSE)) %>%
+    mutate(n_pos_test = case_when(n_pos_test <= 5 ~ NA_real_,
+                                  TRUE ~ plyr::round_any(n_pos_test, 5)),
+           n_no_pos_test = case_when(n_pos_test <= 5 ~ NA_real_,
+                                     TRUE ~ plyr::round_any(n_no_pos_test, 5)),
            wave = wave)
 }
+
 pos_tests <- 
   imap(.x = waves_list,
        .f = ~ pos_test_in_covid_deaths(.x, .y)) %>% bind_rows()
