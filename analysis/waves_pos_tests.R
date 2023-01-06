@@ -19,11 +19,11 @@ config <- fromJSON(here("analysis", "config.json"))
 
 # Import data extracts of waves ---
 input_files_waves <-
-  Sys.glob(here("output", "joined", "input_wave*.csv.gz"))
+  Sys.glob(here("output", "processed", "input_wave*.rds"))
 waves_vctr <- str_extract(input_files_waves, "wave[:digit:]")
 waves_list <- 
   map(.x = input_files_waves,
-      .f = ~ read_csv(.x))
+      .f = ~ read_rds(.x))
 names(waves_list) <- waves_vctr
 
 waves_list$wave1 %>%
