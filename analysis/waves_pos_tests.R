@@ -40,7 +40,8 @@ pos_test_in_covid_deaths <- function(data_wave, wave){
 }
 pos_tests <- 
   imap(.x = waves_list,
-       .f = ~ pos_test_in_covid_deaths(.x, .y)) %>% bind_rows
+       .f = ~ pos_test_in_covid_deaths(.x, .y)) %>% bind_rows()
+pos_test %>% print()
 
 # Save output --
 output_dir <- here("output", "tables")
