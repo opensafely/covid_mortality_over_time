@@ -501,13 +501,12 @@ actions:
         csv: output/tables/relrisks_for_viz_tidied.csv
 
 # Vaccine data
-  vax_doses_start_end:
+  vax_analysis:
     run: r:latest analysis/waves_vax_coverage.R
     needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5]
     outputs:
       moderately_sensitive: 
-        csv1: output/tables/vax/start_doses_waves.csv
-        csv2: output/tables/vax/end_doses_waves.csv
+        csv1: output/tables/vax/wave*_vax_*.csv
 
 # Pos test x covid mort
   describe_pos_tests:
