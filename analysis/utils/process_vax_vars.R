@@ -9,6 +9,7 @@
 
 # Load libraries & functions ---
 library(dplyr)
+as.double.factor <- function(x) {as.numeric(levels(x))[x]}
 
 # Helper functions ---
 # As protocolised:
@@ -21,8 +22,8 @@ max_doses <- function(data, max_start, max_end){
   data <- 
     data %>%
     mutate(
-      doses_no_start = doses_no_start %>% as.numeric(),
-      doses_no_end = doses_no_end %>% as.numeric(),
+      doses_no_start = doses_no_start %>% as.double.factor(),
+      doses_no_end = doses_no_end %>% as.double.factor(),
       doses_no_start = if_else(doses_no_start > max_start,
                                max_start,
                                doses_no_start),
