@@ -14,7 +14,7 @@ calc_fu_vax_dose <- function(data){
     data %>%
     mutate(
       fu_vax_0 = case_when(!any(ind_fu_vax_1, ind_fu_vax_2, ind_fu_vax_3, ind_fu_vax_4, ind_fu_vax_5, ind_fu_vax_6) ~ fu,
-                           ind_fu_vax_1 == TRUE ~ 
+                           ind_fu_vax_1 == TRUE & start_vax_dose_1 > start_date_wave ~ 
                              difftime(start_vax_dose_1,
                                       start_date_wave,
                                       tz = "UTC",
