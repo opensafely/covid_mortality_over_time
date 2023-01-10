@@ -2,18 +2,23 @@ library(here)
 library(lubridate)
 # Test for calc_fu_vax_dose
 source(here("analysis", "utils", "calc_fu_vax_dose.R"))
+source(here("analysis", "utils", "between_vectorised.R"))
 
 data <- 
   tibble(
-    start_date_wave = ymd("20200901"),
-    covid_vax_date_1 = start_date_wave + days(42),
-    covid_vax_date_2 = covid_vax_date_1 + days(42),
-    covid_vax_date_3 = covid_vax_date_2 + days(42),
-    covid_vax_date_4 = covid_vax_date_3 + days(42),
-    covid_vax_date_5 = covid_vax_date_4 + days(42),
-    covid_vax_date_6 = covid_vax_date_5 + days(42),
-    died_any_date = ymd("20200901") + days(200),
-    fu = 200) %>%
+    start_date_wave = c(ymd("20200901"), ymd("20210601")),
+    covid_vax_date_1 = c(start_date_wave[1] + days(42), start_date_wave[2] - days(200)),
+    covid_vax_date_2 = c(covid_vax_date_1[1] + days(42), start_date_wave[2] - days(150)),
+    covid_vax_date_3 = c(covid_vax_date_2[1] + days(42), start_date_wave[2] - days(100)),
+    covid_vax_date_4 = c(covid_vax_date_3[1] + days(42), start_date_wave[2] - days(50)),
+    covid_vax_date_5 = c(covid_vax_date_4[1] + days(42), start_date_wave[2] - days(30)),
+    covid_vax_date_6 = c(covid_vax_date_5[1] + days(42), start_date_wave[2] - days(10)),
+    died_any_date = c(ymd("20200901") + days(200),
+                      ymd("20210601") + days(100)),
+    fu = (died_any_date - start_date_wave) %>% as.numeric()) 
+
+data <- 
+  data %>%
   mutate(
     # add time lag
     start_vax_dose_1 = covid_vax_date_1 + days(14),
@@ -24,28 +29,68 @@ data <-
     start_vax_dose_6 = covid_vax_date_6 + days(14),
     # follow-up of dose in this wave?
     ind_fu_vax_1 = case_when(
-      !is.na(start_vax_dose_1) ~
-        between_vectorised(start_vax_dose_1, start_date_wave, start_date_wave + days(fu)),
+      # second dose not given before end of wave, then indicator is TRUE if the
+      # start date of the first dose is before the end of follow up
+      !is.na(start_vax_dose_1) & is.na(start_vax_dose_2) ~ 
+        start_vax_dose_1 <= (start_date_wave + days(fu)),
+      # second dose given before end of wave, then indicator is TRUE if start 
+      # second dose is after start of wave 
+      # AND start of first dose is before the end of follow up
+      !is.na(start_vax_dose_1) & !is.na(start_vax_dose_2) ~
+        (start_vax_dose_2 > start_date_wave) &
+        (start_vax_dose_1 <= (start_date_wave + days(fu))),
       TRUE ~ FALSE),
-    ind_fu_vax_2 = case_when(
-      !is.na(start_vax_dose_2) ~
-        between_vectorised(start_vax_dose_2, start_date_wave, start_date_wave + days(fu)),
+    ind_fu_vax_2 =  case_when(
+      # third dose not given before end of wave, then indicator is TRUE if the
+      # start date of the second dose is before the end of follow up
+      !is.na(start_vax_dose_2) & is.na(start_vax_dose_3) ~ 
+        start_vax_dose_2 <= (start_date_wave + days(fu)),
+      # third dose given before end of wave, then indicator is TRUE if start 
+      # third dose is after start of wave
+      # AND start of second dose is before the end of follow up
+      !is.na(start_vax_dose_2) & !is.na(start_vax_dose_3) ~
+        (start_vax_dose_3 > start_date_wave) &
+        (start_vax_dose_2 <= (start_date_wave + days(fu))),
       TRUE ~ FALSE),
-    ind_fu_vax_3 = case_when(
-      !is.na(start_vax_dose_3) ~
-        between_vectorised(start_vax_dose_3, start_date_wave, start_date_wave + days(fu)),
+    ind_fu_vax_3 =  case_when(
+      # fourth dose not given before end of wave, then indicator is TRUE if the
+      # start date of the third dose is before the end of follow up
+      !is.na(start_vax_dose_3) & is.na(start_vax_dose_4) ~ 
+        start_vax_dose_3 <= (start_date_wave + days(fu)),
+      # fourth dose given before end of wave, then indicator is TRUE if start 
+      # fourth dose is after start of wave
+      # AND start of third dose is before the end of follow up
+      !is.na(start_vax_dose_3) & !is.na(start_vax_dose_4) ~
+        (start_vax_dose_4 > start_date_wave) &
+        (start_vax_dose_3 <= (start_date_wave + days(fu))),
       TRUE ~ FALSE),
-    ind_fu_vax_4 = case_when(
-      !is.na(start_vax_dose_4) ~
-        between_vectorised(start_vax_dose_4, start_date_wave, start_date_wave + days(fu)),
+    ind_fu_vax_4 =  case_when(
+      # fifth dose not given before end of wave, then indicator is TRUE if the
+      # start date of the fourth dose is before the end of follow up
+      !is.na(start_vax_dose_4) & is.na(start_vax_dose_5) ~ 
+        start_vax_dose_4 <= (start_date_wave + days(fu)),
+      # fifth dose given before end of wave, then indicator is TRUE if start 
+      # fifth dose is after start of wave
+      # AND start of fourth dose is before the end of follow up
+      !is.na(start_vax_dose_4) & !is.na(start_vax_dose_5) ~
+        start_vax_dose_5 > start_date_wave &
+        (start_vax_dose_4 <= (start_date_wave + days(fu))),
       TRUE ~ FALSE),
-    ind_fu_vax_5 = case_when(
-      !is.na(start_vax_dose_5) ~
-        between_vectorised(start_vax_dose_5, start_date_wave, start_date_wave + days(fu)),
+    ind_fu_vax_5 =  case_when(
+      # sixth dose not given before end of wave, then indicator is TRUE if the
+      # start date of the fifth dose is before the end of follow up
+      !is.na(start_vax_dose_5) & is.na(start_vax_dose_6) ~ 
+        start_vax_dose_5 <= (start_date_wave + days(fu)),
+      # sixth dose given before end of wave, then indicator is TRUE if start 
+      # sixth dose is after start of wave
+      # AND start of fifth dose is before the end of follow up
+      !is.na(start_vax_dose_5) & !is.na(start_vax_dose_6) ~
+        start_vax_dose_6 > start_date_wave &
+        (start_vax_dose_5 <= (start_date_wave + days(fu))),
       TRUE ~ FALSE),
-    ind_fu_vax_6 = case_when(
+    ind_fu_vax_6 =  case_when(
       !is.na(start_vax_dose_6) ~
-        between_vectorised(start_vax_dose_6, start_date_wave, start_date_wave + days(fu)),
+        start_vax_dose_6 <= (start_date_wave + days(fu)),
       TRUE ~ FALSE),
     # vax status start and end
     vax_status_start_1 = if_else(!is.na(start_vax_dose_1) & start_vax_dose_1 <= start_date_wave, 1, 0),
