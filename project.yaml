@@ -516,6 +516,15 @@ actions:
       moderately_sensitive: 
         csv: output/tables/pos_test_in_covid_deaths.csv
 
+# Detect fup issue
+  detect_fup_issue:
+    run: r:latest analysis/utils/test/detect_issue_sum_fups.R
+    needs: [process_data_wave1, process_data_wave2, process_data_wave3, process_data_wave4, process_data_wave5]
+    outputs:
+      highly_sensitive: 
+        csv: output/data_properties/vax_fup_issue.csv
+
+
 # Wave-specific HR plots
 #  plot_relrisks:
 #    run: r:latest -e 'rmarkdown::render("analysis/wave_HRs.Rmd", knit_root_dir = "/workspace", output_dir="/workspace/output/markdown")'
