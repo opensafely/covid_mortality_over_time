@@ -49,9 +49,9 @@ data_processed$wave2 <-
 data_processed$wave3 <-
   process_vax_data_wave3(data_processed$wave3)
 data_processed$wave4 <-
-  process_vax_data_wave4_5(data_processed$wave4)
+  process_vax_data_wave4(data_processed$wave4)
 data_processed$wave5 <-
-  process_vax_data_wave4_5(data_processed$wave5)
+  process_vax_data_wave5(data_processed$wave5)
 
 # creates data.frames (one for each wave)
 # with q2, q1 and q3 of start and end dose for each level of each subgroup
@@ -85,6 +85,19 @@ waves_vax_counts <-
   map2(.x = waves_vax_counts_all,
        .y = waves_vax_counts_subgroups,
        .f = ~ bind_rows(.x, .y))
+waves_vax_counts$wave2 <-
+  waves_vax_counts$wave2 %>%
+  mutate(across(starts_with("start_") & !"start_0", ~ "0"),
+         end_4 = "0", 
+         end_5 = "0")
+waves_vax_counts$wave3 <-
+  waves_vax_counts$wave3 %>%
+  mutate(start_4 = "0",
+         start_5 = "0",
+         end_5 = "0")
+waves_vax_counts$wave4 <-
+  waves_vax_counts$wave4 %>%
+  mutate(start_5 = "0")
 
 # creates data.frames (one for each wave)
 # with tables of fu with total follow up time & per dose for each subgroup

@@ -53,7 +53,7 @@ process_vax_data_wave2 <- function(data){
 process_vax_data_wave3 <- function(data){
   data <- 
     data %>%
-    max_doses(., 4, 4) %>%
+    max_doses(., 3, 4) %>%
     mutate(ind_fu_vax_4 = if_else(ind_fu_vax_5|
                                     ind_fu_vax_6, TRUE, ind_fu_vax_4),
            ind_fu_vax_5 = FALSE,
@@ -63,7 +63,17 @@ process_vax_data_wave3 <- function(data){
            fu_vax_6 = 0)
 }
 
-process_vax_data_wave4_5 <- function(data){
+process_vax_data_wave4 <- function(data){
+  data <- 
+    data %>%
+    max_doses(., 4, 5) %>%
+    mutate(ind_fu_vax_5 = if_else(ind_fu_vax_6, TRUE, ind_fu_vax_5),
+           ind_fu_vax_6 = FALSE,
+           fu_vax_5 = fu_vax_5 + fu_vax_6,
+           fu_vax_6 = 0)
+}
+
+process_vax_data_wave5 <- function(data){
   data <- 
     data %>%
     max_doses(., 5, 5) %>%

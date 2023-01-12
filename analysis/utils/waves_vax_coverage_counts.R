@@ -26,7 +26,7 @@ vax_counts <- function(data){
               end_4 = sum(doses_no_end == 4),
               end_5 = sum(doses_no_end == 5)) %>%
     mutate(across(where(is.integer),
-                  ~ case_when(. > 0 & . <= 7 ~ "[REDACTED]",
+                  ~ case_when(. <= 7 ~ "[REDACTED]",
                               TRUE ~ plyr::round_any(., 5) %>% as.character()))
     )
 }
