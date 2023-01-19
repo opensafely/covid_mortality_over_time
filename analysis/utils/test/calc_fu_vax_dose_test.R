@@ -6,20 +6,44 @@ source(here("analysis", "utils", "between_vectorised.R"))
 
 data <- 
   tibble(
-    start_date_wave = c(ymd("20200901"), ymd("20210601")),
-    covid_vax_date_1 = c(start_date_wave[1] + days(42), start_date_wave[2] - days(200)),
-    covid_vax_date_2 = c(covid_vax_date_1[1] + days(42), start_date_wave[2] - days(150)),
-    covid_vax_date_3 = c(covid_vax_date_2[1] + days(42), start_date_wave[2] - days(100)),
-    covid_vax_date_4 = c(covid_vax_date_3[1] + days(42), start_date_wave[2] - days(50)),
-    covid_vax_date_5 = c(covid_vax_date_4[1] + days(42), start_date_wave[2] - days(30)),
-    covid_vax_date_6 = c(covid_vax_date_5[1] + days(42), start_date_wave[2] - days(10)),
+    start_date_wave = c(ymd("20200901"),
+                        ymd("20210601"),
+                        ymd("20210101"),
+                        ymd("20200401")),
+    covid_vax_date_1 = c(start_date_wave[1] + days(42), 
+                         start_date_wave[2] - days(200),
+                         start_date_wave[3] - days(50),
+                         NA_Date_),
+    covid_vax_date_2 = c(covid_vax_date_1[1] + days(42),
+                         start_date_wave[2] - days(150),
+                         start_date_wave[3] - days(20),
+                         NA_Date_),
+    covid_vax_date_3 = c(covid_vax_date_2[1] + days(42),
+                         start_date_wave[2] - days(100),
+                         NA_Date_, 
+                         NA_Date_),
+    covid_vax_date_4 = c(covid_vax_date_3[1] + days(42),
+                         start_date_wave[2] - days(50),
+                         NA_Date_,
+                         NA_Date_),
+    covid_vax_date_5 = c(covid_vax_date_4[1] + days(42),
+                         start_date_wave[2] - days(30),
+                         NA_Date_,
+                         NA_Date_),
+    covid_vax_date_6 = c(covid_vax_date_5[1] + days(42),
+                         start_date_wave[2] - days(10),
+                         NA_Date_,
+                         NA_Date_),
     died_any_date = c(ymd("20200901") + days(200),
-                      ymd("20210601") + days(100)),
+                      ymd("20210601") + days(100),
+                      ymd("20210101") + days(100),
+                      ymd("20200901")),
     fu = (died_any_date - start_date_wave) %>% as.numeric()) 
 
 data <- 
   data %>%
   mutate(
+    not_any_vax = !ind_fu_vax_1 & !ind_fu_vax_2 & !ind_fu_vax_3 & !ind_fu_vax_4 & !ind_fu_vax_5 & !ind_fu_vax_6, 
     # add time lag
     start_vax_dose_1 = covid_vax_date_1 + days(14),
     start_vax_dose_2 = covid_vax_date_2 + days(14),
