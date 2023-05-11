@@ -1,0 +1,210 @@
+---
+title: "Wave-specific mortality rate visuals"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+## Import libraries
+library('here')
+library('tidyverse')
+library('cowplot')
+library("RColorBrewer")
+library('arrow')
+```
+
+#### Relative risk over time
+```{r, fig.width=11, fig.height=16}
+## Import data
+source(here("analysis", "relrisks_simplify.R"))
+relrisks <- read_feather(here("output/tables/relrisks_for_viz_tidied_simplified.feather"))
+## Set number of waves
+nwaves = 4
+
+## Reformat HRs to ggplot data frame
+## Wave 1 specified last to ensure that reference points in collated plot appear on top
+collated = data.frame(
+  Characteristic = rep(relrisks$Characteristic, nwaves),
+  Plot_category = rep(relrisks$Plot_category, nwaves),
+  Plot_group = rep(relrisks$Plot_group, nwaves),
+  HR = c(relrisks$HR.wave2, relrisks$HR.wave3, relrisks$HR.wave4, relrisks$HR.wave1),
+  LowerCI = c(relrisks$LowerCI.wave2, relrisks$LowerCI.wave3, relrisks$LowerCI.wave4, relrisks$LowerCI.wave1),
+  UpperCI = c(relrisks$UpperCI.wave2, relrisks$UpperCI.wave3, relrisks$UpperCI.wave4, relrisks$UpperCI.wave1),
+  Wave_full = c(rep("2 (Alpha)", nrow(relrisks)), rep("3 (Delta)", nrow(relrisks)),
+           rep("4 (Omicron)", nrow(relrisks)), rep("1 (WT)", nrow(relrisks))),
+  Wave = c(rep("2", nrow(relrisks)), rep("3", nrow(relrisks)), rep("4", nrow(relrisks)), rep("1", nrow(relrisks))),
+  ref = rep(relrisks$ref, nwaves)
+)
+
+## Set factor levels
+collated$Plot_category = factor(collated$Plot_category, levels = levels(relrisks$Plot_category))
+collated$Plot_group = factor(collated$Plot_group, levels = levels(relrisks$Plot_group))
+
+## Plot collated HRs
+collated$facet = "Wave-specific\nrelative mortality"
+wave_HRs = ggplot(collated, aes(y = HR, x = Plot_category, colour = Wave_full, shape = ref)) + 
+    geom_point(size = 3, alpha=0.8) +
+    geom_errorbar(aes(ymin=as.numeric(LowerCI), ymax=as.numeric(UpperCI)), colour = "#525252", width=0) + 
+    coord_flip() + facet_grid(Plot_group~facet, scales = "free_y", space = "free_y") + 
+    theme_bw() + theme(strip.background = element_blank()) + labs(colour = "Wave") +
+    geom_hline(yintercept=1, linetype="dotted") + 
+    scale_colour_manual(values = c("1 (WT)" = "#cc4c02", "2 (Alpha)" = "#74a9cf", "3 (Delta)" = "#3690c0", "4 (Omicron)" = "#0570b0")) +
+    scale_y_continuous(trans="log10") +
+    scale_shape_manual(values=c(19, 1)) + guides(shape = "none") +
+    ylab("HR") + xlab("") +
+    theme(axis.title = element_text(size=12), axis.text = element_text(size=12), 
+          strip.text.x = element_text(size=12), strip.text.y = element_blank(), 
+          legend.position = "left", legend.title = element_text(size=12), 
+          legend.text = element_text(size=12), panel.spacing = unit(0.7, "lines"))
+
+## Reformat HR ratios to ggplot data frame
+collated_delta = data.frame(
+  Characteristic = rep(relrisks$Characteristic, nwaves-1),
+  Plot_category = rep(relrisks$Plot_category, nwaves-1),
+  Plot_group = rep(relrisks$Plot_group, nwaves-1),
+  delta_HR = c(relrisks$HR_ratio.wave2, relrisks$HR_ratio.wave3, relrisks$HR_ratio.wave4),
+  Wave = c(rep("Wave 2\nAlpha", nrow(relrisks)), rep("Wave 3\nDelta", nrow(relrisks)), rep("Wave 4\nOmicron", nrow(relrisks))),
+  ref = rep(relrisks$ref, nwaves-1)
+)
+
+## Set factor levels
+collated_delta$Plot_category = factor(collated_delta$Plot_category, levels = levels(relrisks$Plot_category))
+collated_delta$Plot_group = factor(collated_delta$Plot_group, levels = levels(relrisks$Plot_group))
+collated_delta$Wave = factor(collated_delta$Wave, levels = unique(collated_delta$Wave))
+
+## Plot HR ratio: combined
+delta_HR = ggplot(collated_delta, aes(y = delta_HR, x = Plot_category, fill = Wave)) + 
+    geom_bar(stat="identity") + ggtitle("HR ratio vs wave 1 (WT)") +
+    coord_flip() + facet_grid(Plot_group~Wave, scales = "free_y", space = "free_y") + 
+    theme_bw() + theme(strip.background = element_blank()) + 
+    geom_hline(yintercept=1, linetype="dotted") + 
+    scale_fill_manual(values = c("#74a9cf","#3690c0","#0570b0","#045a8d")) +
+    scale_y_continuous(trans="log10", limits=c(0.1,10), breaks=c(0.2,1,5)) +
+    ylab("HR ratio") + xlab("") +
+    theme(axis.title = element_text(size=12), axis.text = element_text(size=12), plot.title = element_text(size=12, hjust=0.5), 
+          strip.text.x = element_text(size=12), strip.text.y = element_text(size=12), 
+          legend.position = "none", axis.text.y=element_blank(), panel.spacing = unit(0.7, "lines"))
+
+## Render grid of 3 plots above
+grid = plot_grid(wave_HRs, delta_HR, ncol=2, rel_widths=c(2.1,1.3), align="h", axis="tb")
+grid
+pdf(file = here("output", "figures", "HRR.pdf"), width = 11, height = 16)
+grid
+dev.off()
+```
+
+<br/><br/>
+
+#### Absolute risk over time
+```{r, fig.width=11, fig.height=18}
+## Import data
+source(here("analysis", "absrisks_simplify.R"))
+absrisks <- read_feather(here("output", "tables", "absrisks_for_viz_tidied_simplified.feather")) 
+```
+
+
+#### Incidence rates (IRs) per 1000 person-years and incidence rate ratios (IRRs)
+```{r, fig.width=11, fig.height=19}
+## Reformat IRs to ggplot data frame
+## Wave 1 specified last to ensure that reference points in collated plot appear on top
+collated = data.frame(
+   Characteristic = rep(absrisks$Characteristic, nwaves),
+   Plot_category = rep(absrisks$Plot_category, nwaves),
+   Plot_group = rep(absrisks$Plot_group, nwaves),
+   IR = c(absrisks$IR.wave2, absrisks$IR.wave3, absrisks$IR.wave4, absrisks$IR.wave1),
+   LowerCI = c(absrisks$LowerCI.wave2, absrisks$LowerCI.wave3, absrisks$LowerCI.wave4, absrisks$LowerCI.wave1),
+   UpperCI = c(absrisks$UpperCI.wave2, absrisks$UpperCI.wave3, absrisks$UpperCI.wave4, absrisks$UpperCI.wave1),
+   Wave_full = c(rep("2 (Alpha)", nrow(absrisks)), rep("3 (Delta)", nrow(absrisks)),
+           rep("4 (Omicron)", nrow(absrisks)), rep("1 (WT)", nrow(absrisks))),
+   Wave = c(rep("2", nrow(absrisks)), rep("3", nrow(absrisks)), rep("4", nrow(absrisks)), rep("1", nrow(absrisks)))
+)
+
+## Set factor levels
+collated$Plot_category = factor(collated$Plot_category, levels = levels(absrisks$Plot_category))
+collated$Plot_group = factor(collated$Plot_group, levels = levels(absrisks$Plot_group)) 
+
+## Revalue so that '+' (level 15) is the highest factor level
+absrisks$Plot_category = factor(absrisks$Plot_category, levels(absrisks$Plot_category)[c(14,1:13,15:58)])
+collated$Plot_category = factor(collated$Plot_category, levels(collated$Plot_category)[c(14,1:13,15:58)])
+
+## Plot collated IRs (log/nonlog)
+collated$facet = "Wave-specific\nmortality"
+wave_IRs_nonlog = ggplot(collated, aes(y = IR, x = Plot_category, colour = Wave_full)) + 
+     geom_point(size = 3, alpha=0.8) +
+     geom_errorbar(aes(ymin=as.numeric(LowerCI), ymax=as.numeric(UpperCI)), colour = "#525252", width=0) + 
+     coord_flip() + facet_grid(Plot_group~facet, scales = "free_y", space = "free_y") + labs(colour="Wave") + 
+     theme_bw() + theme(strip.background = element_blank()) + 
+     scale_colour_manual(values = c("1 (WT)" = "#cc4c02", "2 (Alpha)" = "#74a9cf", "3 (Delta)" = "#3690c0", "4 (Omicron)" = "#0570b0")) +
+     ylab("IR per 1,000 person-years") + xlab("") +
+     theme(axis.title = element_text(size=12), axis.text = element_text(size=12), 
+           strip.text.x = element_text(size=12), strip.text.y = element_blank(), 
+           legend.position = "left", legend.title = element_text(size=12), legend.text = element_text(size=12), panel.spacing = unit(0.7, "lines"))
+
+wave_IRs_log = ggplot(collated, aes(y = IR, x = Plot_category, colour = Wave_full)) + 
+     geom_point(size = 3, alpha=0.8) +
+     geom_errorbar(aes(ymin=as.numeric(LowerCI), ymax=as.numeric(UpperCI)), colour = "#525252", width=0) + 
+     coord_flip() + facet_grid(Plot_group~facet, scales = "free_y", space = "free_y") +  labs(colour="Wave") + 
+     theme_bw() + theme(strip.background = element_blank()) + 
+     scale_colour_manual(values = c("1 (WT)" = "#cc4c02", "2 (Alpha)" = "#74a9cf", "3 (Delta)" = "#3690c0", "4 (Omicron)" = "#0570b0")) +
+     scale_y_continuous(trans="log10") +
+     ylab("IR per 1,000 person-years") + xlab("") +
+     theme(axis.title = element_text(size=12), axis.text = element_text(size=12), 
+           strip.text.x = element_text(size=12), strip.text.y = element_blank(), 
+           legend.position = "left", legend.title = element_text(size=12), legend.text = element_text(size=12), panel.spacing = unit(0.7, "lines"))
+
+## Reformat IR ratios to ggplot data frame
+collated_delta = data.frame(
+  Characteristic = rep(absrisks$Characteristic, nwaves-1),
+  Plot_category = rep(absrisks$Plot_category, nwaves-1),
+  Plot_group = rep(absrisks$Plot_group, nwaves-1),
+  delta_IR = c(absrisks$IR_ratio.wave2, absrisks$IR_ratio.wave3, absrisks$IR_ratio.wave4),
+  Wave = c(rep("Wave 2\nAlpha", nrow(absrisks)), rep("Wave 3\nDelta", nrow(absrisks)), rep("Wave 4\nOmicron", nrow(absrisks)))
+)
+
+## Set factor levels
+collated_delta$Plot_category = factor(collated_delta$Plot_category, levels = levels(absrisks$Plot_category))
+collated_delta$Plot_group = factor(collated_delta$Plot_group, levels = levels(absrisks$Plot_group))
+collated_delta$Wave = factor(collated_delta$Wave, levels = unique(collated_delta$Wave))
+
+# Set facet labels
+facet_labs = c(as.character(unique(collated_delta$Plot_group)[1:10]), rep("", 14))
+names(facet_labs) <- unique(collated_delta$Plot_group)
+
+## Plot HR ratio: combined
+delta_IR = ggplot(collated_delta, aes(y = delta_IR, x = Plot_category, fill = Wave)) + 
+    geom_bar(stat="identity") + ggtitle("IRR vs wave 1 (WT)") +
+    coord_flip() + facet_grid(Plot_group~Wave, scales = "free_y", space = "free_y", labeller = labeller(Plot_group = facet_labs)) + 
+    theme_bw() + theme(strip.background = element_blank()) + 
+    geom_hline(yintercept=1, linetype="dotted") + 
+    scale_fill_manual(values = c("#74a9cf","#3690c0","#0570b0","#045a8d")) +
+    scale_y_continuous(trans="log10") +
+    ylab("IRR") + xlab("") +
+    theme(axis.title = element_text(size=12), axis.text = element_text(size=12), plot.title = element_text(size=12, hjust=0.5), 
+          strip.text.x = element_text(size=12), strip.text.y = element_text(size=12),
+          legend.position = "none", axis.text.y=element_blank(), panel.spacing = unit(0.7, "lines"))
+
+## Render grid of plots above
+grid = plot_grid(wave_IRs_nonlog, delta_IR, ncol=2, rel_widths=c(2.1,1.5), align="h", axis="tb")
+grid
+pdf(file = here("output", "figures", "IRR_nonlog.pdf"),width = 11, height = 19)
+grid
+dev.off()
+```
+
+#### Same plot with incidence rates on log scale
+```{r, fig.width=11, fig.height=19}
+grid = plot_grid(wave_IRs_log, delta_IR, ncol=2, rel_widths=c(2.1,1.3), align="h", axis="tb")
+grid
+pdf(file = here("output", "figures", "IRR_nonlog.pdf"), width = 11, height = 19)
+grid
+dev.off()
+```
+<br/><br/>
+
+<br/><br/>
+
+#### Session info
+```{r}
+print(sessionInfo())
+```
